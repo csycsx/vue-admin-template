@@ -94,13 +94,37 @@ export const constantRoutes = [
     path: '/audit',
     component: Layout,
     name:"Audit",
-    meta: {roles: ['admin','leader']},
+    meta: {title: '表单审核', icon: 'el-icon-document',roles: ['admin','leader']},
     children: [
+      // {
+      //   path: 'auditlist',
+      //   name: 'AuditList',
+      //   component: () => import('@/views/audit/AuditList'),
+      //   meta: { title: '表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
+      // },
       {
-        path: 'auditlist',
-        name: 'AuditList',
-        component: () => import('@/views/audit/AuditList'),
-        meta: { title: '表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
+        path: 'dpAuditlist',
+        name: 'DpAuditList',
+        component: () => import('@/views/audit/DpAuditList'),
+        meta: { title: '部门表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
+      },
+      {
+        path: 'hrAuditlist',
+        name: 'HrAuditList',
+        component: () => import('@/views/audit/HrAuditList'),
+        meta: { title: '人事处表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
+      },
+      {
+        path: 'scAuditlist',
+        name: 'ScAuditList',
+        component: () => import('@/views/audit/ScAuditList'),
+        meta: { title: '校领导表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
+      },
+      {
+        path: 'detailLeave',
+        name: 'DetailLeave',
+        component: () => import('@/views/audit/DetailLeave'),
+        meta: { title: '表单审核详情', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
       }
     ]
   },

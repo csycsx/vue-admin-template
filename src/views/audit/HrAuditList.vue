@@ -6,6 +6,7 @@
         <el-select v-model="select" slot="prepend" placeholder="请选择">
           <el-option label="工号" value="1"></el-option>
           <el-option label="姓名" value="2"></el-option>
+          <el-option label="部门" value="3"></el-option>
         </el-select>
         <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
       </el-input>
@@ -18,41 +19,41 @@
         </div>
 
         <el-table ref="filterTable" :data="tableData" border style="width: 100%" @row-click="rowChick">
-          <el-table-column prop="userid" label="工号" width="100">
+          <el-table-column prop="user.userId" label="工号" width="100">
           </el-table-column>
-          <el-table-column prop="username" label="姓名" width="100">
+          <el-table-column prop="user.userName" label="姓名" width="100">
           </el-table-column>
-          <el-table-column prop="yuanxi" label="院系" width="150">
+          <el-table-column prop="user.yuanXi" label="院系" width="150">
           </el-table-column>
-          <el-table-column prop="leave_type" label="请假类型" width="100">
+          <el-table-column prop="leaveType" label="请假类型" width="100">
           </el-table-column>
-          <el-table-column prop="leave_start_time" label="起始时间">
+          <el-table-column prop="leaveStartTime" label="起始时间" sortable>
           </el-table-column>
-          <el-table-column prop="leave_end_time" label="结束时间">
+          <el-table-column prop="leaveEndTime" label="结束时间" sortable>
           </el-table-column>
-          <el-table-column prop="status" label="状态" width="100"
-            :filters="[{ text: '待审核', value: '待审核' }, { text: '审核完成', value: '审核完成' }]" :filter-method="filterTag"
+          <el-table-column prop="hrStatus" label="状态" width="100"
+            :filters="[{ text: '待审核', value: '待审核' }, { text: '已审核', value: '已审核' }]" :filter-method="filterTag"
             filter-placement="bottom-end">
             <template slot-scope="scope">
-              <el-tag :type="scope.row.status === '待审核' ? 'danger' : 'success'" disable-transitions>
-                {{scope.row.status}}
+              <el-tag :type="scope.row.hrStatus === '待审核' ? 'danger' : 'success'" disable-transitions>
+                {{scope.row.hrStatus}}
               </el-tag>
             </template>
           </el-table-column>
         </el-table>
-
       </el-card>
-
     </div>
   </div>
 </template>
 
 <script>
+import { findAllLeaveFormByUnfinishedHR, findLeaveFormByUserid, findLeaveFormByUsername, findLeaveFormByDeptAndUnfinishedHR } from "../../api/audit";
 export default {
   data () {
     return {
       input: '',
       select: '',
+      length: 0,
 
 
       tableData: [{
@@ -87,12 +88,10 @@ export default {
     }
   },
   created () {
-    let param = {
-      id: this.$store.getters.id, // 获取 store中的 id
-      role: this.$store.getters.role, // 获取 store中的 role
-      yuanxi: this.$store.getters.yuanxi, // 获取 store中的 yuanxi 院系
-    };
-    this.init(param);
+    //let yuanxi = this.$store.getters.yuanxi
+    let yuanxi = "校办公室"
+
+    this.init(yuanxi);
 
   },
   mounted () { },
@@ -105,7 +104,7 @@ export default {
       return row[property] === value;
     },
     //搜索接口
-    search: async function () {
+    search () {
       console.log(this.input);
       console.log(this.select);
       if (this.select === "") {
@@ -122,6 +121,61 @@ export default {
       }
       else {
         //调用后端接口
+        if (this.select == 1) {
+          findLeaveFormByUserid({ "userid": this.input }).then(res => {
+            console.log(res);
+            if (res.code === 200) {
+              this.length = res.data.length;
+              this.tableData = res.data
+              for (let leave of res.data) {
+                if (leave.hrStatus == "0") {
+                  leave.hrStatus = "待审核"
+                } else {
+                  leave.hrStatus = "已审核"
+                }
+
+
+              }
+              console.log(res.data)
+            }
+          })
+
+        }
+        else if (this.select === "2") {
+          findLeaveFormByUsername({ "username": this.input }).then(res => {
+            console.log(res);
+            if (res.code === 200) {
+              this.length = res.data.length;
+              this.tableData = res.data
+              for (let leave of res.data) {
+                if (leave.hrStatus == "0") {
+                  leave.hrStatus = "待审核"
+                } else {
+                  leave.hrStatus = "已审核"
+                }
+              }
+              console.log(res.data)
+            }
+          })
+        }
+        else {
+          findLeaveFormByDeptAndUnfinishedHR({ "department": this.input }).then(res => {
+            console.log(res);
+            if (res.code === 200) {
+              this.length = res.data.length;
+              this.tableData = res.data
+              for (let leave of res.data) {
+                if (leave.hrStatus == "0") {
+                  leave.hrStatus = "待审核"
+                } else {
+                  leave.hrStatus = "已审核"
+                }
+              }
+              console.log(res.data)
+            }
+          })
+
+        }
 
       }
     },
@@ -133,14 +187,32 @@ export default {
       this.$router.push({
         name: 'DetailLeave',
         params: {
-          id: row.id,
+          info: row,
           role: 2,
           yuanxi: "计算机",
         }
       })
     },
 
-    init: async function (params) {
+    init (yuanxi) {
+      console.log("初始化院系是：", yuanxi);
+      findAllLeaveFormByUnfinishedHR().then(res => {
+        console.log(res);
+        if (res.code === 200) {
+          this.length = res.data.length;
+          this.tableData = res.data
+          for (let leave of res.data) {
+            if (leave.hrStatus == "0") {
+              leave.hrStatus = "待审核"
+            } else if (leave.hrStatus == "1") {
+              leave.hrStatus = "已审核"
+            }
+          }
+          console.log(res.data)
+        }
+      })
+
+
 
 
     }
