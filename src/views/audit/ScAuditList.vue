@@ -22,7 +22,7 @@
           </el-table-column>
           <el-table-column prop="user.userName" label="姓名" width="100">
           </el-table-column>
-          <el-table-column prop="user.yuanXi" label="院系" width="150">
+          <el-table-column prop="user.yuanXi" label="学院(部门)" width="150">
           </el-table-column>
           <el-table-column prop="leaveType" label="请假类型" width="100">
           </el-table-column>
@@ -30,12 +30,14 @@
           </el-table-column>
           <el-table-column prop="leaveEndTime" label="结束时间" sortable>
           </el-table-column>
-          <el-table-column prop="schoolStatus" label="状态" width="100"
-            :filters="[{ text: '待审核', value: '待审核' }, { text: '已审核', value: '已审核' }]" :filter-method="filterTag"
-            filter-placement="bottom-end">
+          <el-table-column prop="showStatus" label="状态" width="100"
+            :filters="[{ text: '待审核', value: '待审核' }, { text: '已审核', value: '已审核' },{ text: '未流经', value: '未流经' }]"
+            :filter-method="filterTag" filter-placement="bottom-end">
             <template slot-scope="scope">
-              <el-tag :type="scope.row.schoolStatus === '待审核' ? 'danger' : 'success'" disable-transitions>
-                {{scope.row.schoolStatus}}
+              <el-tag
+                :type="scope.row.showStatus === '待审核' ? 'danger' : (scope.row.showStatus === '未流经' ? 'info' : 'success')"
+                disable-transitions>
+                {{scope.row.showStatus}}
               </el-tag>
             </template>
           </el-table-column>
@@ -46,13 +48,16 @@
 </template>
 
 <script>
-import { findLeaveFormByDeptAndUnfinishedSchool, findLeaveFormByUserid, findLeaveFormByUsername } from "../../api/audit";
+import { resolve } from "path";
+import { reject } from "q";
+import { findLeaveFormByDeptAndUnfinishedSchool, findSchoolDepartmentById, findLeaveFormByUsernameInSchool, findLeaveFormByUseridInSchool } from "../../api/audit";
 export default {
   data () {
     return {
       input: '',
       select: '',
       length: 0,
+      yuanxi: "",
 
 
       tableData: [{
@@ -88,38 +93,86 @@ export default {
   },
   created () {
     //let yuanxi = this.$store.getters.yuanxi
-    let yuanxi = "校办公室"
-
-    this.init(yuanxi);
-
+    let id = "12340000"
+    // this.getYuanxi(id)
+    // console.log(this.yuanxi)
+    this.init(id)
   },
-  mounted () { },
+  mounted () {
+  },
   methods: {
     filterTag (value, row) {
-      return row.status === value;
+      return row.showStatus === value;
     },
     filterHandler (value, row, column) {
       const property = column['property'];
       return row[property] === value;
     },
     //搜索接口
-    search: async function () {
+    search () {
       console.log(this.input);
       console.log(this.select);
       if (this.select === "") {
-        this.$Notice.error({
-          title: "请选择搜索类型",
-          duration: 2
+        this.$notify({
+          title: '警告',
+          message: '请选择搜索类别',
+          type: 'warning'
         });
       }
       else if (this.input === "") {
-        this.$Notice.error({
-          title: "请输入搜索内容",
-          duration: 2
+        this.$notify({
+          title: '警告',
+          message: '请填写搜索内容',
+          type: 'warning'
         });
       }
       else {
         //调用后端接口
+        if (this.select === "1") {
+          findLeaveFormByUseridInSchool({
+            "userid": this.input,
+            "department": this.yuanxi
+          }).then(res => {
+            console.log(res);
+            if (res.code === 200) {
+              this.length = res.data.length;
+              this.tableData = res.data
+              for (let leave of res.data) {
+                if (leave.schoolStatus === "0" && leave.hrStatus === "1") {
+                  leave.showStatus = "待审核"
+                } else if (leave.schoolStatus === "1") {
+                  leave.showStatus = "已审核"
+                } else {
+                  leave.showStatus = "未流经"
+                }
+              }
+              console.log(res.data)
+            }
+          })
+        }
+        else if (this.select === "2") {
+          findLeaveFormByUsernameInSchool({
+            "username": this.input,
+            "department": this.yuanxi
+          }).then(res => {
+            console.log(res);
+            if (res.code === 200) {
+              this.length = res.data.length;
+              this.tableData = res.data
+              for (let leave of res.data) {
+                if (leave.schoolStatus === "0" && leave.hrStatus === "1") {
+                  leave.showStatus = "待审核"
+                } else if (leave.schoolStatus === "1") {
+                  leave.showStatus = "已审核"
+                } else {
+                  leave.showStatus = "未流经"
+                }
+              }
+
+              console.log(res.data)
+            }
+          })
+        }
 
       }
     },
@@ -138,32 +191,44 @@ export default {
       })
     },
 
-    init (yuanxi) {
-      console.log("初始化院系是：", yuanxi);
-      findLeaveFormByDeptAndUnfinishedSchool({ "department": yuanxi }).then(res => {
+    getYuanxi (id) {
+      console.log("id:", id);
+      findSchoolDepartmentById({ "school_leader_id": id }).then(res => {
+        console.log("res", res.data[0]);
+        if (res.code === 200) {
+          this.yuanxi = res.data[0].department;
+          this.getInfo()
+        }
+      })
+      console.log(this.yuanxi)
+
+    },
+    getInfo () {
+      console.log(this.yuanxi)
+      findLeaveFormByDeptAndUnfinishedSchool({ "department": this.yuanxi }).then(res => {
         console.log(res);
         if (res.code === 200) {
           this.length = res.data.length;
           this.tableData = res.data
           for (let leave of res.data) {
-            if (leave.schoolStatus == "0") {
-              leave.schoolStatus = "待审核"
+            if (leave.schoolStatus === "0" && leave.hrStatus === "1") {
+              leave.showStatus = "待审核"
+            } else if (leave.schoolStatus === "1") {
+              leave.showStatus = "已审核"
             } else {
-              leave.schoolStatus = "已审核"
+              leave.showStatus = "未流经"
             }
           }
           console.log(res.data)
         }
       })
 
+    },
 
-
+    init (id) {
+      this.getYuanxi(id);
 
     }
-
-
-
-
   }
 }
 </script>

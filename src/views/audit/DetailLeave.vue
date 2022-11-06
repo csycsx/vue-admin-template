@@ -5,7 +5,6 @@
       <!-- 审核步骤 -->
       <div class="box-step">
         <el-steps :active=active finish-status="success" align-center>
-
           <el-step title="部门人事初审"></el-step>
           <el-step title="部门负责人审核"></el-step>
           <el-step v-if="step>2" title="人事处科员初审"></el-step>
@@ -29,7 +28,7 @@
           </el-row>
           <el-row class="row-box">
             <el-col :span="12">
-              <div class="name-box">学院：<span class="content-box">{{info.user.yuanXi}}</span></div>
+              <div class="name-box">学院(部门)：<span class="content-box">{{info.user.yuanXi}}</span></div>
             </el-col>
             <el-col :span="12">
               <div class="name-box">请假起始时间：<span class="content-box">{{info.leaveStartTime}}</span></div>
@@ -58,8 +57,35 @@
 
         </el-card>
       </div>
+      <!-- 审核详情 -->
+      <div class="detail-box">
+        <el-button type="text" @click="dialogVisible = true">点击查看审核详情</el-button>
+
+        <el-dialog title="审核详情" :visible.sync="dialogVisible" width="60%" :before-close="handleClose">
+          <el-collapse v-model="activeNames" @change="handleChange">
+            <el-collapse-item title="部门人事初审信息" name="1" v-if="active>0">
+              <StepInfo :step="1" />
+
+            </el-collapse-item>
+            <el-collapse-item title="部门负责人审核信息" name="2" v-if="active>1">
+              <StepInfo :step="2" />
+
+            </el-collapse-item>
+            <el-collapse-item title="人事处科员初审信息" name="3" v-if="active>2">
+              <StepInfo :step="3" />
+            </el-collapse-item>
+            <el-collapse-item title="人事处负责人审核信息" name="4" v-if="active>3">
+              <StepInfo :step="4" />
+            </el-collapse-item>
+            <el-collapse-item title="校领导审核信息" name="4" v-if="active>4">
+              <StepInfo :step="5" />
+            </el-collapse-item>
+          </el-collapse>
+
+        </el-dialog>
+      </div>
       <!-- 审核结果 -->
-      <div class="check-box">
+      <div class="check-box" v-if="isShow ">
         <el-form ref="form" :model="check" label-width="80px" class="check-form">
           <el-form-item label="审核结果">
             <el-radio-group v-model="check.result">
@@ -74,7 +100,14 @@
             <el-button type="primary" @click="onSubmit">确认提交</el-button>
           </el-form-item>
         </el-form>
-
+      </div>
+      <div class="check-notice" v-if="isFinish===0 && isShow===0  ">
+        <i class="el-icon-warning"></i>
+        温馨提示：由于还有未完成的审核流程，因此目前还无需您审核。
+      </div>
+      <div class="check-finish" v-if="isFinish===1 ">
+        <i class="el-icon-success"></i>
+        温馨提示：您已完成审核，无需再审核！
       </div>
 
     </div>
@@ -85,13 +118,15 @@
 <script type="text/ecmascript-6">
 import { init } from 'events';
 import { SingleleaveAudit } from "../../api/audit";
-
+import StepInfo from "./components/StepInfo";
 export default {
+  props: ['info'],
+  components: { StepInfo },
   data () {
     return {
       role: "",
       userid: "",
-      info: {},
+      //info: {},
       step: 2,
       active: 0,
       department_status: "",
@@ -101,7 +136,17 @@ export default {
         result: "",
         recomment: "",
 
-      }
+      },
+      isShow: 0,
+      isFinish: 0,
+      dialogVisible: false,
+      activeNames: ['1'],
+      stepInfo1: {},
+      stepInfo2: {},
+      stepInfo3: {},
+      stepInfo4: {},
+      stepInfo5: {},
+
 
     }
   },
@@ -109,7 +154,7 @@ export default {
     //let yuanxi = this.$store.getters.yuanxi
     let yuanxi = "校办公室"
     //let yuanxi = this.$store.getters.yuanxi
-    this.role = "1";
+    this.role = "2";
     this.userid = "20222222";
 
 
@@ -121,20 +166,19 @@ export default {
     this.init();
   },
   methods: {
+    handleChange (val) {
+      console.log(val);
+    },
+    handleClose (done) {
+      this.dialogVisible = false;
+    },
     downlode () {
       let a = document.createElement('a');
       a.href = this.leave_material
       a.click();
     },
     onSubmit () {
-      // let data = {
-      //   "id": this.info.id,
-      //   "recommend": this.check.recomment,
-      //   "result": this.check.result,
-      //   "role": this.role,
-      //   "userid": this.userId
-      // }
-      // console.log(data);
+
       SingleleaveAudit({
         "id": this.info.id,
         "recommend": this.check.recomment,
@@ -172,12 +216,27 @@ export default {
     },
 
     init () {
+      //判断需要几步
       if (this.info.hrStatus !== "2") this.step += 2;
       if (this.info.schoolStatus !== "2") this.step += 1;
       console.log(this.step);
-      // if(this.step===2){
-      //   if(this.info.hrStatus)
-      // }
+      //判断是否能审核
+      if (this.info.showStatus === "待审核") this.isShow = 1;
+
+      //判断当前正在第几步
+      if (this.info.departmentStatus === "0") this.active = 0;
+      else if (this.info.departmentStatus === "3") this.active = 1;
+      else if (this.info.departmentStatus === "1") {
+        if (this.info.hrStatus === "2") { this.active = 2; this.isFinish = 1; }
+        else if (this.info.hrStatus === "0") { this.active = 2; }
+        else if (this.info.hrStatus === "3") { this.active = 3; }
+        else {
+          if (this.info.schoolStatus === "2") { this.active = 4; this.isFinish = 1; }
+          else if (this.info.schoolStatus === "0") this.active = 4;
+          else this.active = 5;
+        }
+      }
+
 
 
     }
@@ -187,7 +246,7 @@ export default {
 
 <style scoped>
 .container {
-  background-color: #f5f7fa;
+  /* background-color: #f5f7fa; */
   padding: 16px;
 }
 .box {
@@ -231,6 +290,7 @@ export default {
 
 .box-card ::v-deep .el-card__body {
   margin: 0 20px;
+  padding-left: 10rem;
 }
 .info-box {
   width: 100%;
@@ -243,7 +303,6 @@ export default {
 .name-box {
   font-size: 14px;
   font-weight: 600;
-  margin-left: 200px;
 }
 .content-box {
   color: #5c5a5a;
@@ -251,5 +310,23 @@ export default {
 }
 .check-box {
   width: 80%;
+}
+
+.check-notice {
+  width: 80%;
+  color: red;
+}
+.check-finish {
+  width: 80%;
+  color: #67c23a;
+}
+.detail-box::v-deep .el-dialog__title {
+  font-weight: 700;
+}
+.el-collapse::v-deep .el-collapse-item__header {
+  font-weight: 700;
+}
+.el-collapse::v-deep .el-collapse-item__content {
+  padding-bottom: 0;
 }
 </style>

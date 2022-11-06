@@ -123,6 +123,7 @@ export const constantRoutes = [
       {
         path: 'detailLeave',
         name: 'DetailLeave',
+        props:true ,
         component: () => import('@/views/audit/DetailLeave'),
         meta: { title: '表单审核详情', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
       }

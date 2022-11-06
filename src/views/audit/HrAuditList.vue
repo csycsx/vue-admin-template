@@ -23,7 +23,7 @@
           </el-table-column>
           <el-table-column prop="user.userName" label="姓名" width="100">
           </el-table-column>
-          <el-table-column prop="user.yuanXi" label="院系" width="150">
+          <el-table-column prop="user.yuanXi" label="学院(部门)" width="150">
           </el-table-column>
           <el-table-column prop="leaveType" label="请假类型" width="100">
           </el-table-column>
@@ -31,12 +31,14 @@
           </el-table-column>
           <el-table-column prop="leaveEndTime" label="结束时间" sortable>
           </el-table-column>
-          <el-table-column prop="hrStatus" label="状态" width="100"
-            :filters="[{ text: '待审核', value: '待审核' }, { text: '已审核', value: '已审核' }]" :filter-method="filterTag"
-            filter-placement="bottom-end">
+          <el-table-column prop="showStatus" label="状态" width="100"
+            :filters="[{ text: '待审核', value: '待审核' }, { text: '已审核', value: '已审核' },{ text: '未流经', value: '未流经' }]"
+            :filter-method="filterTag" filter-placement="bottom-end">
             <template slot-scope="scope">
-              <el-tag :type="scope.row.hrStatus === '待审核' ? 'danger' : 'success'" disable-transitions>
-                {{scope.row.hrStatus}}
+              <el-tag
+                :type="scope.row.showStatus === '待审核' ? 'danger' : (scope.row.showStatus === '未流经' ? 'info' : 'success')"
+                disable-transitions>
+                {{scope.row.showStatus}}
               </el-tag>
             </template>
           </el-table-column>
@@ -47,13 +49,14 @@
 </template>
 
 <script>
-import { findAllLeaveFormByUnfinishedHR, findLeaveFormByUserid, findLeaveFormByUsername, findLeaveFormByDeptAndUnfinishedHR } from "../../api/audit";
+import { findAllLeaveFormByUnfinishedHR, findLeaveFormByUseridInHR, findLeaveFormByUsernameInHR, findLeaveFormByDeptAndUnfinishedHR } from "../../api/audit";
 export default {
   data () {
     return {
       input: '',
       select: '',
       length: 0,
+      role: "",
 
 
       tableData: [{
@@ -90,6 +93,7 @@ export default {
   created () {
     //let yuanxi = this.$store.getters.yuanxi
     let yuanxi = "校办公室"
+    this.role = "4"
 
     this.init(yuanxi);
 
@@ -97,7 +101,7 @@ export default {
   mounted () { },
   methods: {
     filterTag (value, row) {
-      return row.status === value;
+      return row.showStatus === value;
     },
     filterHandler (value, row, column) {
       const property = column['property'];
@@ -108,33 +112,50 @@ export default {
       console.log(this.input);
       console.log(this.select);
       if (this.select === "") {
-        this.$Notice.error({
-          title: "请选择搜索类型",
-          duration: 2
+        this.$notify({
+          title: '警告',
+          message: '请选择搜索类别',
+          type: 'warning'
         });
       }
       else if (this.input === "") {
-        this.$Notice.error({
-          title: "请输入搜索内容",
-          duration: 2
+        this.$notify({
+          title: '警告',
+          message: '请填写搜索内容',
+          type: 'warning'
         });
       }
       else {
         //调用后端接口
         if (this.select == 1) {
-          findLeaveFormByUserid({ "userid": this.input }).then(res => {
+          findLeaveFormByUseridInHR({
+            "userid": this.input
+          }).then(res => {
             console.log(res);
             if (res.code === 200) {
               this.length = res.data.length;
               this.tableData = res.data
-              for (let leave of res.data) {
-                if (leave.hrStatus == "0") {
-                  leave.hrStatus = "待审核"
-                } else {
-                  leave.hrStatus = "已审核"
+              if (this.role === "3") {
+                for (let leave of res.data) {
+                  if (leave.hrStatus === "0" && leave.departmentStatus === "1") {
+                    leave.showStatus = "待审核"
+                  } else if (leave.hrStatus === "0" && leave.departmentStatus !== "1") {
+                    leave.showStatus = "未流经"
+                  } else {
+                    leave.showStatus = "已审核"
+                  }
                 }
-
-
+              }
+              if (this.role === "4") {
+                for (let leave of res.data) {
+                  if (leave.hrStatus === "3") {
+                    leave.showStatus = "待审核"
+                  } else if (leave.hrStatus === "0") {
+                    leave.showStatus = "未流经"
+                  } else {
+                    leave.showStatus = "已审核"
+                  }
+                }
               }
               console.log(res.data)
             }
@@ -142,16 +163,31 @@ export default {
 
         }
         else if (this.select === "2") {
-          findLeaveFormByUsername({ "username": this.input }).then(res => {
+          findLeaveFormByUsernameInHR({ "username": this.input }).then(res => {
             console.log(res);
             if (res.code === 200) {
               this.length = res.data.length;
               this.tableData = res.data
-              for (let leave of res.data) {
-                if (leave.hrStatus == "0") {
-                  leave.hrStatus = "待审核"
-                } else {
-                  leave.hrStatus = "已审核"
+              if (this.role === "3") {
+                for (let leave of res.data) {
+                  if (leave.hrStatus === "0" && leave.departmentStatus === "1") {
+                    leave.showStatus = "待审核"
+                  } else if (leave.hrStatus === "0" && leave.departmentStatus !== "1") {
+                    leave.showStatus = "未流经"
+                  } else {
+                    leave.showStatus = "已审核"
+                  }
+                }
+              }
+              if (this.role === "4") {
+                for (let leave of res.data) {
+                  if (leave.hrStatus === "3") {
+                    leave.showStatus = "待审核"
+                  } else if (leave.hrStatus === "0") {
+                    leave.showStatus = "未流经"
+                  } else {
+                    leave.showStatus = "已审核"
+                  }
                 }
               }
               console.log(res.data)
@@ -164,13 +200,30 @@ export default {
             if (res.code === 200) {
               this.length = res.data.length;
               this.tableData = res.data
-              for (let leave of res.data) {
-                if (leave.hrStatus == "0") {
-                  leave.hrStatus = "待审核"
-                } else {
-                  leave.hrStatus = "已审核"
+              console.log("1111", this.role)
+              if (this.role === "3") {
+                for (let leave of res.data) {
+                  if (leave.hrStatus === "0" && leave.departmentStatus === "1") {
+                    leave.showStatus = "待审核"
+                  } else if (leave.hrStatus === "0" && leave.departmentStatus !== "1") {
+                    leave.showStatus = "未流经"
+                  } else {
+                    leave.showStatus = "已审核"
+                  }
                 }
               }
+              if (this.role === "4") {
+                for (let leave of res.data) {
+                  if (leave.hrStatus === "3") {
+                    leave.showStatus = "待审核"
+                  } else if (leave.hrStatus === "0") {
+                    leave.showStatus = "未流经"
+                  } else {
+                    leave.showStatus = "已审核"
+                  }
+                }
+              }
+
               console.log(res.data)
             }
           })
@@ -201,11 +254,26 @@ export default {
         if (res.code === 200) {
           this.length = res.data.length;
           this.tableData = res.data
-          for (let leave of res.data) {
-            if (leave.hrStatus == "0") {
-              leave.hrStatus = "待审核"
-            } else if (leave.hrStatus == "1") {
-              leave.hrStatus = "已审核"
+          if (this.role === "3") {
+            for (let leave of res.data) {
+              if (leave.hrStatus === "0" && leave.departmentStatus === "1") {
+                leave.showStatus = "待审核"
+              } else if (leave.hrStatus === "0" && leave.departmentStatus !== "1") {
+                leave.showStatus = "未流经"
+              } else {
+                leave.showStatus = "已审核"
+              }
+            }
+          }
+          if (this.role === "4") {
+            for (let leave of res.data) {
+              if (leave.hrStatus === "3") {
+                leave.showStatus = "待审核"
+              } else if (leave.hrStatus === "0") {
+                leave.showStatus = "未流经"
+              } else {
+                leave.showStatus = "已审核"
+              }
             }
           }
           console.log(res.data)
