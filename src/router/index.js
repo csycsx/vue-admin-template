@@ -59,12 +59,12 @@ export const constantRoutes = [
     redirect: '/dashboard',
     name: 'HomePage',
     meta:{
-      roles:['admin','user','leader']
+      roles:['admin','user','department_auditor','hr_auditor','leader_auditor']
     },
     children: [{
       path: 'dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: '首页', icon: 'el-icon-user' ,roles: ['admin','user','leader']}
+      meta: { title: '首页', icon: 'el-icon-user' ,roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']}
     }]
   },
 
@@ -73,19 +73,19 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/apply/leaveapply',
     name: 'Apply',
-    meta: { title: '表单申请', icon: 'el-icon-document',roles: ['admin','user','leader'] },
+    meta: { title: '表单申请', icon: 'el-icon-document',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
     children: [
       {
         path: 'leaveapply',
         name: 'LeaveApply',
         component: () => import('@/views/apply/LeaveApply'),
-        meta: { title: '请假申请', icon: 'el-icon-top-right' ,roles: ['admin','user','leader']}
+        meta: { title: '请假申请', icon: 'el-icon-top-right' ,roles:['admin','user','department_auditor','hr_auditor','leader_auditor']}
       },
       {
         path: 'revokeapply',
         name: 'revokeApply',
         component: () => import('@/views/apply/RevokeApply'),
-        meta: { title: '销假申请', icon: 'el-icon-bottom-left',roles: ['admin','user','leader'] }
+        meta: { title: '销假申请', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']}
       }
     ]
   },
@@ -95,25 +95,25 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/apply/leaverecord',
     name: 'Record',
-    meta: { title: '个人记录', icon: 'el-icon-document',roles: ['admin','user','leader'] },
+    meta: { title: '个人记录', icon: 'el-icon-document',roles:['admin','user','department_auditor','hr_auditor','leader_auditor'] },
     children: [
       {
         path: 'leaverecord',
         name: 'LeaveRecord',
         component: () => import('@/views/apply/LeaveRecord'),
-        meta: { title: '个人请假申请记录', icon: 'el-icon-top-right' ,roles: ['admin','user','leader']}
+        meta: { title: '个人请假申请记录', icon: 'el-icon-top-right' ,roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']}
       },
       {
         path: 'revokeapply',
         name: 'revokeApply',
         component: () => import('@/views/apply/RevokeRecord'),
-        meta: { title: '个人销假申请记录', icon: 'el-icon-bottom-left',roles: ['admin','user','leader'] }
+        meta: { title: '个人销假申请记录', icon: 'el-icon-bottom-left',roles:['admin','user','department_auditor','hr_auditor','leader_auditor'] }
       },
       {
         path: 'detailedLeave',
         name: 'DetailedLeave',
         component: () => import('@/views/apply/DetailedLeave'),
-        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','leader'] },
+        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
         // hidden: false
       },
     ]
@@ -124,7 +124,7 @@ export const constantRoutes = [
     path: '/audit',
     component: Layout,
     name:"Audit",
-    meta: {title: '表单审核', icon: 'el-icon-document',roles: ['admin','leader']},
+    meta: {title: '表单审核', icon: 'el-icon-document',roles: ['department_auditor','hr_auditor','leader_auditor']},
     children: [
       // {
       //   path: 'auditlist',
@@ -136,26 +136,26 @@ export const constantRoutes = [
         path: 'dpAuditlist',
         name: 'DpAuditList',
         component: () => import('@/views/audit/DpAuditList'),
-        meta: { title: '部门表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
+        meta: { title: '部门表单审核', icon: 'el-icon-s-check' ,roles: ['department_auditor']}
       },
       {
         path: 'hrAuditlist',
         name: 'HrAuditList',
         component: () => import('@/views/audit/HrAuditList'),
-        meta: { title: '人事处表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
+        meta: { title: '人事处表单审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
       },
       {
         path: 'scAuditlist',
         name: 'ScAuditList',
         component: () => import('@/views/audit/ScAuditList'),
-        meta: { title: '校领导表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
+        meta: { title: '校领导表单审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
       },
       {
         path: 'detailLeave',
         name: 'DetailLeave',
         props:true ,
         component: () => import('@/views/audit/DetailLeave'),
-        meta: { title: '表单审核详情', icon: 'el-icon-s-check' ,roles: ['admin','leader']},
+        meta: { title: '表单审核详情', icon: 'el-icon-s-check' ,roles:['department_auditor','hr_auditor','leader_auditor']},
         hidden: true
       }
     ]
