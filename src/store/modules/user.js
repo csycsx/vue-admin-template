@@ -11,6 +11,7 @@ const getDefaultState = () => {
     gender: "男", //性别
     // avatar: '',
     role : [""], // 权限
+    role_num: "", // 身份标识码
     yuanxi: "ces" // 所属部门
   }
 }
@@ -41,6 +42,9 @@ const mutations = {
   },
   SET_YUANXI: (state, yuanxi) => {
     state.yuanxi = yuanxi
+  }, 
+  SET_ROLE_NUM: (state, role_num) => {
+    state.role_num = role_num
   },
   SET_P_TYPE: (state, p_type) => {
     state.p_type = p_type
@@ -81,6 +85,7 @@ init_user_info({ commit }, data){
       commit('SET_ID', userInfo.userId)
       commit('SET_YUANXI', userInfo.yuanXi)
       commit('SET_GENDER', userInfo.gender)
+      commit('SET_ROLE_NUM', userInfo.role)
       // 根据role序号判断权限
       if(userInfo.role==0){
         role.push(all_role[0])

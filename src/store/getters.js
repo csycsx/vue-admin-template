@@ -10,6 +10,7 @@ const getters = {
  2022.10.3 spark
  */
  role: state => state.user.role,
+ role_num: state => state.user.role_num,
  yuanxi: state => state.user.yuanxi,
  p_type: state => state.user.p_type
 }

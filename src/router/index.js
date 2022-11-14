@@ -148,7 +148,7 @@ export const constantRoutes = [
         path: 'scAuditlist',
         name: 'ScAuditList',
         component: () => import('@/views/audit/ScAuditList'),
-        meta: { title: '校领导表单审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
+        meta: { title: '校领导表单审核', icon: 'el-icon-s-check' ,roles: ['leader_auditor']}
       },
       {
         path: 'detailLeave',
