@@ -1,9 +1,9 @@
 import request from '@/utils/request'
-export function getcalenderList(data) {
+export function getcalenderList() {
     return request({
       url: '/calender/findAllCalender',
       method: 'get',
-      params: { data}
+   
     })
   }
   export function deletecalenderFrom(id) {
@@ -64,3 +64,23 @@ export function addUserTo(data) {
                     params: data
                   })
                 }
+
+      export function findAllLimitTimeByRoleId(id) {
+                    return request({
+                      url: '/leave_audit_limit_time/findAllLimitTimeByRoleId',
+                      method: 'get',
+                      params: id
+                    })
+                  }
+    //调休信息查询
+    export function findAdjustById(adjust_name,id){
+                  return request({
+                    url: '/calender/findAdjustById',
+                    method: 'get',
+                    params: {
+                        adjust_name:adjust_name,
+                        id:id
+                       }
+                  })
+                }
+

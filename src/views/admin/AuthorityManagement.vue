@@ -47,12 +47,18 @@
       </el-table-column>
       <el-table-column
       prop="yuanXi"
-      label="院系"
+      label="学院(部门)"
       width="200">
       </el-table-column>
       <el-table-column
       prop="role"
       label="用户权限"
+      sortable
+      column-key="date"
+      :filters="[{text: '普通教师', value: '0'}, {text: '各部门人事干事', value: '1'}, {text: '各部门负责人', value: '2'}, {text: '人事处人事科人员', value: '3'}, 
+      {text: '人事处负责人', value: '4'}, {text: '校领导', value: '5'}]"
+      :filter-method="filterHandler"
+      :filtered-value="['1','2','3','4','5']"
       width="200">
       </el-table-column>
       <el-table-column
@@ -101,7 +107,7 @@
         </el-col>
       </el-row>
 <!-- 新增用户信息弹窗  ref是下面表单的引用名称-->
-<!-- <el-dialog 
+<el-dialog 
       title="用户信息" 
       :visible.sync="addUserVisible"
       @close="addDialogClose">
@@ -148,7 +154,7 @@
               <el-option label="在编不在岗" value="2"></el-option>
             </el-select>
           </el-form-item>
-           <el-form-item label="创建时间" prop="gmt_create" :label-width="formLabelWidth">
+           <!-- <el-form-item label="创建时间" prop="gmt_create" :label-width="formLabelWidth">
             <el-date-picker
               v-model="addForm.gmt_create"
               type="date"
@@ -161,13 +167,13 @@
               type="date"
               placeholder="选择日期">
             </el-date-picker>
-          </el-form-item> 
+          </el-form-item>  -->
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="addUserVisible=false">取 消</el-button>
           <el-button type="primary" @click="addUser">确 定</el-button>
         </div>
-      </el-dialog> -->
+      </el-dialog>
 
       
       <el-dialog 
@@ -234,25 +240,25 @@ export default {
         queryInfo:{
           id:'',
           query:'',
-          pagenum:1,
-          pagesize:2,
+          pagenum:'',
+          pagesize:'',
         },
 
         // 控制弹窗信息的显示和隐藏
         addUserVisible: false,
         EditUserVisible:false,
         formLabelWidth: '120px',
-         // 添加用户的表单数据
-        //  addForm:{
-        //   id:'',
-        //   userid:'',
-        //   username:'',
-        //   gender:'',
-        //   yuanxi:'',
-        //   role:'',
-        //   ptype:'',
-        //   pstatus:'',
-        // },
+        //  添加用户的表单数据
+         addForm:{
+          id:'',
+          userid:'',
+          username:'',
+          gender:'',
+          yuanxi:'',
+          role:'',
+          ptype:'',
+          pstatus:'',
+        },
 
         // 修改用户的表单数据
         editForm:{
@@ -265,37 +271,40 @@ export default {
           ptype:'',
           pstatus:'',
       },
-       // 添加表单验证规则对象
-        // addFormRules:{
-        //   userid:[
-        //     {required:true,message:'请输入用户ID',trigger:'blur'},
-        //     {min:3,max:10,massage:'长度需在3-10个字符之间',trigger:'blur'},
-        //   ],
-        //   username:[
-        //     {required:true,message:'请输入用户姓名',trigger:'blur'},
-        //     {min:3,max:10,massage:'长度需在3-10个字符之间',trigger:'blur'},
-        //   ],
-        //   role:[
-        //     {required:true,message:'请选择用户权限',trigger:'blur'}
-        //   ],
-        // },
+      //  添加表单验证规则对象
+        addFormRules:{
+          userid:[
+            {required:true,message:'请输入用户ID',trigger:'blur'},
+            {min:3,max:10,massage:'长度需在3-10个字符之间',trigger:'blur'},
+          ],
+          username:[
+            {required:true,message:'请输入用户姓名',trigger:'blur'},
+            {min:3,max:10,massage:'长度需在3-10个字符之间',trigger:'blur'},
+          ],
+          role:[
+            {required:true,message:'请选择用户权限',trigger:'blur'}
+          ],
+        },
       }
     },
 
 
     created(){
       this.getUserList()
-      this.deleteUserFrom()
+      // this.deleteUserFrom()
       this.updateUsersForm()
-      
-
     },
+
+    mounted() {
+      this.$set(this.filtereds,0,this.$route.query.role)
+    },
+
     methods: {
 
       //获取用户数据
       async getUserList(){
         const res = await axios.get('api/leave-attendance/user/findAllUser',{
-          params:this.queryInfo
+          // params:this.queryInfo
         }).then((res)=>{
           console.log(res)
           this.userlist=res.data.data
@@ -305,64 +314,63 @@ export default {
       },
 
        //添加人员实现
-      // async addUser(){
-      //   this.userid = this.addForm.userid
-      //   this.username = this.addForm.username
-      //   this.yuanxi = this.addForm.yuanxi
-      //   this.ptype = this.addForm.ptype
-      //   this.pstatus = this.addForm.pstatus
-      //   this.gender = this.addForm.gender
-      //   // 前端往后端传递的数据格式都是json格式，key-value都是字符串类型
-      //   let params={
-      //     'userid':this.userid,
-      //     'username':this.username,
-      //     'yuanxi':this.yuanxi,
-      //     'ptype':this.ptype,
-      //     'pstatus':this.pstatus,
-      //     'gender':this.gender
-      //   }
-      //   console.log(params)
-      //   addUserTo(params).then(rest => {
-      //     console.log(rest)
-      //     this.getUserList()
-      //     this.addUserVisible=false
-      //   })
-      // },
+      async addUser(){
+        this.userid = this.addForm.userid
+        this.username = this.addForm.username
+        this.yuanxi = this.addForm.yuanxi
+        this.ptype = this.addForm.ptype
+        this.pstatus = this.addForm.pstatus
+        this.gender = this.addForm.gender
+        // 前端往后端传递的数据格式都是json格式，key-value都是字符串类型
+        let params={
+          'userid':this.userid,
+          'username':this.username,
+          'yuanxi':this.yuanxi,
+          'ptype':this.ptype,
+          'pstatus':this.pstatus,
+          'gender':this.gender
+        }
+        console.log(params)
+        addUserTo(params).then(rest => {
+          console.log(rest)
+          this.getUserList()
+          this.addUserVisible=false
+        })
+      },
      
           //删除用户
-          async deleteUsers(id){
-      const confirmResult = await this.$confirm(
-        "此操作将永久删除该用户, 是否继续?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      ).catch((err) => {
-        return err;
-      });
-      if (confirmResult == "confirm") {
-      deleteUserFrom(id).then((res)=>{
-        console.log(res)
-        if (res.code == 200) {
-          this.userlist.splice(id,1);
-              this.$message({
-                message: "删除成功",
-                type: "success",
-              });
-              this.getUserList();
-            } else {
-              this.$message.error("删除失败");
-            }
-          })
-          .catch((err) => {
-            this.$message.error("删除异常");
-            console.log(err);
-          });
-        }
-    },
-    
+    //       async deleteUsers(id){
+    //   const confirmResult = await this.$confirm(
+    //     "此操作将永久删除该用户, 是否继续?",
+    //     "提示",
+    //     {
+    //       confirmButtonText: "确定",
+    //       cancelButtonText: "取消",
+    //       type: "warning",
+    //     }
+    //   ).catch((err) => {
+    //     return err;
+    //   });
+    //   if (confirmResult == "confirm") {
+    //   deleteUserFrom(id).then((res)=>{
+    //     console.log(res)
+    //     if (res.code == 200) {
+    //       this.userlist.splice(id,1);
+    //           this.$message({
+    //             message: "删除成功",
+    //             type: "success",
+    //           });
+    //           this.getUserList();
+    //         } else {
+    //           this.$message.error("删除失败");
+    //         }
+    //       })
+    //       .catch((err) => {
+    //         this.$message.error("删除异常");
+    //         console.log(err);
+    //       });
+    //     }
+    // },
 
       // 编辑
       showEditDialog(row) {
@@ -422,7 +430,20 @@ export default {
         this.getUserList()
       },
 
-      
+      //用户权限筛选
+      resetDateFilter() {
+        this.$refs.filterTable.clearFilter('role');
+      },
+      // clearFilter() {
+      //   this.$refs.filterTable.clearFilter();
+      // },
+      filterTag(value, row) {
+        return row.tag === value;
+      },
+      filterHandler(value, row, column) {
+        const property = column['property'];
+        return row[property] === value;
+      }
     
 
      //切换页实现

@@ -11,19 +11,19 @@
     
         <el-table-column
           label="假期名称" 
-          prop="holidayName"
+          prop="adjustName"
         >
         </el-table-column>
         <el-table-column
           type="date"
-          prop="holidayStartDate"
+          prop="adjustStartDate"
           label="开始日期" 
           :formatter="dateFormat"  
         >   
         </el-table-column>
             <el-table-column
           type="date"
-          prop="holidayEndDate"
+          prop="adjustEndDate"
           label="结束日期"
           :formatter="dateFormat"    
         >    
@@ -51,13 +51,13 @@
       @close="editDialogClosed">
      <el-form>
       <el-form-item label="假期名称" >
-        <el-input v-model="editForm.holidayName" ></el-input>
+        <el-input v-model="editForm.adjustName" ></el-input>
       </el-form-item>
       <el-form-item label="开始日期"  >
-      <el-input v-model="editForm.holidayStartDate" type="date"></el-input>
+      <el-input v-model="editForm.adjustStartDate" type="date"></el-input>
       </el-form-item>
       <el-form-item label="结束日期">
-        <el-input v-model="editForm.holidayEndDate" type="date"></el-input>
+        <el-input v-model="editForm.adjustEndDate" type="date"></el-input>
       </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -76,13 +76,13 @@
         <el-input v-model="addForm.calenderId"></el-input>
       </el-form-item>
       <el-form-item label="假期名称" >
-        <el-input v-model="addForm.holidayName"></el-input>
+        <el-input v-model="addForm.adjustName"></el-input>
       </el-form-item>
       <el-form-item label="开始日期"  >
-      <el-input v-model="addForm.holidayStartDate" type="date"></el-input>
+      <el-input v-model="addForm.adjustStartDate" type="date"></el-input>
       </el-form-item>
       <el-form-item label="结束日期">
-        <el-input v-model="addForm.holidayEndDate" type="date"></el-input>
+        <el-input v-model="addForm.adjustEndDate" type="date"></el-input>
       </el-form-item> 
       </el-form>
         <div slot="footer" class="dialog-footer">
@@ -97,22 +97,23 @@
 
 <script>
 import axios from 'axios'
-import { getcalenderList} from '@/api/admin'
+import { findAdjustById} from '@/api/admin'
 export default {
   data() {
     return {
       //获取列表的参数对象
+
       adjustList:[
-          {
-          holidayStartDate: '2016-05-02',
-          holidayEndDate: '2016-05-02',
-          holidayName: '王小虎',
-        },
-         {
-          holidayStartDate: '2016-05-02',
-          holidayEndDate: '2016-05-02',
-          holidayName: '王小虎',
-        },
+        //   {
+        //  adjustStartDate: '2016-05-02',
+        //   adjustEndDate: '2016-05-02',
+        //   adjustName: '王小虎',
+        // },
+        //  {
+        //   adjustStartDate: '2016-05-02',
+        //   adjustEndDate: '2016-05-02',
+        //   adjustName: '王小虎',
+        // },
       ],
       editDialogVisible:false,
       addVocationVisible:false,
@@ -130,17 +131,23 @@ export default {
     }
   },
   created () {
-    this.getcalenderList()
+   this. getadjustList()
  
   },
   methods: {
-    //获取全部数据     
-    //   async getcalenderList(){
-    //     const res = await axios.get('api/leave-attendance/calender/findAllCalender')
-    //     console.log(res)
-    //     this.calenderList=res.data.data
-    //     calenderList.holidayStartDate=calenderList.holidayStartDate.substring(0,10)
-    //   }, 
+     async getadjustList(){ 
+       // console.log(this.$route.params.id)
+        //console.log(this.$route.params.id)
+        let params={
+                
+                'adjust_name':'中秋节调休',
+                'id':this.$route.params.id,
+           }
+        findAdjustById(params).then((res) => {
+            console.log(res)
+            this.adjustList=res.data
+        })  
+      }, 
    //日期格式化
     dateFormat(row, column) {
         // 获取单元格数据
