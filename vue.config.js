@@ -41,7 +41,8 @@ module.exports = {
       // ‘/api’ 的作用就是 替换 baseURL 的，假如这里我用的 localhost：8080 ,前端请求时直接用 /api 就行了
       //  ‘/api’ 只在前端请求时添加，而后端不需要添加 /api 这个路径
       "/api": {
-        target: "http://101.132.110.63:8007", //配置要替换的后台接口地址
+        target: "http://localhost:8007/",
+        // target: "http://101.132.110.63:8007", //配置要替换的后台接口地址
         changOrigin: true, //配置允许改变Origin
         ws: true, // proxy websockets
         pathRewrite: {

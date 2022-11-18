@@ -49,24 +49,30 @@
               </el-select>
             </el-form-item>
           </el-col>
+          <el-col :span="5">
+            <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'">
+              <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
+                <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item prop="child" v-if="leave_type1.child == '是' & leave_type == '因公出差'">
+              需在请假系统关联PIM中已完成的因公出国（境）申请流程
+            </el-form-item>
+          </el-col>
         </el-row>
-
-        <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'">
-          <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
-            <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item prop="child" v-if="leave_type1.child == '是' & leave_type == '因公出差'">
-          需在请假系统关联PIM中已完成的因公出国（境）申请流程
-        </el-form-item>
 
         <el-form-item label="选择请假时间" style="height: 62px; margin-bottom: 10px;">
           <el-date-picker :picker-options="pickerOptions" v-model="start_end_time" type="datetimerange"
             format="yyyy 年 MM 月 dd 日 HH 时" value-format="yyyy-MM-dd HH" range-separator="至" start-placeholder="开始日期"
-            end-placeholder="结束日期">
+            end-placeholder="结束日期" @change="handleTimePicker">
           </el-date-picker>
+          <el-popover placement="right" title="当前系统判定实际请假天数共" width="200" trigger="hover"
+            :content="leaveRealDaysContent">
+            <i class="el-icon-warning-outline" slot="reference" style="margin-left: 50px;"></i>
+          </el-popover>
         </el-form-item>
 
 
@@ -92,8 +98,8 @@
             <el-form-item label="请假事由说明" prop="explain" v-if="leave_type != '事假'">
               <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;" />
             </el-form-item>
-            <el-form-item label="请假事由说明" prop="explain" v-if="leave_type1.child == '否' & leave_type == '事假'" >
-              <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;"/>
+            <el-form-item label="请假事由说明" prop="explain" v-if="leave_type1.child == '否' & leave_type == '事假'">
+              <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -102,9 +108,10 @@
           <el-col :span="8">
             <el-form-item label="文件上传" prop="leave_matrial">
               <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/"
-                accept=".jpg,.png" multiple :limit="1" :name="leave_matrial" :on-exceed="handleExceed"
-                :on-preview="handlePreview" :on-remove="handleRemove" :file-list="fileList" :auto-upload="true">
-                <el-popover placement="right" width="200" trigger="hover" content="只能上传jpg/png文件，且不超过500kb">
+                accept=".jpg,.png,.pdf" multiple :limit="5" :name="leave_matrial" :on-exceed="handleExceed"
+                :on-preview="handlePreview" :on-remove="handleRemove" :before-upload="beforeAvatarUpload" :file-list="fileList" :auto-upload="true"
+                :show-file-list="true">
+                <el-popover placement="right" width="200" trigger="hover" content="只能上传jpg/png/pdf文件，且不超过2MB">
                   <el-button slot="reference" size="medium" type="primary">选取文件
                     <i class="el-icon-upload el-icon--right"></i>
                   </el-button>
@@ -128,7 +135,7 @@
 
 <script>
 import { getUserInfoById, addTeacherLeaveFormMsg, getSystemMaxLimitTime } from "@/api/apply"
-import { getSumLeaveTypeDays } from "@/api/apply"
+import { getSumLeaveTypeDays, getCurrentLeaveDays } from "@/api/apply"
 
 export default {
   data() {
@@ -184,11 +191,6 @@ export default {
 
       },
       leave_reason: '',
-      // {
-      //   country:'',
-      //   reason:'',
-      // },
-      // leave_type验证规则
       rules: {
         child: [{ required: true, message: '必填项不可为空！' },],
       },
@@ -204,7 +206,9 @@ export default {
       ],
       dataConstrain: {},
       historyContent: '',
+      leaveRealDaysContent: '',
       selectData: '',
+      nowDate: '',    // 当前事件（）
       pickerOptions: {
         // 点击时，选择的是开始时间，也就是minDate
         onPick: ({ maxDate, minDate }) => {
@@ -232,11 +236,11 @@ export default {
   },
 
   created() {
+    // 设置默认的开始时间
+    this.start_end_time = new Date().getFullYear().toString();
     // 在页面加载时读取后端系统请假类型时间条件
     getSystemMaxLimitTime().then(res => {
       this.systemTimeConstrain = res.data;
-      console.log(this.systemTimeConstrain);
-      console.log(typeof (this.systemTimeConstrain));
       // 将后端返回的数组转换成键值对的形式
       for (var i = 0; i < this.systemTimeConstrain.length; i++) {
         this.dataConstrain[String(this.systemTimeConstrain[i].type)] = parseInt(this.systemTimeConstrain[i].limitTime);
@@ -262,6 +266,21 @@ export default {
       }
       return true
     },
+    beforeAvatarUpload(file) {
+      console.log(file.type)
+      const isJPG = file.type === 'image/png';
+      const isPNG = file.type === 'image/jpeg';
+      const isPDF = file.type === 'pdf';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG && !isPNG && !isPNG) {
+        this.$message.error('上传头像图片只能是 JPG/PDF 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
@@ -269,7 +288,11 @@ export default {
       console.log(file);
     },
     handleExceed(files, fileList) {
-      this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+      this.$message.warning(`当前限制选择 5 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+    },
+    // 处理时间选择器变化事件
+    handleTimePicker() {
+      console.log("当前选择的起止时间分别为：", this.start_end_time[0], this.start_end_time[1]);
     },
     // 下拉列表变化时的方法
     detectSelect() {
@@ -284,7 +307,7 @@ export default {
         console.log("本年度累计", this.leave_type, "总天数：", res.data);
         this.historyContent = "本年度累计" + this.leave_type + "总天数：" + res.data + "天";
       });
-      console.log("当前选择的请假类型：", this.leave_type);
+      // console.log("当前选择的请假类型：", this.leave_type);
       if (this.dataConstrain[this.leave_type] != "") {
         console.log("当前请假类型对应的最大请假期限：", this.dataConstrain[this.leave_type]);
       }
@@ -297,7 +320,6 @@ export default {
     // 提交表单请求
     submit() {
       let _this = this;
-      console.log(this.start_end_time);
       if (this.leave_matrial == "") {
         this.leave_matrial = "暂无证明材料"
       }

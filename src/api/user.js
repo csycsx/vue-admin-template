@@ -1,8 +1,9 @@
 import request from '@/utils/request'
 
+// 调用后端用户登录接口，并返回全局token
 export function login(data) {
   return request({
-    url: '/vue-admin-template/user/login',
+    url: '/user/login',
     method: 'post',
     data
   })
