@@ -108,7 +108,7 @@
           <el-col :span="8">
             <el-form-item label="文件上传" prop="leave_matrial">
               <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/"
-                accept=".jpg,.png,.pdf" multiple :limit="5" :name="leave_matrial" :on-exceed="handleExceed"
+                accept=".jpg,.png,.pdf" multiple :limit="5" :name="leave_matrial" :on-exceed="handleExceed" :on-change="handleChange"
                 :on-preview="handlePreview" :on-remove="handleRemove" :before-upload="beforeAvatarUpload" :file-list="fileList" :auto-upload="true"
                 :show-file-list="true">
                 <el-popover placement="right" width="200" trigger="hover" content="只能上传jpg/png/pdf文件，且不超过2MB">
@@ -249,13 +249,9 @@ export default {
     })
 
     // 在页面加载时首先加载当前登录的用户信息（暂时以查询单个用户信息代替）
-    let param = { "id": "1" }
-    getUserInfoById(param).then(res => {
-      let userResult = res.data;
-      this.userid = userResult.userId;
-      this.name = userResult.userName;
-      this.dept = userResult.yuanXi;
-    })
+    this.userid = this.$store.getters.id;
+    this.name = this.$store.getters.name;
+    this.dept = this.$store.getters.yuanxi;
   },
 
   methods: {
@@ -281,6 +277,24 @@ export default {
       }
       return isJPG && isLt2M;
     },
+    // 文件上传获取文本框内本地文件路径
+    handleChange(file, fileLists) {
+			// 本地电脑路径
+			console.log(document.getElementsByClassName("el-upload__input")[0].value); 
+      var path = document.getElementsByClassName("el-upload__input")[0].value;
+      // 对用户提交的文件材料进行重命名，命名格式为：时间-工号-xx假证明材料.jpg/png/pdf
+      let path_arr = path.split(".");
+      var id_str = this.userid;
+      var now = new Date();
+      var year = now.getFullYear(); //得到年份
+		  var month = now.getMonth() + 1;//得到月份
+      // month = month + 1;
+		  var date = now.getDate();//得到日期
+		  var hour = now.getHours();//得到小时
+		  var minu = now.getMinutes();//得到分钟
+      this.leave_matrial = path_arr[0] + year + month + date + hour + minu + "-" + id_str + "." + path_arr[1];
+      console.log(this.leave_matrial);
+		},
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
@@ -303,6 +317,7 @@ export default {
         "type": this.leave_type,
         "year": nowDate.getFullYear()
       };
+      console.log(params);
       getSumLeaveTypeDays(params).then(res => {
         console.log("本年度累计", this.leave_type, "总天数：", res.data);
         this.historyContent = "本年度累计" + this.leave_type + "总天数：" + res.data + "天";

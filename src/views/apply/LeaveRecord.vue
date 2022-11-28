@@ -147,7 +147,6 @@ export default {
             listLeaveByTimePeriodAndAuditStatus(param).then(res => {
                 console.log(res.data);
                 this.tableData = res.data;
-
             })
         },
         // 分页事件控制

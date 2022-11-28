@@ -62,8 +62,8 @@ export default {
     }
   },
   created () {
-    //let yuanxi = this.$store.getters.yuanxi
-    let yuanxi = "校办公室"
+    let yuanxi = this.$store.getters.yuanxi
+    // let yuanxi = "校办公室"
     this.role = "2"
     this.yuanxi = yuanxi
 
