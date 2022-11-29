@@ -15,23 +15,29 @@
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <h3>申请列表</h3>
+          <div class="status-card">
+            <el-radio-group v-model="radio" @input="statusChange">
+              <el-radio-button label="全部"></el-radio-button>
+              <el-radio-button label="待审核"></el-radio-button>
+              <el-radio-button label="已审核"></el-radio-button>
+              <el-radio-button v-if="role==2" label="未流经"></el-radio-button>
+            </el-radio-group>
+          </div>
         </div>
         <el-table ref="filterTable" :data="tableData" border style="width: 100%" @row-click="rowChick">
           <el-table-column prop="user.userId" label="工号" width="100">
           </el-table-column>
-          <el-table-column prop="user.userName" label="姓名" width="100">
+          <el-table-column prop="user.userName" label="姓名" width="150">
           </el-table-column>
-          <el-table-column prop="user.yuanXi" label="学院(部门)" width="150">
+          <el-table-column prop="user.yuanXi" label="学院(部门)" width="200">
           </el-table-column>
           <el-table-column prop="leaveType" label="请假类型" width="100">
           </el-table-column>
-          <el-table-column prop="leaveStartTime" label="起始时间" sortable>
+          <el-table-column prop="leaveStartTime" label="起始时间">
           </el-table-column>
-          <el-table-column prop="leaveEndTime" label="结束时间" sortable>
+          <el-table-column prop="leaveEndTime" label="结束时间">
           </el-table-column>
-          <el-table-column prop="showStatus" label="状态" width="100"
-            :filters="[{ text: '待审核', value: '待审核' }, { text: '已审核', value: '已审核' },{ text: '未流经', value: '未流经' }]"
-            :filter-method="filterTag" filter-placement="bottom-end">
+          <el-table-column prop="showStatus" label="状态" width="120">
             <template slot-scope="scope">
               <el-tag
                 :type="scope.row.showStatus === '待审核' ? 'danger' : (scope.row.showStatus === '未流经' ? 'info' : 'success')"
@@ -41,14 +47,21 @@
             </template>
           </el-table-column>
         </el-table>
+        <div class="block">
+          <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize"
+            layout="total, prev, pager, next, jumper" :total="total">
+          </el-pagination>
+        </div>
       </el-card>
     </div>
   </div>
 </template>
 
 <script>
-import { findLeaveFormByDept, findLeaveFormByUseridInDept, findLeaveFormByUsernameInDept } from "../../api/audit";
+import { getAuditSelected, getAuditLoadingDataByUserid } from "../../api/audit";
+
 export default {
+
   data () {
     return {
       input: '',
@@ -56,33 +69,59 @@ export default {
       length: 0,
       tableData: [],
       role: "",
-      yuanxi: ""
-
-
+      yuanxi: "",
+      id: "",
+      currentPage: 1,
+      total: 0,
+      pageSize: 10,
+      searchInfo: {
+        department: "null",
+        selectuserid: "null",
+        status: "null",
+        username: "null"
+      },
+      radio: "全部"
     }
   },
   created () {
-    //let yuanxi = this.$store.getters.yuanxi
-    let yuanxi = "校办公室"
-    this.role = "2"
-    this.yuanxi = yuanxi
-
-    this.init(yuanxi);
 
   },
-  mounted () { },
+  mounted () {
+    this.yuanxi = this.$store.getters.yuanxi
+    this.role = this.$store.getters.role_num
+    this.id = this.$store.getters.id
+    this.init();
+  },
   methods: {
-    filterTag (value, row) {
-      return row.showStatus === value;
-    },
-    filterHandler (value, row, column) {
-      const property = column['property'];
-      return row[property] === value;
+    statusChange (value) {
+      this.radio = value;
+      if (value === "全部") {
+        this.searchInfo.status = "null";
+      } else {
+        this.searchInfo.status = value;
+      }
+      this.currentPage = 1;
+      console.log()
+      getAuditSelected({
+        "department": this.searchInfo.department,
+        "pageNum": this.currentPage,
+        "selectuserid": this.searchInfo.selectuserid,
+        "status": this.searchInfo.status,
+        "userid": this.id,
+        "username": this.searchInfo.username
+      }).then(res => {
+        console.log(res);
+        if (res.code === 200) {
+          this.tableData = res.data.records;
+          this.pageSize = res.data.size;
+          this.total = res.data.total;
+        }
+      })
     },
     //搜索接口
     search () {
-      console.log(this.input);
-      console.log(this.select);
+      this.searchInfo.username = "null";
+      this.searchInfo.selectuserid = "null";
       if (this.select === "") {
         this.$notify({
           title: '警告',
@@ -98,125 +137,78 @@ export default {
         });
       }
       else {
-        //调用后端接口
         if (this.select === "1") {
-          findLeaveFormByUseridInDept({
-            "userid": this.input,
-            "department": this.yuanxi
-          }).then(res => {
-            console.log(res);
-            if (res.code === 200) {
-              this.length = res.data.length;
-              this.tableData = res.data
-              if (this.role === "1") {
-                for (let leave of res.data) {
-                  if (leave.departmentStatus == "0") {
-                    leave.showStatus = "待审核"
-                  } else {
-                    leave.showStatus = "已审核"
-                  }
-                }
-              }
-              if (this.role === "2") {
-                for (let leave of res.data) {
-                  if (leave.departmentStatus == "3") {
-                    leave.showStatus = "待审核"
-                  } else if (leave.departmentStatus == "1") {
-                    leave.showStatus = "已审核"
-                  } else if (leave.departmentStatus == "0") {
-                    leave.showStatus = "未流经"
-                  }
-                }
-              }
-              console.log(res.data)
-            }
-          })
+          this.searchInfo.selectuserid = this.input;
         }
-        else if (this.select === "2") {
-          findLeaveFormByUsernameInDept({
-            "username": this.input,
-            "department": this.yuanxi
-          }).then(res => {
-            console.log(res);
-            if (res.code === 200) {
-              this.length = res.data.length;
-              this.tableData = res.data
-              if (this.role === "1") {
-                for (let leave of res.data) {
-                  if (leave.departmentStatus == "0") {
-                    leave.showStatus = "待审核"
-                  } else {
-                    leave.showStatus = "已审核"
-                  }
-                }
-              }
-              if (this.role === "2") {
-                for (let leave of res.data) {
-                  if (leave.departmentStatus == "3") {
-                    leave.showStatus = "待审核"
-                  } else if (leave.departmentStatus == "1") {
-                    leave.showStatus = "已审核"
-                  } else if (leave.departmentStatus == "0") {
-                    leave.showStatus = "未流经"
-                  }
-                }
-              }
-
-              console.log(res.data)
-            }
-          })
+        else {
+          this.searchInfo.username = this.input;
         }
-
-
+        this.currentPage = 1;
+        getAuditSelected({
+          "department": this.searchInfo.department,
+          "pageNum": this.currentPage,
+          "selectuserid": this.searchInfo.selectuserid,
+          "status": this.searchInfo.status,
+          "userid": this.id,
+          "username": this.searchInfo.username
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
       }
     },
     //页面初始化
 
     //点击某条信息，跳转详情页面
     rowChick (row, event, column) {
-      console.log(row);
+      const leaveDetail = JSON.stringify(row);
+      window.sessionStorage.setItem('leaveDetail', leaveDetail);
       this.$router.push({
-        name: 'DetailLeave',
-        params: {
-          info: row,
-        }
+        name: 'DetailLeave'
       })
     },
 
-    init (yuanxi) {
-      console.log("初始化院系是：", yuanxi);
-      findLeaveFormByDept({ "department": yuanxi }).then(res => {
-        console.log(res);
+    init () {
+      getAuditLoadingDataByUserid({ "pageNum": this.currentPage, "userid": this.id }).then(res => {
         if (res.code === 200) {
-          this.length = res.data.length;
-          this.tableData = res.data
-          if (this.role === "1") {
-            for (let leave of res.data) {
-              if (leave.departmentStatus == "0") {
-                leave.showStatus = "待审核"
-              } else {
-                leave.showStatus = "已审核"
-              }
-            }
-          }
-          if (this.role === "2") {
-            for (let leave of res.data) {
-              if (leave.departmentStatus == "3") {
-                leave.showStatus = "待审核"
-              } else if (leave.departmentStatus == "1") {
-                leave.showStatus = "已审核"
-              } else if (leave.departmentStatus == "0") {
-                leave.showStatus = "未流经"
-              }
-            }
-          }
-          console.log(res.data)
+          this.tableData = res.data.records;
+          this.pageSize = res.data.size;
+          this.total = res.data.total;
         }
       })
 
-
-
-
+    },
+    handleCurrentChange (val) {
+      if (this.searchInfo.department === "null" && this.searchInfo.status === "null" && this.searchInfo.username === "null" && this.searchInfo.selectuserid === "null") {
+        getAuditLoadingDataByUserid({ "pageNum": val, "userid": this.id }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      } else {
+        getAuditSelected({
+          "department": this.searchInfo.department,
+          "pageNum": val,
+          "selectuserid": this.searchInfo.selectuserid,
+          "status": this.searchInfo.status,
+          "userid": this.id,
+          "username": this.searchInfo.username
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      }
     }
 
 
@@ -240,6 +232,10 @@ export default {
 }
 
 /* 表格 */
+
+.el-card__header {
+  padding: 18px 40px;
+}
 .table {
   margin-top: 20px;
 }
@@ -258,6 +254,11 @@ export default {
   width: 100%;
 }
 
+.status-card {
+  display: inline;
+  float: right;
+}
+
 .box-card div h3 {
   font-size: 22px;
   font-weight: 700;
@@ -268,5 +269,9 @@ export default {
 
 .box-card ::v-deep .el-card__body {
   margin: 0 20px;
+}
+
+.block {
+  margin-top: 15px;
 }
 </style>
