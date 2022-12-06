@@ -73,9 +73,11 @@
             :content="leaveRealDaysContent">
             <i class="el-icon-warning-outline" slot="reference" style="margin-left: 50px;"></i>
           </el-popover>
+          <div style="display:flex;">
+            <div style="margin-left:80px">{{start}}</div>
+            <div style="margin-left:80px">{{end}}</div>
+          </div>
         </el-form-item>
-
-
 
         <el-row style="height: 62px; margin-bottom: 10px;">
           <el-col :span="8">
@@ -108,9 +110,9 @@
           <el-col :span="8">
             <el-form-item label="文件上传" prop="leave_matrial">
               <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/"
-                accept=".jpg,.png,.pdf" multiple :limit="5" :name="leave_matrial" :on-exceed="handleExceed" :on-change="handleChange"
-                :on-preview="handlePreview" :on-remove="handleRemove" :before-upload="beforeAvatarUpload" :file-list="fileList" :auto-upload="true"
-                :show-file-list="true">
+                accept=".jpg,.png,.pdf" multiple :limit="5" :name="leave_matrial" :on-exceed="handleExceed"
+                :on-change="handleChange" :on-preview="handlePreview" :on-remove="handleRemove"
+                :before-upload="beforeAvatarUpload" :file-list="fileList" :auto-upload="true" :show-file-list="true">
                 <el-popover placement="right" width="200" trigger="hover" content="只能上传jpg/png/pdf文件，且不超过2MB">
                   <el-button slot="reference" size="medium" type="primary">选取文件
                     <i class="el-icon-upload el-icon--right"></i>
@@ -134,11 +136,11 @@
 </template>
 
 <script>
-import { getUserInfoById, addTeacherLeaveFormMsg, getSystemMaxLimitTime } from "@/api/apply"
-import { getSumLeaveTypeDays, getCurrentLeaveDays } from "@/api/apply"
+import { getUserInfoById, addTeacherLeaveFormMsg, getSystemMaxLimitTime, checkTeachingDate } from "@/api/apply"
+import { getSumLeaveTypeDays, getCurrentLeaveDays, getReferenceLeaveDay } from "@/api/apply"
 
 export default {
-  data() {
+  data () {
     return {
       labelPosition: "left",
       dept: "",
@@ -231,11 +233,14 @@ export default {
             return false
           }
         }
-      }
+      },
+      start: '',
+      end: '',
+      allDay: '',
     };
   },
 
-  created() {
+  created () {
     // 设置默认的开始时间
     this.start_end_time = new Date().getFullYear().toString();
     // 在页面加载时读取后端系统请假类型时间条件
@@ -256,13 +261,13 @@ export default {
 
   methods: {
     // 检查是否为空
-    isNull(value) {
+    isNull (value) {
       if (value) {
         return false
       }
       return true
     },
-    beforeAvatarUpload(file) {
+    beforeAvatarUpload (file) {
       console.log(file.type)
       const isJPG = file.type === 'image/png';
       const isPNG = file.type === 'image/jpeg';
@@ -278,38 +283,49 @@ export default {
       return isJPG && isLt2M;
     },
     // 文件上传获取文本框内本地文件路径
-    handleChange(file, fileLists) {
-			// 本地电脑路径
-			console.log(document.getElementsByClassName("el-upload__input")[0].value); 
+    handleChange (file, fileLists) {
+      // 本地电脑路径
+      console.log(document.getElementsByClassName("el-upload__input")[0].value);
       var path = document.getElementsByClassName("el-upload__input")[0].value;
       // 对用户提交的文件材料进行重命名，命名格式为：时间-工号-xx假证明材料.jpg/png/pdf
       let path_arr = path.split(".");
       var id_str = this.userid;
       var now = new Date();
       var year = now.getFullYear(); //得到年份
-		  var month = now.getMonth() + 1;//得到月份
+      var month = now.getMonth() + 1;//得到月份
       // month = month + 1;
-		  var date = now.getDate();//得到日期
-		  var hour = now.getHours();//得到小时
-		  var minu = now.getMinutes();//得到分钟
+      var date = now.getDate();//得到日期
+      var hour = now.getHours();//得到小时
+      var minu = now.getMinutes();//得到分钟
       this.leave_matrial = path_arr[0] + year + month + date + hour + minu + "-" + id_str + "." + path_arr[1];
       console.log(this.leave_matrial);
-		},
-    handleRemove(file, fileList) {
+    },
+    handleRemove (file, fileList) {
       console.log(file, fileList);
     },
-    handlePreview(file) {
+    handlePreview (file) {
       console.log(file);
     },
-    handleExceed(files, fileList) {
+    handleExceed (files, fileList) {
       this.$message.warning(`当前限制选择 5 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
     },
     // 处理时间选择器变化事件
-    handleTimePicker() {
+    handleTimePicker () {
       console.log("当前选择的起止时间分别为：", this.start_end_time[0], this.start_end_time[1]);
+      checkTeachingDate({ "checking_date": this.start_end_time[0].substring(0, 10) }).then(res => {
+        if (res.code === 200) {
+          this.start = res.data.dateIndex;
+        }
+      })
+      checkTeachingDate({ "checking_date": this.start_end_time[1].substring(0, 10) }).then(res => {
+        if (res.code === 200) {
+          this.end = res.data.dateIndex;
+        }
+      })
+
     },
     // 下拉列表变化时的方法
-    detectSelect() {
+    detectSelect () {
       // 查询当前用户本年度对应请假类型的总天数
       var nowDate = new Date();
       var params = {
@@ -328,33 +344,69 @@ export default {
       }
 
     },
-    showMsg() {
+    showMsg () {
       this.leave_reason = '赴' + this.country + this.reason;
       console.log(this.leave_reason);
     },
-    // 提交表单请求
-    submit() {
-      let _this = this;
-      if (this.leave_matrial == "") {
-        this.leave_matrial = "暂无证明材料"
-      }
-      if (this.leave_type == "事假" && this.leave_type1.child == '是') {
-        this.showMsg();   //选择事假类型则进行文本框字符串拼接
-        console.log("当前请假事由：", this.leave_reason);
-      }
-      let param = {
-        "userid": this.userid,
-        "leave-type": this.leave_type,
-        "leave-start-time": this.start_end_time[0],
-        "leave-end-time": this.start_end_time[1],
-        "leave-reason": this.leave_reason,
-        "leave-material": this.leave_matrial
-      };
-      console.log(param);
-      addTeacherLeaveFormMsg(param).then((res) => {
-        console.log(res.date);
+
+    submitLeave () {
+      this.$confirm(this.allDay, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        let _this = this;
+        if (this.leave_matrial == "") {
+          this.leave_matrial = "暂无证明材料"
+        }
+        if (this.leave_type == "事假" && this.leave_type1.child == '是') {
+          this.showMsg();   //选择事假类型则进行文本框字符串拼接
+          console.log("当前请假事由：", this.leave_reason);
+        }
+        let param = {
+          "userid": this.userid,
+          "leave-type": this.leave_type,
+          "leave-start-time": this.start_end_time[0],
+          "leave-end-time": this.start_end_time[1],
+          "leave-reason": this.leave_reason,
+          "leave-material": this.leave_matrial
+        };
+        console.log(param);
+        addTeacherLeaveFormMsg(param).then((res) => {
+          if (res.code === 200) {
+            this.$message({
+              type: 'success',
+              message: '申请成功!'
+            });
+            this.$router.push({
+              name: 'LeaveRecord'
+            })
+
+          }
+        });
+
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消提交请假申请'
+        });
       });
     },
+
+    submit () {
+      let leave_start_time = this.start_end_time[0] + ':00:00';
+      let leave_end_time = this.start_end_time[1] + ':00:00';
+      getReferenceLeaveDay({
+        "leave_start_time": leave_start_time,
+        "leave_end_time": leave_end_time,
+        "leave_type": this.leave_type
+      }).then(res => {
+        if (res.code === 200) {
+          this.allDay = '您的实际请假天数为：' + res.data;
+          this.submitLeave();
+        }
+      })
+    }
 
   },
 };
@@ -366,7 +418,7 @@ export default {
   height: 1000px;
   margin: 20px;
   border-radius: 4px 4px 4px 4px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 .line {
@@ -419,7 +471,7 @@ export default {
   font-style: italic;
 }
 
-.inputDeep>>>.el-input__inner {
+.inputDeep >>> .el-input__inner {
   width: 100px;
   height: 30px;
   border-radius: 0;
@@ -448,11 +500,9 @@ export default {
   width: 500px;
 }
 
-
 .left p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
 }
 </style>

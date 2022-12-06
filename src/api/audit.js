@@ -130,3 +130,37 @@ export function findSchoolDepartmentById(data) {
     }
   )
 }
+
+//审核页默认请假列表接口
+export function getAuditLoadingDataByUserid(data) {
+  return request(
+    {
+    url: '/audit/getAuditLoadingDataByUserid',
+    method: 'get',
+    params: data
+    }
+  )
+}
+
+//审核页上方条件查询接口
+export function getAuditSelected(data) {
+  return request(
+    {
+    url: '/audit/getAuditSelected',
+    method: 'get',
+    params: data
+    }
+  )
+}
+
+//审核页上方条件查询接口
+export function getCurrentAuditMsg(data) {
+  return request(
+    {
+    url: '/audit/getCurrentAuditMsg',
+    method: 'get',
+    params: data
+    }
+  )
+}
+

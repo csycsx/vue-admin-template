@@ -18,6 +18,8 @@
         </div>
 
         <el-table ref="filterTable" :data="tableData" border style="width: 100%" @row-click="rowChick">
+          <el-table-column prop="id" label="序号" width="100">
+          </el-table-column>
           <el-table-column prop="user.userId" label="工号" width="100">
           </el-table-column>
           <el-table-column prop="user.userName" label="姓名" width="100">
@@ -26,13 +28,11 @@
           </el-table-column>
           <el-table-column prop="leaveType" label="请假类型" width="100">
           </el-table-column>
-          <el-table-column prop="leaveStartTime" label="起始时间" sortable>
+          <el-table-column prop="leaveStartTime" label="起始时间">
           </el-table-column>
-          <el-table-column prop="leaveEndTime" label="结束时间" sortable>
+          <el-table-column prop="leaveEndTime" label="结束时间">
           </el-table-column>
-          <el-table-column prop="showStatus" label="状态" width="100"
-            :filters="[{ text: '待审核', value: '待审核' }, { text: '已审核', value: '已审核' },{ text: '未流经', value: '未流经' }]"
-            :filter-method="filterTag" filter-placement="bottom-end">
+          <el-table-column prop="showStatus" label="状态" width="100">
             <template slot-scope="scope">
               <el-tag
                 :type="scope.row.showStatus === '待审核' ? 'danger' : (scope.row.showStatus === '未流经' ? 'info' : 'success')"
@@ -42,6 +42,11 @@
             </template>
           </el-table-column>
         </el-table>
+        <div class="block">
+          <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize"
+            layout="total, prev, pager, next, jumper" :total="total">
+          </el-pagination>
+        </div>
       </el-card>
     </div>
   </div>
@@ -50,7 +55,7 @@
 <script>
 import { resolve } from "path";
 import { reject } from "q";
-import { findLeaveFormByDeptAndUnfinishedSchool, findSchoolDepartmentById, findLeaveFormByUsernameInSchool, findLeaveFormByUseridInSchool } from "../../api/audit";
+import { getAuditSelected, getAuditLoadingDataByUserid } from "../../api/audit";
 export default {
   data () {
     return {
@@ -58,56 +63,29 @@ export default {
       select: '',
       length: 0,
       yuanxi: "",
-
-
-      tableData: [{
-        id: '11111111',
-        userid: '21000000',
-        username: '张三',
-        yuanxi: '计算机工程与科学',
-        leave_type: '事假',
-        leave_start_time: '2022-10-13',
-        leave_end_time: '2022-10-22',
-        status: '待审核'
-      }, {
-        id: '22222222',
-        userid: '21000001',
-        username: '李四',
-        yuanxi: '计算机工程与科学',
-        leave_type: '病假',
-        leave_start_time: '2022-10-13',
-        leave_end_time: '2022-10-22',
-        status: '待审核'
-      }, {
-        id: '33333333',
-        userid: '21000002',
-        username: '王五',
-        yuanxi: '通信学院',
-        leave_type: '病假',
-        leave_start_time: '2022-10-13',
-        leave_end_time: '2022-10-22',
-        status: '审核完成'
+      tableData: [],
+      id: "",
+      currentPage: 1,
+      total: 0,
+      pageSize: 10,
+      searchInfo: {
+        department: "null",
+        selectuserid: "null",
+        status: "null",
+        username: "null"
       }
-      ]
     }
   },
   created () {
-    //let yuanxi = this.$store.getters.yuanxi
-    let id = "12340000"
-    // this.getYuanxi(id)
-    // console.log(this.yuanxi)
-    this.init(id)
+
   },
   mounted () {
+    this.id = this.$store.getters.id
+    console.log(this.id)
+    this.init()
   },
   methods: {
-    filterTag (value, row) {
-      return row.showStatus === value;
-    },
-    filterHandler (value, row, column) {
-      const property = column['property'];
-      return row[property] === value;
-    },
+
     //搜索接口
     search () {
       console.log(this.input);
@@ -127,107 +105,80 @@ export default {
         });
       }
       else {
-        //调用后端接口
         if (this.select === "1") {
-          findLeaveFormByUseridInSchool({
-            "userid": this.input,
-            "department": this.yuanxi
-          }).then(res => {
-            console.log(res);
-            if (res.code === 200) {
-              this.length = res.data.length;
-              this.tableData = res.data
-              for (let leave of res.data) {
-                if (leave.schoolStatus === "0" && leave.hrStatus === "1") {
-                  leave.showStatus = "待审核"
-                } else if (leave.schoolStatus === "1") {
-                  leave.showStatus = "已审核"
-                } else {
-                  leave.showStatus = "未流经"
-                }
-              }
-              console.log(res.data)
-            }
-          })
+          this.searchInfo.selectuserid = this.input;
         }
-        else if (this.select === "2") {
-          findLeaveFormByUsernameInSchool({
-            "username": this.input,
-            "department": this.yuanxi
-          }).then(res => {
-            console.log(res);
-            if (res.code === 200) {
-              this.length = res.data.length;
-              this.tableData = res.data
-              for (let leave of res.data) {
-                if (leave.schoolStatus === "0" && leave.hrStatus === "1") {
-                  leave.showStatus = "待审核"
-                } else if (leave.schoolStatus === "1") {
-                  leave.showStatus = "已审核"
-                } else {
-                  leave.showStatus = "未流经"
-                }
-              }
-
-              console.log(res.data)
-            }
-          })
+        else {
+          this.searchInfo.username = this.input;
         }
-
+        this.currentPage = 1;
+        getAuditSelected({
+          "department": this.searchInfo.department,
+          "pageNum": this.currentPage,
+          "selectuserid": this.searchInfo.selectuserid,
+          "status": this.searchInfo.status,
+          "userid": this.id,
+          "username": this.searchInfo.username
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
       }
     },
     //页面初始化
 
     //点击某条信息，跳转详情页面
     rowChick (row, event, column) {
-      console.log(row.id);
+      const leaveDetail = JSON.stringify(row);
+      window.sessionStorage.setItem('leaveDetail', leaveDetail);
       this.$router.push({
-        name: 'DetailLeave',
-        params: {
-          info: row,
-          role: 2,
-          yuanxi: "计算机",
-        }
+        name: 'DetailLeave'
       })
     },
 
-    getYuanxi (id) {
-      console.log("id:", id);
-      findSchoolDepartmentById({ "school_leader_id": id }).then(res => {
-        console.log("res", res.data[0]);
-        if (res.code === 200) {
-          this.yuanxi = res.data[0].department;
-          this.getInfo()
-        }
-      })
-      console.log(this.yuanxi)
 
-    },
-    getInfo () {
-      console.log(this.yuanxi)
-      findLeaveFormByDeptAndUnfinishedSchool({ "department": this.yuanxi }).then(res => {
+    init () {
+      getAuditLoadingDataByUserid({ "pageNum": this.currentPage, "userid": this.id }).then(res => {
         console.log(res);
         if (res.code === 200) {
-          this.length = res.data.length;
-          this.tableData = res.data
-          for (let leave of res.data) {
-            if (leave.schoolStatus === "0" && leave.hrStatus === "1") {
-              leave.showStatus = "待审核"
-            } else if (leave.schoolStatus === "1") {
-              leave.showStatus = "已审核"
-            } else {
-              leave.showStatus = "未流经"
-            }
-          }
-          console.log(res.data)
+          this.tableData = res.data.records;
+          this.pageSize = res.data.size;
+          this.total = res.data.total;
         }
       })
 
     },
-
-    init (id) {
-      this.getYuanxi(id);
-
+    handleCurrentChange (val) {
+      if (this.searchInfo.department === "null" && this.searchInfo.status === "null" && this.searchInfo.username === "null" && this.searchInfo.selectuserid === "null") {
+        getAuditLoadingDataByUserid({ "pageNum": val, "userid": this.id }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      } else {
+        getAuditSelected({
+          "department": this.searchInfo.department,
+          "pageNum": val,
+          "selectuserid": this.searchInfo.selectuserid,
+          "status": this.searchInfo.status,
+          "userid": this.id,
+          "username": this.searchInfo.username
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      }
     }
   }
 }
@@ -275,5 +226,9 @@ export default {
 
 .box-card ::v-deep .el-card__body {
   margin: 0 20px;
+}
+
+.block {
+  margin-top: 15px;
 }
 </style>

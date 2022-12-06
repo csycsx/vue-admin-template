@@ -2,72 +2,78 @@
   <div class="app-container">
     <!-- zrj -->
     <!-- 卡片视图 -->
-    <el-card style="background-color:#f9fafc">
-      <!-- 直接进行搜索 -->
-      <el-row :gutter="20">
-        <el-col :span="6">
-          <el-input placeholder="请输入内容" 
-          v-model="queryInfo.id">
-            <el-button 
-            slot="append" 
-            icon="el-icon-search"
-            @click="getUserList()"></el-button>
-          </el-input>
-        </el-col>
-        <el-col :span="6">
-          <!-- <el-button 
-          type="primary" 
-          @click="addUserVisible = true">+ 添加人员</el-button> -->
-        </el-col>
-      </el-row>
-     
+    <el-card >
+      <!-- 搜索 -->
+    <div class="search"> 
+      <el-input placeholder="请输入内容" v-model="input" class="input" clearable @clear="getUserList">
+        <!-- <el-select v-model="select" slot="prepend" placeholder="请选择">
+          <el-option label="工号" value="1"></el-option>
+          <el-option label="姓名" value="2"></el-option>
+        </el-select> -->
+        <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+      </el-input>
+    </div>
 
       <!-- 表单 -->
+          <!-- " -->
       <el-table
+      ref="topic"
       :data="userlist"
       stripe
       border
-      style="width: 100%; margin-top:20px;">
+      style="width: 100%; margin-top:20px;"
+      @filter-change="filterChange"
+       >
+      <el-table-column type="index" label="#">
+        </el-table-column>
       <!--  prop="id"  type="index" -->
-      <el-table-column 
+      <!-- <el-table-column 
       prop="id"
       
       label="序号"
       width="90px"
-      ></el-table-column>
+      ></el-table-column> -->
       <el-table-column
       prop="userId"
       label="工号"
-      width="170">
+  
+      >
       </el-table-column>
       <el-table-column
       prop="userName"
       label="姓名"
-      width="170">
+      >
       </el-table-column>
       <el-table-column
       prop="yuanXi"
-      label="院系"
-      width="200">
-      </el-table-column>
-      <el-table-column
-      prop="role"
-      label="用户权限"
-      width="200">
+      label="学院(部门)"
+     >
       </el-table-column>
       <el-table-column
       prop="ptype"
       label="人员类别"
-      width="200">
+      >
+      </el-table-column>
+      <el-table-column
+      :formatter="roleFormatter"
+      prop="role"
+      label="用户权限"
+      sortable
+      column-key="role"
+      :filters="statusData"
+      :filtered-value="['1','2','3','4','5']"
+      filter-placement="bottom-end"
+      >
+            <!-- :filter-method="filterHandler" -->
       </el-table-column>
       <el-table-column
       prop="pstatus"
       label="人员状态"
-      width="170">
+      >
       </el-table-column>
       <el-table-column
       label="操作"
-      width="200px">
+      >
       <template slot-scope="scope">
         <el-button
         size="mini"
@@ -81,27 +87,29 @@
       </el-table-column>
       </el-table>
   
-      <el-row gutter="20">
-        <el-col :span="7">
+     
           <!-- 分页框 -->
-          <el-pagination
+          <!-- <el-pagination
           style="margin-top:30px"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page="queryInfo.pagenum"
-            :page-sizes="[1, 5, 10, 15]"
-            :page-size="queryInfo.pagesize"
-            layout="total, sizes, prev, pager, next, jumper"
+            :current-page="queryInfo.pageNum"
+            :pagesize="6"
+            layout="total, prev, pager, next"
             :total="total">
-            <!-- 这里要换一下动态绑定 -->
-          </el-pagination>
-        </el-col>
-        <el-col :span="4">
-          
-        </el-col>
-      </el-row>
+          </el-pagination> -->
+           <el-pagination
+           style="margin-top:30px"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+           :current-page="queryInfo.pageNum"
+          :page-size="pagesize"
+          layout="total, prev, pager, next"
+          :total="total">
+         </el-pagination>
+   
 <!-- 新增用户信息弹窗  ref是下面表单的引用名称-->
-<!-- <el-dialog 
+      <!-- <el-dialog 
       title="用户信息" 
       :visible.sync="addUserVisible"
       @close="addDialogClose">
@@ -147,8 +155,8 @@
               <el-option label="在岗不在编" value="1"></el-option>
               <el-option label="在编不在岗" value="2"></el-option>
             </el-select>
-          </el-form-item>
-           <el-form-item label="创建时间" prop="gmt_create" :label-width="formLabelWidth">
+          </el-form-item> -->
+           <!-- <el-form-item label="创建时间" prop="gmt_create" :label-width="formLabelWidth">
             <el-date-picker
               v-model="addForm.gmt_create"
               type="date"
@@ -161,20 +169,19 @@
               type="date"
               placeholder="选择日期">
             </el-date-picker>
-          </el-form-item> 
-        </el-form>
-        <div slot="footer" class="dialog-footer">
+          </el-form-item>  -->
+        <!-- </el-form> -->
+        <!-- <div slot="footer" class="dialog-footer">
           <el-button @click="addUserVisible=false">取 消</el-button>
           <el-button type="primary" @click="addUser">确 定</el-button>
         </div>
       </el-dialog> -->
-
-      
+    <!-- 修改用户信息 -->
       <el-dialog 
       title="修改用户信息" 
       :visible.sync="EditUserVisible"
-      @close="addDialogClose">
-        <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" :inline="true">
+      @close="editDialogClosed">
+        <el-form :model="editForm"  ref="editFormRef" :inline="true">
           <el-form-item label="工号"  :label-width="formLabelWidth">
             <el-input v-model="editForm.userId" style="width:200px"  disabled ></el-input>
           </el-form-item>
@@ -182,13 +189,13 @@
             <el-input v-model="editForm.userName" autocomplete="off" style="width:200px" disabled=true ></el-input>
           </el-form-item>
           <el-form-item label="院系"  :label-width="formLabelWidth">
-            <el-select v-model="editForm.yuanXi"  disabled>
+            <el-select v-model="editForm.yuanXi"  disabled=true style="width:200px">
               <el-option label="计算机" ></el-option>
               <el-option label="微电子" ></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="用户权限" :label-width="formLabelWidth">
-            <el-select v-model="editForm.role"  >
+            <el-select v-model="editForm.role"  style="width:200px" >
               <el-option label="普通教师" value="0"></el-option>
               <el-option label="各部门人事干事" value="1"></el-option>
               <el-option label="各部门负责人" value="2"></el-option>
@@ -198,14 +205,14 @@
             </el-select>
           </el-form-item>
           <el-form-item label="人员类别" prop="ptype" :label-width="formLabelWidth">
-            <el-select v-model="editForm.ptype"  disabled=true>
+            <el-select v-model="editForm.ptype"  disabled=true style="width:200px">
               <el-option label="教师" value="0"></el-option>
               <el-option label="人事处" value="1"></el-option>
               <el-option label="工作人员" value="2"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="人员状态" prop="pstatus" :label-width="formLabelWidth">
-            <el-select v-model="editForm.pstatus"  disabled=true>
+            <el-select v-model="editForm.pstatus"  disabled=true style="width:200px">
               <el-option label="在编在岗" value="0"></el-option>
               <el-option label="在岗不在编" value="1"></el-option>
               <el-option label="在编不在岗" value="2"></el-option>
@@ -217,42 +224,48 @@
           <el-button type="primary" @click="editUsers()">确 定</el-button>
         </div>
       </el-dialog>
-    </el-card>
-    
+    </el-card>  
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-import { getUser, addUserTo, deleteUserFrom,updateUsersForm } from '@/api/admin'
+import { findUserByUserid,findUserPageByRoleList,updateUsersForm } from '@/api/admin'
 export default {
     data() {
       return {
+        num:'12345',
         userlist:[],
+        userlist1:[],
+        userlist2:[],
         total:0,
+        pagesize:1,
+        tag:true,
+        input: '',
         //获取用户列表的参数对象
         queryInfo:{
-          id:'',
-          query:'',
-          pagenum:1,
-          pagesize:2,
+          pageNum:1,
+          role:'',
+          
+         // pagesize:'',
         },
-
+        statusData:[{text: '普通教师', value: '0'}, {text: '各部门人事干事', value: '1'}, {text: '各部门负责人', value: '2'}, {text: '人事处人事科人员', value: '3'}, 
+      {text: '人事处负责人', value: '4'}, {text: '校领导', value: '5'}],
         // 控制弹窗信息的显示和隐藏
         addUserVisible: false,
         EditUserVisible:false,
         formLabelWidth: '120px',
-         // 添加用户的表单数据
-        //  addForm:{
-        //   id:'',
-        //   userid:'',
-        //   username:'',
-        //   gender:'',
-        //   yuanxi:'',
-        //   role:'',
-        //   ptype:'',
-        //   pstatus:'',
-        // },
+        //  添加用户的表单数据
+         addForm:{
+          id:'',
+          userid:'',
+          username:'',
+          gender:'',
+          yuanxi:'',
+          role:'',
+          ptype:'',
+          pstatus:'',
+        },
 
         // 修改用户的表单数据
         editForm:{
@@ -265,7 +278,7 @@ export default {
           ptype:'',
           pstatus:'',
       },
-       // 添加表单验证规则对象
+      //  添加表单验证规则对象
         // addFormRules:{
         //   userid:[
         //     {required:true,message:'请输入用户ID',trigger:'blur'},
@@ -284,26 +297,86 @@ export default {
 
 
     created(){
-      this.getUserList()
-      this.deleteUserFrom()
-      this.updateUsersForm()
-      
-
+     this.getUserList()
+   //  this.filterChange()
+      //this.exchange()
+      // this.deleteUserFrom()
+     // this.updateUsersForm()
     },
+
+    mounted() {
+     // this.$set(this.filtereds,0,this.$route.query.role)
+    },
+
     methods: {
+        //修改role字段
+    
+       //获取全部数据     
+      async getUserList(){ 
+          console.log(this.num)
+        // console.log(this.filters,role[0])
+            let params={
+              'pageNum':this.queryInfo.pageNum,
+              'roleList':this.num
+              // 'roleList':filters.role.join('')
+            }
+            findUserPageByRoleList(params).then((res) => {
+            console.log(res)
+            this.userlist=res.data.records   
+            this.total=res.data.total
+            this.pagesize=res.data.size  
+            }) 
+      }, 
+      //获取权限不为0的用户
+      //  async getAdminUserList(){ 
+      //       let params={
+      //         'pageNum':this.queryInfo.pageNum
+      //       }
+      //       findAdminUserPagination(params).then((res) => {
+      //       console.log(res)
+      //       //console.log(res.data.size)
+      //       this.userlist=res.data.records
+      //       this.total=res.data.total
+      //       this.pagesize=res.data.size  
+      //       }) 
+      // }, 
+      roleFormatter(row, column){
+				const role = row.role
+      			if (role == 0) {
+        			return '普通教师'
+      			} else if (role == 1) {
+        			return '各部门人事干事'
+      			} else if (role == 2) {
+        			return '各部门负责人'
+      			} else if (role == 3) {
+			        return '人事处人事科人员'
+      			} else if (role == 4){
+        			return '人事处负责人'
+      			} else if (role == 5){
+              return '校领导'
+      			} 
+			},
 
-      //获取用户数据
-      async getUserList(){
-        const res = await axios.get('api/leave-attendance/user/findAllUser',{
-          params:this.queryInfo
-        }).then((res)=>{
-          console.log(res)
-          this.userlist=res.data.data
-          this.id=res.data.data.id
-          console.log(this.id)
-        })
-      },
-
+      //搜索接口
+     async search () {
+    //  console.log(this.input);
+      this.userlist=[]
+      if (this.input === "") {
+        this.$Notice.error({
+          title: "请输入搜索内容",  
+        });
+      }
+      else {
+        let params={
+            'userid':this.input
+          }
+          findUserByUserid(params).then((res) => {
+            console.log(res.data)   
+            this.userlist1=res.data   
+            this.userlist=this.userlist.concat(this.userlist1) 
+         })
+      }
+    },
        //添加人员实现
       // async addUser(){
       //   this.userid = this.addForm.userid
@@ -328,42 +401,6 @@ export default {
       //     this.addUserVisible=false
       //   })
       // },
-     
-          //删除用户
-          async deleteUsers(id){
-      const confirmResult = await this.$confirm(
-        "此操作将永久删除该用户, 是否继续?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      ).catch((err) => {
-        return err;
-      });
-      if (confirmResult == "confirm") {
-      deleteUserFrom(id).then((res)=>{
-        console.log(res)
-        if (res.code == 200) {
-          this.userlist.splice(id,1);
-              this.$message({
-                message: "删除成功",
-                type: "success",
-              });
-              this.getUserList();
-            } else {
-              this.$message.error("删除失败");
-            }
-          })
-          .catch((err) => {
-            this.$message.error("删除异常");
-            console.log(err);
-          });
-        }
-    },
-    
-
       // 编辑
       showEditDialog(row) {
         this.EditUserVisible= true;
@@ -387,7 +424,7 @@ export default {
           console.log(res)
            if (res.code == 200) {
              this.EditUserVisible = false;
-             this.getUserList();
+             this.getAdminUserList();
              this.$message({
                message: "修改用户成功",
                type: "success",
@@ -402,6 +439,13 @@ export default {
            console.log(err);
          });
       },
+      //修改后关闭窗口
+    editDialogClosed(){
+     this.EditUserVisible=false
+     this.$nextTick(()=>{
+          this.$refs.editForm.resetFields();
+     })                              
+   },
 
       // 监听添加用户对话框的关闭事件 关闭后清除表单内容
       // addDialogClose(){
@@ -417,22 +461,105 @@ export default {
       },
       //监听页码值改变事件
       handleCurrentChange(newPage) {
-        console.log(`当前页: ${val}`);
-        this.queryInfo.pagenum=newPage
-        this.getUserList()
+      //  console.log(`当前页: ${val}`);
+      this.queryInfo.pageNum=newPage
+       this.getUserList()
+        // if(this.tag==true)
+        // {
+        //     this.queryInfo.pageNum=newPage
+        //     this.getAdminUserList()
+        // }
+        // else if(this.tag==false)
+        // {
+        //   this.queryInfo.pageNum=newPage
+        //   this.getUserList()
+        // }
+      
       },
 
-      
+      //用户权限筛选
+      resetDateFilter() {
+        this.$refs.filterTable.clearFilter('role');
+      },
+      clearFilter() {
+        this.$refs.filterTable.clearFilter();
+      },
+      filterTag(value, row) {
+        return row.tag === value;
+      },
+      filterHandler(value, row, column) {
+        const property = column['property'];
+        return row[property] === value;
+        
+      },
+      // // 筛选状态变化时调用查询全部用户的接口
+      // filterChange() {
+      //   //调用接口
+      // //  this.getUserList();
+      //   console.log(this.tag)
+      //   this.tag=!this.tag;
+      //   //console.log(this.tag)
+      //   if(this.tag==false)
+      //   {
+      //     this.getUserList();
+      //   }
+      //   else if(this.tag==true)
+      //   {
+      //     this.getAdminUserList()
+      //   }
+      // },
+        // 筛选状态
+    filterChange(filters) {
+      filters.role.sort((a,b)=>{
+        return a-b;
+      })
+      this.num=filters.role.join('')
+      this.getUserList()
+    //  console.log(this.num)
+     // console.log(filters.role.length)
+    //  for(let i=0;i<filters.role.length;i++)
+    //  {
+    //      this.num.push(filters.role[i])
+         
+    //  }
+ 
+     //  console.log(filters.role[0])
+          // if(filters.role){
+          //   this.queryInfo.role = filters.role[0]
+          //   this.getUserList()
+          // }
+      }
     
-
-     //切换页实现
-
-     
-     
+    // 修改传给后端接口的参数，并重新调用接口
+      // this..role = filter.role.join(',')
+      // 
+    
+      
     },
+
 
 }
 </script>
 <style scoped>
+.app-container{
+  width: 100%;
+}
+::v-deep .el-tabs__item{
+  
+  font-size: 10px !important;
 
+  line-height: 80px;
+  text-align: center;
+ 
+}
+::v-deep .cell{
+  font-size: 14px;
+  width: 400px;
+}
+   .search {
+  width: 400px;
+}
+.el-select {
+  width: 100px;
+}
 </style>

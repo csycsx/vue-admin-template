@@ -64,21 +64,21 @@
         <el-dialog title="审核详情" :visible.sync="dialogVisible" width="60%" :before-close="handleClose">
           <el-collapse v-model="activeNames" @change="handleChange">
             <el-collapse-item title="部门人事初审信息" name="1" v-if="active>0">
-              <StepInfo :step="1" />
+              <StepInfo :step-info="stepInfo1" />
 
             </el-collapse-item>
             <el-collapse-item title="部门负责人审核信息" name="2" v-if="active>1">
-              <StepInfo :step="2" />
+              <StepInfo :step-info="stepInfo2" />
 
             </el-collapse-item>
             <el-collapse-item title="人事处科员初审信息" name="3" v-if="active>2">
-              <StepInfo :step="3" />
+              <StepInfo :step-info="stepInfo3" />
             </el-collapse-item>
             <el-collapse-item title="人事处负责人审核信息" name="4" v-if="active>3">
-              <StepInfo :step="4" />
+              <StepInfo :step-info="stepInfo4" />
             </el-collapse-item>
             <el-collapse-item title="校领导审核信息" name="4" v-if="active>4">
-              <StepInfo :step="5" />
+              <StepInfo :step-info="stepInfo5" />
             </el-collapse-item>
           </el-collapse>
 
@@ -86,7 +86,7 @@
       </div>
       <!-- 审核结果 -->
       <div class="check-box" v-if="isShow ">
-        <el-form ref="form" :model="check" label-width="80px" class="check-form">
+        <el-form ref="form" :model="check" label-width="80px">
           <el-form-item label="审核结果">
             <el-radio-group v-model="check.result">
               <el-radio label="通过"></el-radio>
@@ -117,7 +117,7 @@
 
 <script type="text/ecmascript-6">
 import { init } from 'events';
-import { SingleleaveAudit } from "../../api/audit";
+import { SingleleaveAudit, getCurrentAuditMsg } from "../../api/audit";
 import StepInfo from "./components/StepInfo";
 export default {
   props: ['info'],
@@ -151,17 +151,17 @@ export default {
     }
   },
   created () {
+    let yuanxi = this.$store.getters.yuanxi
+    // let yuanxi = "校办公室"
     //let yuanxi = this.$store.getters.yuanxi
-    let yuanxi = "校办公室"
-    //let yuanxi = this.$store.getters.yuanxi
-    this.role = "2";
-    this.userid = "20222222";
+    this.role = this.$store.getters.role_num;
+    this.userid = this.$store.getters.id;
 
 
 
   },
   mounted () {
-    this.info = this.$route.params.info;
+    this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
     console.log(this.info)
     this.init();
   },
@@ -222,6 +222,7 @@ export default {
       console.log(this.step);
       //判断是否能审核
       if (this.info.showStatus === "待审核") this.isShow = 1;
+      if (this.info.showStatus === "已审核") this.isFinish = 1;
 
       //判断当前正在第几步
       if (this.info.departmentStatus === "0") this.active = 0;
@@ -236,9 +237,43 @@ export default {
           else this.active = 5;
         }
       }
+      this.getDetail()
 
 
 
+    },
+    getDetail () {
+      getCurrentAuditMsg({ "leave_id": this.info.id }).then(res => {
+        console.log(res);
+        if (res.code === 200) {
+          if (res.data.departmentAuditMsg !== "尚未进行部门审核") {
+            this.stepInfo1.id = res.data.departmentAuditMsg.dpOfficerId;
+            this.stepInfo1.result = res.data.departmentAuditMsg.dpOfficerResult;
+            this.stepInfo1.recommend = res.data.departmentAuditMsg.dpOfficerRecommend;
+            this.stepInfo1.time = res.data.departmentAuditMsg.dpOfficerTime;
+            this.stepInfo2.id = res.data.departmentAuditMsg.dpLeaderId;
+            this.stepInfo2.result = res.data.departmentAuditMsg.dpLeaderResult;
+            this.stepInfo2.recommend = res.data.departmentAuditMsg.dpLeaderRecommend;
+            this.stepInfo2.time = res.data.departmentAuditMsg.dpLeaderTime;
+          }
+          if (this.step > 2 && res.data.hrAuditMsg !== "尚未进行人事处审核") {
+            this.stepInfo3.id = res.data.hrAuditMsg.hrOfficerId;
+            this.stepInfo3.result = res.data.hrAuditMsg.hrOfficerResult;
+            this.stepInfo3.recommend = res.data.hrAuditMsg.hrOfficerRecommend;
+            this.stepInfo3.time = res.data.hrAuditMsg.hrOfficerTime;
+            this.stepInfo4.id = res.data.hrAuditMsg.hrLeaderId;
+            this.stepInfo4.result = res.data.hrAuditMsg.hrLeaderResult;
+            this.stepInfo4.recommend = res.data.hrAuditMsg.hrLeaderRecommend;
+            this.stepInfo4.time = res.data.hrAuditMsg.hrLeaderTime;
+          }
+          if (this.step > 4 && res.data.schoolAuditMsg !== "尚未进行校领导审核") {
+            this.stepInfo5.id = res.data.departmentAuditMsg.scOfficerId;
+            this.stepInfo5.result = res.data.departmentAuditMsg.scOfficerResult;
+            this.stepInfo5.recommend = res.data.departmentAuditMsg.scOfficerRecommend;
+            this.stepInfo5.time = res.data.departmentAuditMsg.scOfficerTime;
+          }
+        }
+      })
     }
   },
 }

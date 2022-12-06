@@ -104,8 +104,8 @@ export const constantRoutes = [
         meta: { title: '个人请假申请记录', icon: 'el-icon-top-right' ,roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']}
       },
       {
-        path: 'revokeapply',
-        name: 'revokeApply',
+        path: 'revokeRecord',
+        name: 'RevokeRecord',
         component: () => import('@/views/apply/RevokeRecord'),
         meta: { title: '个人销假申请记录', icon: 'el-icon-bottom-left',roles:['admin','user','department_auditor','hr_auditor','leader_auditor'] }
       },
@@ -114,6 +114,7 @@ export const constantRoutes = [
         name: 'DetailedLeave',
         component: () => import('@/views/apply/DetailedLeave'),
         meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
+        hidden: true
         // hidden: false
       },
     ]

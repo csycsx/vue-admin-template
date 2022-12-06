@@ -73,3 +73,37 @@ export function getCurrentLeaveDays(data) {
     params: data
   })
 }
+
+//教学周识别
+export function checkTeachingDate(data) {
+  return request({
+    url: '/calender/checkTeachingDate',
+    method: 'get',
+    params: data
+  })
+}
+
+//销假申请
+export function addRevokeRecord(data) {
+  return request({
+    url: '/revoke/addRevokeRecord',
+    method: 'post',
+    params: data
+  })
+}
+
+export function getRevokeListByUserId(data) {
+  return request({
+    url: '/revoke/getRevokeListByUserId',
+    method: 'get',
+    params: data
+  })
+}
+
+export function getReferenceLeaveDay(data) {
+  return request({
+    url: '/calender/getReferenceLeaveDay',
+    method: 'get',
+    params: data
+  })
+}
