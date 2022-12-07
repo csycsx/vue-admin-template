@@ -73,7 +73,7 @@
 
 <script type="text/ecmascript-6">
 import { init } from 'events';
-import { getLeaveDetail, addRevokeRecord } from "@/api/apply"
+import { getLeaveDetail, addRevokeRecord, findRevokeByLeaveId } from "@/api/apply"
 
 export default {
   data () {
@@ -98,6 +98,8 @@ export default {
         revoke_report_time: "",
 
       },
+      revokeStatus: '',
+      revokeInfo: '',
 
     }
   },
@@ -120,20 +122,19 @@ export default {
           this.initAuditFlow();
         }
       })
+      findRevokeByLeaveId({ "leave_id": this.queryData.id }).then(res => {
+        if (res.code === 200) {
+          this.revokeStatus = res.data.resultCode;
+          this.revokeInfo = res.data.result;
+        }
+      })
     },
+
 
     /**
      * 判断审核流程，有几个阶段，处于什么阶段
      */
     initAuditFlow () {
-      // this.detailInfo.departmentStatus = 1;
-      // this.detailInfo.hrStatus =1;
-      // this.detailInfo.schoolStatus = 0;
-      // this.detailInfo.status = 0;
-      // console.log(this.detailInfo.departmentStatus)
-      // console.log(this.detailInfo.hrStatus)
-      // console.log(this.detailInfo.schoolStatus)
-      // console.log(this.detailInfo.status)
       this.judgeDepartAuditFlow();
       this.judgeHrAuditFlow();
       this.judgeSchoolAuditFlow();
@@ -245,32 +246,48 @@ export default {
     },
 
     onSubmit () {
-      let nowDate = new Date();
-      let revoke_submit_time = this.getDate(nowDate);
-      let revoke_report_time = this.getDate(this.revoke.revoke_report_time);
-      let user_id = this.$store.getters.id;
-      console.log(revoke_submit_time);
-      addRevokeRecord({
-        "leave_id": this.detailInfo.id,
-        "revoke_report_time": revoke_report_time,
-        "revoke_submit_time": revoke_submit_time,
-        "user_id": user_id,
-      }).then(res => {
-        console.log(res);
-        if (res.code === 200) {
-          console.log(res.data);
-          this.$message({
-            message: '销假申请成功',
-            type: 'success'
-          });
-          this.$router.push({
-            name: 'RevokeRecord'
-          })
-        }
-        else {
-          this.$message.error(res.message);
-        }
-      })
+      if (this.revokeStatus == 0) {
+        let nowDate = new Date();
+        let revoke_submit_time = this.getDate(nowDate);
+        let revoke_report_time = this.getDate(this.revoke.revoke_report_time);
+        let user_id = this.$store.getters.id;
+        console.log(revoke_submit_time);
+        addRevokeRecord({
+          "leave_id": this.detailInfo.id,
+          "revoke_report_time": revoke_report_time,
+          "revoke_submit_time": revoke_submit_time,
+          "user_id": user_id,
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            console.log(res.data);
+            this.$message({
+              message: '销假申请成功',
+              type: 'success'
+            });
+            this.$router.push({
+              name: 'RevokeRecord'
+            })
+          }
+          else {
+            this.$message.error(res.message);
+          }
+        })
+      }
+      else if (this.revokeStatus == 1) {
+        this.$message({
+          message: '您已提交过销假申请',
+          type: 'warning'
+        });
+        this.$router.push({
+          name: 'DetailedRevoke',    // 详情页传入行参数
+          query: {
+            id: this.revokeInfo.id,
+          }
+        })
+
+      }
+
     },
   },
 }

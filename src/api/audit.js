@@ -164,3 +164,24 @@ export function getCurrentAuditMsg(data) {
   )
 }
 
+//销假审核页默认请假列表接口
+export function getAuditLoadingDataByUserId(data) {
+  return request(
+    {
+    url: '/revokeAudit/getAuditLoadingDataByUserId',
+    method: 'get',
+    params: data
+    }
+  )
+}
+
+//新增销假审核信息
+export function addRevokeAudit(data) {
+  return request(
+    {
+    url: '/revokeAudit/addRevokeAudit',
+    method: 'post',
+    params: data
+    }
+  )
+}

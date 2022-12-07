@@ -129,9 +129,6 @@ export default {
       //info: {},
       step: 2,
       active: 0,
-      department_status: "",
-      hr_status: "2022-3-5",
-      school_stauts: "2022-2-22",
       check: {
         result: "",
         recomment: "",

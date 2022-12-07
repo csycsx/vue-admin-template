@@ -107,3 +107,21 @@ export function getReferenceLeaveDay(data) {
     params: data
   })
 }
+
+//查找请假申请对应的销假记录
+export function findRevokeByLeaveId(data) {
+  return request({
+    url: '/revoke/findRevokeByLeaveId',
+    method: 'get',
+    params: data
+  })
+}
+
+//获取销假申请详情信息
+export function getRevokeDetailById(data) {
+  return request({
+    url: '/revoke/getRevokeDetailById',
+    method: 'get',
+    params: data
+  })
+}

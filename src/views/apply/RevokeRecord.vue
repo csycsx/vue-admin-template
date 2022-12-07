@@ -29,7 +29,8 @@
         <div slot="header" class="clearfix">
           <h3>个人历史销假申请列表</h3>
         </div>
-        <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;">
+        <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;"
+          @row-click="rowChick">
           <el-table-column label="序号" prop="id" width="50" />
           <el-table-column label="请假开始时间" prop="leave.leaveStartTime" width="150" />
           <el-table-column label="请假结束时间" prop="leave.leaveEndTime" width="150" />
@@ -52,9 +53,11 @@
             </template>
           </el-table-column>
         </el-table>
-        <!-- <el-pagination @current-change="changePage" v-if="isShow" background layout="prev, pager, next" :total="total"
-          :page-size="pageSize">
-        </el-pagination> -->
+        <div class="block">
+          <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize"
+            layout="total, prev, pager, next, jumper" :total="total">
+          </el-pagination>
+        </div>
       </el-card>
     </div>
   </div>
@@ -67,20 +70,48 @@ export default {
     return {
       auditStatus: ["未审核", "审核通过", "审核不通过", "已撤销"],
       tableData: [],
-      total: 1,
-      pageSize: 1,
+      currentPage: 1,
+      total: 0,
+      pageSize: 10,
       userid: ''
     }
   },
   created () {
     this.userid = this.$store.getters.id;
-    let param = { "user_id": this.userid }
+    let param = { "user_id": this.userid, "pageNum": this.currentPage }
     getRevokeListByUserId(param).then(res => {
       if (res.code === 200) {
-        this.tableData = res.data;
+        this.tableData = res.data.records;
+        this.pageSize = res.data.size;
+        this.total = res.data.total;
       }
     })
   },
+  methods: {
+    handleCurrentChange (val) {
+      let param = { "user_id": this.userid, "pageNum": val }
+      getRevokeListByUserId(param).then(res => {
+        if (res.code === 200) {
+          this.tableData = res.data.records;
+          this.pageSize = res.data.size;
+          this.total = res.data.total;
+        }
+      })
+
+    },
+
+    //点击某条信息，跳转详情页面
+    rowChick (row, event, column) {
+      this.$router.push({
+        name: 'DetailedRevoke',    // 详情页传入行参数
+        query: {
+          id: row.id,
+          flag: "apply"
+        }
+      })
+    },
+
+  }
 }
 
 </script>
@@ -120,5 +151,8 @@ export default {
 
 .line {
   text-align: center;
+}
+.block {
+  margin-top: 15px;
 }
 </style>

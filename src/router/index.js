@@ -117,6 +117,14 @@ export const constantRoutes = [
         hidden: true
         // hidden: false
       },
+      {
+        path: 'detailedRevoke',
+        name: 'DetailedRevoke',
+        component: () => import('@/views/apply/DetailedRevoke'),
+        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
+        hidden: true
+        // hidden: false
+      },
     ]
   },
 
@@ -134,22 +142,22 @@ export const constantRoutes = [
       //   meta: { title: '表单审核', icon: 'el-icon-s-check' ,roles: ['admin','leader']}
       // },
       {
-        path: 'dpAuditlist',
+        path: 'dpAuditList',
         name: 'DpAuditList',
         component: () => import('@/views/audit/DpAuditList'),
-        meta: { title: '部门表单审核', icon: 'el-icon-s-check' ,roles: ['department_auditor']}
+        meta: { title: '部门请假审核', icon: 'el-icon-s-check' ,roles: ['department_auditor']}
       },
       {
-        path: 'hrAuditlist',
+        path: 'hrAuditList',
         name: 'HrAuditList',
         component: () => import('@/views/audit/HrAuditList'),
-        meta: { title: '人事处表单审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
+        meta: { title: '人事处请假审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
       },
       {
-        path: 'scAuditlist',
+        path: 'scAuditList',
         name: 'ScAuditList',
         component: () => import('@/views/audit/ScAuditList'),
-        meta: { title: '校领导表单审核', icon: 'el-icon-s-check' ,roles: ['leader_auditor']}
+        meta: { title: '校领导请假审核', icon: 'el-icon-s-check' ,roles: ['leader_auditor']}
       },
       {
         path: 'detailLeave',
@@ -158,7 +166,27 @@ export const constantRoutes = [
         component: () => import('@/views/audit/DetailLeave'),
         meta: { title: '表单审核详情', icon: 'el-icon-s-check' ,roles:['department_auditor','hr_auditor','leader_auditor']},
         hidden: true
-      }
+      },
+      {
+        path: 'detailRevoke',
+        name: 'DetailRevoke',
+        component: () => import('@/views/audit/DetailRevoke'),
+        meta: { title: '销假审核详情', icon: 'el-icon-s-check' ,roles:['department_auditor','hr_auditor','leader_auditor']},
+        hidden: true
+      },
+      {
+        path: 'dpRevokeList',
+        name: 'DpRevokeList',
+        component: () => import('@/views/audit/DpRevokeList'),
+        meta: { title: '部门销假审核', icon: 'el-icon-s-check' ,roles: ['department_auditor']}
+      },
+      {
+        path: 'hrRevokelist',
+        name: 'HrRevokeList',
+        component: () => import('@/views/audit/HrRevokeList'),
+        meta: { title: '人事处销假审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
+      },
+      
     ]
   },
 
