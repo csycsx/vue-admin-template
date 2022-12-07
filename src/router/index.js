@@ -114,7 +114,7 @@ export const constantRoutes = [
         name: 'DetailedLeave',
         component: () => import('@/views/apply/DetailedLeave'),
         meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','leader'] },
-        // hidden: false
+        hidden: true
       },
     ]
   },

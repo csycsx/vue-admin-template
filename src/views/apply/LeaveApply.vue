@@ -49,18 +49,20 @@
               </el-select>
             </el-form-item>
           </el-col>
+          <el-col :span="5">
+            <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'">
+              <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
+                <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item prop="child" v-if="leave_type1.child == '是' & leave_type == '因公出差'">
+              需在请假系统关联PIM中已完成的因公出国（境）申请流程
+            </el-form-item>
+          </el-col>
         </el-row>
-
-        <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'">
-          <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
-            <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item prop="child" v-if="leave_type1.child == '是' & leave_type == '因公出差'">
-          需在请假系统关联PIM中已完成的因公出国（境）申请流程
-        </el-form-item>
 
         <el-form-item label="选择请假时间" style="height: 62px; margin-bottom: 10px;">
           <el-date-picker :picker-options="pickerOptions" v-model="start_end_time" type="datetimerange"
@@ -102,9 +104,9 @@
           <el-col :span="8">
             <el-form-item label="文件上传" prop="leave_matrial">
               <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/"
-                accept=".jpg,.png" multiple :limit="1" :name="leave_matrial" :on-exceed="handleExceed"
+                accept=".jpg,.png,.pdf" multiple :limit="1" :name="leave_matrial" :on-exceed="handleExceed"
                 :on-preview="handlePreview" :on-remove="handleRemove" :file-list="fileList" :auto-upload="true">
-                <el-popover placement="right" width="200" trigger="hover" content="只能上传jpg/png文件，且不超过500kb">
+                <el-popover placement="right" width="200" trigger="hover" content="只能上传jpg/png/pdf文件，且不超过500kb">
                   <el-button slot="reference" size="medium" type="primary">选取文件
                     <i class="el-icon-upload el-icon--right"></i>
                   </el-button>
