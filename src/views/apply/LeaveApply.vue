@@ -69,10 +69,10 @@
             format="yyyy 年 MM 月 dd 日 HH 时" value-format="yyyy-MM-dd HH" range-separator="至" start-placeholder="开始日期"
             end-placeholder="结束日期" @change="handleTimePicker">
           </el-date-picker>
-          <el-popover placement="right" title="当前系统判定实际请假天数共" width="200" trigger="hover"
+          <!-- <el-popover placement="right" title="当前系统判定实际请假天数共" width="200" trigger="hover"
             :content="leaveRealDaysContent">
             <i class="el-icon-warning-outline" slot="reference" style="margin-left: 50px;"></i>
-          </el-popover>
+          </el-popover> -->
           <div style="display:flex;">
             <div style="margin-left:80px">{{start}}</div>
             <div style="margin-left:80px">{{end}}</div>
@@ -402,7 +402,7 @@ export default {
         "leave_type": this.leave_type
       }).then(res => {
         if (res.code === 200) {
-          this.allDay = '您的实际请假天数为：' + res.data;
+          this.allDay = '系统计算您的请假天数为：' + res.data + '天，具体判定以人事处为准。'
           this.submitLeave();
         }
       })
