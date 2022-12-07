@@ -1,12 +1,14 @@
 import request from '@/utils/request'
 
+// 调用后端用户登录接口，并返回全局token
 export function login(data) {
   return request({
-    url: '/vue-admin-template/user/login',
+    url: '/user/login',
     method: 'post',
     data
   })
 }
+
 
 export function getInfo(token) {
   return request({
@@ -22,3 +24,20 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function getUserInfoById(data) {
+  return request({
+    url: '/user/findUserById',
+    method: 'get',
+    params: data
+  })
+}
+
+export function getAdminInfo(data) {
+  return request({
+    url: '/admin_info/findAdminById',
+    method: 'get',
+    params: data
+  })
+}
+

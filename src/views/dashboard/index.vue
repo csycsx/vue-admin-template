@@ -32,10 +32,10 @@ export default {
     // this.$store.commit('user/SET_NAME',"修改名字")
     console.log(this.$store.getters.name)
     // 调用 src/api/example.js 中写好的接口
-    example().then(response => {
-      console.log("后端传回的数据")
-      console.log(response)
-    })
+    // example().then(response => {
+    //   console.log("后端传回的数据")
+    //   console.log(response)
+    // })
   
   }
 }

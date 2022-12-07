@@ -65,20 +65,46 @@ export default {
    * 初始化页面时，根据用户权限动态设置侧边导航栏的显示
    */
     createMenu(){
-      const role = store.getters.role // 当前等于用户角色
+      var role = store.getters.role // 当前等于用户角色
+      var commonRoleIndex = 0
+      var isAdmin = false
+      if(role.length==2){
+        // 当前用户为管理员
+        isAdmin = true
+        commonRoleIndex = (role.indexOf('admin')+1) % 2 // 获取第二种身份得序号
+      }
+      role = role[commonRoleIndex] // 非管理员的角色
+
       // this.$router.options.routes 静态全部页面列表
       this.$router.options.routes.forEach(element => {
-        
+  
         if(element.meta.roles[0]=="all"){
           // 跳过白名单  
           this.dynamicsMenu.push(element)
         }else{
-          const permissioned = element.meta.roles.indexOf(role)
-          if(permissioned!=(-1)){
-            // -1 ：当前页面不在用户权限范围之内，需要跳过
-            this.dynamicsMenu.push(element)
+          if(element.name == 'Admin'){
+            //管理员menu控制
+            if(isAdmin){
+              this.dynamicsMenu.push(element)
+            }
+          }else{
+            // 非管理员menu控制
+              const permissioned = element.meta.roles.indexOf(role)
+              if(permissioned!=(-1)){
+                // -1 ：当前页面不在用户权限范围之内，需要跳过
+                var childernArray = []
+                // 判断子元素是否有权限查看，当子元素个数为1时则隐藏折叠
+                element.children.forEach(childElement => {
+                    if(childElement.meta.roles.indexOf(role) != -1){
+                      childernArray.push(childElement)
+                    }
+                })
+                element.children = childernArray
+                this.dynamicsMenu.push(element)
+              }
+            }
           }
-        }
+          
       });
     }
   },

@@ -5,6 +5,9 @@ export function getUserInfoById(data) {
   return request({
     url: '/user/findUserById',
     method: 'get',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'   // 设置请求头格式为：x-www-form-urlencoded
+    },
     params: data
   })
 }
@@ -18,8 +21,8 @@ export function addTeacherLeaveFormMsg(data) {
   })
 }
 
-// 调用后端"根据工号查询用户的全部请假记录"接口
-export function getUserInfoByUserId(data) {
+// 调用后端"根据工号分页查询用户的全部请假记录"接口
+export function findLeaveFormByUserid(data) {
   return request({
     url: '/leave/findLeaveFormByUserid',
     method: 'get',
@@ -57,6 +60,67 @@ export function getLeaveDetail(data) {
 export function listLeaveByTimePeriodAndAuditStatus(data) {
   return request({
     url: '/leave/findLeaveFromTimePeriodAndAuditStatus',
+    method: 'get',
+    params: data
+  })
+}
+
+// 调用获取实际请假时长参考值接口
+export function getCurrentLeaveDays(data) {
+  return request({
+    url: '/history/getCurrentLeaveDays',
+    method: 'get',
+    params: data
+  })
+}
+
+//教学周识别
+export function checkTeachingDate(data) {
+  return request({
+    url: '/calender/checkTeachingDate',
+    method: 'get',
+    params: data
+  })
+}
+
+//销假申请
+export function addRevokeRecord(data) {
+  return request({
+    url: '/revoke/addRevokeRecord',
+    method: 'post',
+    params: data
+  })
+}
+
+export function getRevokeListByUserId(data) {
+  return request({
+    url: '/revoke/getRevokeListByUserId',
+    method: 'get',
+    params: data
+  })
+}
+
+export function getReferenceLeaveDay(data) {
+  return request({
+    url: '/calender/getReferenceLeaveDay',
+    method: 'get',
+    params: data
+  })
+}
+
+//查找请假申请对应的销假记录
+export function findRevokeByLeaveId(data) {
+  return request({
+    url: '/revoke/findRevokeByLeaveId',
+    method: 'get',
+    params: data
+  })
+}
+
+//获取销假申请详情信息
+export function getRevokeDetailById(data) {
+  return request({
+    url: '/revoke/getRevokeDetailById',
     method: 'get',
     params: data
   })

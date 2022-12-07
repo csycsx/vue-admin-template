@@ -17,12 +17,15 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
 
-    if (store.getters.token) {
-      // let each request carry token
-      // ['X-Token'] is a custom headers key
-      // please modify it according to the actual situation
-      config.headers['X-Token'] = getToken()
-    }
+    // if (store.getters.token) {
+    //   // let each request carry token
+    //   // ['X-Token'] is a custom headers key
+    //   // please modify it according to the actual situation
+    //   config.headers['X-Token'] = getToken()
+    // }
+
+    config.headers.token = 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxIiwic3ViIjoicm9vdCIsImlzcyI6IndzZyIsImlhdCI6MTY2ODMzOTI2OCwiZXhwIjoxNjcwOTMxMjY4fQ.SlPHk0DPp8UY7NXk8nb0sIjJ2U_iLfoXx40F6DuvzV0'
+
     return config
   },
   error => {

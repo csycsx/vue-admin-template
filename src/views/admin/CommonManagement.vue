@@ -1,9 +1,10 @@
 <template>
-  <el-main>
-    <!-- xll -->
-  <el-header>请假类型时长设置</el-header>
+  <el-main> 
     <!-- 卡片视图 -->
     <el-card>
+       <header class="title">
+        <h2>请假类型时长设置</h2>
+       </header>
         <!-- 表单 -->
       <el-table border
         :data="timeLimitList"
@@ -23,13 +24,13 @@
         </el-table-column>
        
         <el-table-column label="操作">
-          <tempate slot-scope="scope" >
+          <div slot-scope="scope" >
    
       <!-- 修改按钮 -->
             <el-button  icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)">编辑</el-button>
       <!-- 删除按钮 -->
             <!-- <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeById(scope.row)"></el-button> -->
-          </tempate>
+          </div>
         </el-table-column>
       </el-table>
     </el-card>
@@ -37,7 +38,7 @@
       title="修改信息"
       :visible.sync="editDialogVisible"
       width="30%"
-      @close="editDialogClosed">
+     >
       <el-form :model="editForm" label-width="80px">
      
       <el-form-item label="请假类型" >
@@ -60,7 +61,7 @@
 
 <script>
 import axios from 'axios'
-import { getLimitList ,UpdateLimitTimeById} from '@/api/admin'
+import {findAllLimitTimeByRoleId ,UpdateLimitTimeById} from '@/api/admin'
 export default {
   data() {
     return {
@@ -87,18 +88,17 @@ export default {
   },
   created () {
     this.getLimitList()
-    this.UpdateLimitTimeById()
+   // this.UpdateLimitTimeById()
   },
   methods: {
     //获取数据
-          
-      async getLimitList(){
-       const res = await axios.get('api/leave-attendance/leave_audit_limit_time/findAllLimitTimeByRoleId?roleid=1')
-     //  const res1 = await axios.get('api/leave-attendance/leave_audit_limit_time/findAllLimitTimeByRoleId?roleid=2')
-        console.log(res)
-        this.timeLimitList=res.data.data
-       // this.timeLimitList1=this.timeLimitList.concat(res1.data.data)
-      
+       async getLimitList(){ 
+        let params={'role_id':1,}
+        findAllLimitTimeByRoleId(params).then((res) => {
+            console.log(res)
+            this.timeLimitList=res.data
+         }) 
+            
       }, 
    // 监听 修改用户状态
     showEditDialog(id) {
@@ -142,10 +142,8 @@ export default {
 </script>
 
 <style scoped>
-.el-header{
-   font-size: 30px !important;
+.title{
    text-align: center;
-   font-family: "Helvetica Neue";
 }
 ::v-deep .el-tabs__item{
   

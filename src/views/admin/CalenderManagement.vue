@@ -3,22 +3,14 @@
  <div class="app-container">
     <el-card>
     <!-- 搜索和添加 -->
-    <el-row gutter="11">
-      <el-col :span="7">
-        <el-input placeholder="请输入内容"
-         v-model="data" 
-         clearable @clear="getcalenderList()">
-          <el-button 
-          slot="append" icon="el-icon-search" 
-          @click="getcalenderList()"></el-button>
-        </el-input>
-      </el-col>
-      <el-col :span="4">
+     <header class="title">
+        <div>校历信息列表</div>
+    </header>
+    <nav class="right">
         <el-button 
         type="primary"
-        @click="addVocationVisible = true">添加</el-button>
-      </el-col>
-    </el-row>
+        @click="addVocationVisible = true">+添加</el-button>
+    </nav>
     <!-- 卡片视图 -->
     
         <!-- 表单 -->
@@ -64,45 +56,35 @@
       <!-- 删除按钮 -->
             <el-button type="danger"  size="mini" @click="removeById(scope.row)">删除</el-button>
           <!-- 调休 -->
-            <el-button type="info" size="mini" @click="Route">调休</el-button>
+            <el-button type="info" size="mini" @click="Route(scope.row)">调休</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <!-- 分页区域 -->
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCu
-        rrentChange"
-        :current-page="queryInfo.pagenum"
-        :page-sizes="[1, 2, 5,10]"
-        :page-size="queryInfo.pagesize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="9">
-      </el-pagination>
+
+     
     <!-- 修改信息 -->
       <el-dialog
       title="修改信息"
       :visible.sync="editDialogVisible"
-
       @close="editDialogClosed">
-     <el-form :inline="true">
-      <el-form-item label="ID" :label-width="formLabelWidth">
-        <el-input v-model="editForm.id" disabled=true ></el-input>
+     <el-form :inline="true" ref="editForm" :model="editForm">
+      <el-form-item label="ID" :label-width="formLabelWidth" prop='ID'>
+        <el-input v-model="editForm.id" disabled=true style="width:200px"></el-input>
       </el-form-item>
-      <el-form-item label="管理员 " :label-width="formLabelWidth">
-        <el-input v-model="editForm.adminId" disabled=true></el-input>
+      <el-form-item label="管理员 " :label-width="formLabelWidth" prop='adminId'>
+        <el-input v-model="editForm.adminId" disabled=true style="width:200px"></el-input>
       </el-form-item>
-      <el-form-item label="假期名称" :label-width="formLabelWidth">
-        <el-input v-model="editForm.holidayName" disabled=true></el-input>
+      <el-form-item label="假期名称" :label-width="formLabelWidth"  prop='holidayName'>
+        <el-input v-model="editForm.holidayName" disabled=true style="width:200px"></el-input>
       </el-form-item>
-     <el-form-item label="描述信息"  :label-width="formLabelWidth">
-        <el-input v-model="editForm.description" disabled=true></el-input>
+     <el-form-item label="描述信息"  :label-width="formLabelWidth" prop='description'>
+        <el-input v-model="editForm.description" disabled=true style="width:200px"></el-input>
       </el-form-item>
-      <el-form-item label="开始日期"  :label-width="formLabelWidth1" >
-      <el-input v-model="editForm.holidayStartDate" type="date"  style="width: 108%"></el-input>
+      <el-form-item label="开始日期"  :label-width="formLabelWidth" prop="holidayStartDate">
+      <el-input v-model="editForm.holidayStartDate" type="date"  style="width: 200px"></el-input>
       </el-form-item>
-      <el-form-item label="结束日期"  :label-width="formLabelWidth1">
-        <el-input v-model="editForm.holidayEndDate" type="date"  style="width: 108%"></el-input>
+      <el-form-item label="结束日期"  :label-width="formLabelWidth" prop="holidayEndDate">
+        <el-input v-model="editForm.holidayEndDate" type="date"  style="width: 200px"></el-input>
       </el-form-item>
    
       </el-form>
@@ -115,39 +97,69 @@
     <el-dialog 
       title="新增假期" 
       :visible.sync="addVocationVisible"
+      width=30%
+      >
+      <el-form  v-model="addForm" ref="addForm" :model="addForm">
+      <el-form-item label="管理员"  prop='adminId' :label-width="formLabelWidth">
+        <el-input v-model="addForm.adminId" style="width: 200px"></el-input>
+      </el-form-item>
+      
+        <el-form-item label="描述信息" prop='description' :label-width="formLabelWidth">
+           <el-select
+              style="width:200px"
+              v-model="addForm.description"
+              placeholder=""
+              class ="select-update1"
+            >
+            <el-option
+            v-for="item in regionList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+            >
+            </el-option>
+          </el-select>
 
-      @close="addDialogClose">
-      <el-form :model="addForm"  :inline="true">
-         <el-form-item label="管理员" :label-width="formLabelWidth"  >
-        <el-input v-model="addForm.adminId" ></el-input>
       </el-form-item>
-      <el-form-item label="假期名称" :label-width="formLabelWidth" >
-        <el-input v-model="addForm.holidayName"></el-input>
+      <el-form-item label="假期名称"  prop='holidayName' :label-width="formLabelWidth">
+        <el-select
+          style="width:200px"
+          v-model="addForm.holidayName"
+          placeholder=""
+          class ="select-update2"
+          @change ="areaChange1"
+        >
+        <span v-if="addForm.description">
+        <span v-for="item in regionList" :key="item.value">
+        <span v-if="item.value === addForm.description">
+        <el-option
+        v-for="item1 in item.child"
+        :key="item1.value"
+        :label="item1.label"
+        :value="item1.value"
+        >
+        </el-option>
+        </span>
+        </span>
+        </span>
+        </el-select>
+         
       </el-form-item>
-      <el-form-item label="开始日期"  :label-width="formLabelWidth">
-      <el-input v-model="addForm.holidayStartDate" type="date" style="width: 108%"></el-input>
+      <el-form-item label="开始日期"   prop='holidayStartDate' :label-width="formLabelWidth">
+      <el-input v-model="addForm.holidayStartDate" type="date" style="width: 200px"></el-input>
       </el-form-item>
-      <el-form-item label="结束日期" :label-width="formLabelWidth2">
-        <el-input v-model="addForm.holidayEndDate" type="date" style="width: 108%"></el-input>
-      </el-form-item>
-        <el-form-item label="描述信息" :label-width="formLabelWidth">
-        <!-- <el-input v-model="editForm.description"  ></el-input> -->
-         <el-select v-model="addForm.description" style="width:95%">
-              <el-option label="法定节假日" value="法定节假日"></el-option>
-              <el-option label="寒暑假" value="寒暑假"></el-option>
-              <el-option label="调休" value="调休"></el-option>
-         </el-select>
+      <el-form-item label="结束日期"  prop='holidayEndDate' :label-width="formLabelWidth">
+        <el-input v-model="addForm.holidayEndDate" type="date" style="width: 200px"></el-input>
       </el-form-item>
       </el-form>
+
         <div slot="footer" class="dialog-footer">
-          <el-button @click="addVocationVisible=false">取 消</el-button>
+          <el-button @click="addDialogClose">取 消</el-button>
           <el-button type="primary" @click="addVocation">确 定</el-button>
         </div>
       </el-dialog>
-
     </el-card>
-  </div>
-  
+  </div> 
 </template>
 
 <script>
@@ -157,20 +169,18 @@ export default {
   data() {
     return {
       //获取列表的参数对象
-      queryInfo:{
-        data:"",
-        pagenum:1,
-        pagesize:2
-      },
+      // queryInfo:{
+      //   data:"",
+      //   pagenum:1,
+      //   pagesize:2
+      // },
       formLabelWidth:'120px',
-      formLabelWidth1:'125px',
-       formLabelWidth2:'130px',
-      total:0,
+   
+     // total:0,
       calenderList:[],
       editDialogVisible:false,
       addVocationVisible:false,
       addForm:{
-        
         adminId:"",
         holidayName:"",
         holidayStartDate:"",
@@ -185,21 +195,74 @@ export default {
         holidayEndDate:"",
         description:"",
       }, 
+      regionList:[
+        {
+          lable:"法定节假日",
+          value:"法定节假日",
+          child:[
+            {
+                lable:"国庆节假期",
+                value:"国庆节假期",
+            },
+            {
+                lable:"中秋节假期",
+                value:"中秋节假期",
+            },
+          ]
+        },
+        {
+           lable:"寒暑假",
+           value:"寒暑假",
+           child:[
+             {
+               lable:"寒假",
+               value:"寒假",
+             },
+            {
+               lable:"暑假",
+               value:"暑假",
+             }
+           ]
+        },
+          {
+           lable:"教学周",
+           value:"教学周",
+           child:[
+             {
+               lable:"秋季学期",
+               value:"秋季学期",
+             },
+            {
+               lable:"冬季学期",
+               value:"冬季学期",
+             },
+             {
+               lable:"春季学期",
+               value:"春季学期",
+             }
+           ]
+        },
+      ]
+    
     }
   },
   created () {
     this.getcalenderList()
-    this.deletecalenderFrom()
-    this.updatecalenderForm()
-    this.addVocationTo()
+  //  this.editcalender()
+    //this.removeById(id)
+    //this.deletecalenderFrom()
+    //this.updatecalenderForm()
+   // this.addVocationTo()
+   // this.getdescriptionlist()
   },
   methods: {
     //获取全部数据     
-      async getcalenderList(){
-        const res = await axios.get('api/leave-attendance/calender/findAllCalender')
-        console.log(res)
-        this.calenderList=res.data.data
-        calenderList.holidayStartDate=calenderList.holidayStartDate.substring(0,10)
+      async getcalenderList(){ 
+        getcalenderList().then((res) => {
+            console.log(res)
+            this.calenderList=res.data
+         })
+        //console.log(calenderList)    
       }, 
    //日期格式化
     dateFormat(row, column) {
@@ -211,7 +274,9 @@ export default {
         let dt = new Date(date)
         return dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate()
       },
-
+    //搜索
+     //搜索接口
+    
     //添加
     async addVocation(){
      //  this.getcalenderList()
@@ -234,7 +299,17 @@ export default {
         this.addVocationVisible=false
       })
     },
-
+  //关闭编辑弹窗并重置数据
+   addDialogClose(){
+     this.addVocationVisible=false
+    // if (this.$refs.addForm !== undefined) {
+    //         this.$refs.addForm.resetFields();
+    // }
+     this.$nextTick(()=>{
+          this.$refs.addForm.resetFields();
+     })      
+                          
+   },
      // 监听 修改用户状态
     showEditDialog(id) {
       this.editDialogVisible = true;
@@ -270,9 +345,15 @@ export default {
           console.log(err);
         });
     },
-   
-  //删除数据
-      async removeById(id) {
+  //关闭编辑弹窗并重置数据
+    editDialogClosed(){
+        this.editDialogVisible=false
+        this.$nextTick(()=>{
+              this.$refs.editForm.resetFields();
+        })                              
+   },
+  //删除数据 
+      async removeById(id){
         const confirmResult = await this.$confirm(
           "此操作将永久删除该数据, 是否继续?",
           "提示",
@@ -308,29 +389,85 @@ export default {
               console.loge(err);
             });
         }
+    },
+    //控制调休信息是否展示
+    Route(id){
+        console.log(id)
 
- 
-    },
-    Route(){
-        this.$router.push('/admin/adjustleave')
-    },
-  
-   //监听pagesize改变事件
-      handleSizeChange(newSize) {
-        //console.log(`每页 ${val} 条`);
-        this.queryInfo.pagesize=newSize
-        this.getcalenderList()
-      },
-      //监听页码值改变事件
-      handleCurrentChange(newPage) {
-        this.queryInfo.num = newPage
-        this.getcalenderList()
+        // let params={
+        //         'id':id.id,
+        //         'adjust_name':'中秋节调休'
+        //    }
+        // findAdjustById(params).then((res) => {
+        //     console.log(res)
+        //     this.adjustList=res.data
+        // })
+        if(id.description=="法定节假日")
+        {
+           
+            // this.$router.push('/admin/adjustleave')
+            this.$router.push({
+              name:'AdjustLeaveManagement',
+              params:{
+                'id':id.id
+              },
+            })
+           
+        }
+        else{
+          const h = this.$createElement;
+          this.$notify({
+          title: id.description,
+          message: h('i', { style: 'color: teal'}, '无调休信息')
+        });
       }
-
-  }
+          //  this.$message({
+          //        // message: "无调休信息",
+          //         // type: "success",
+                 
+          //       });
+        } ,
+      // 描述信息。二级联动
+  areaChange1(){
+  // console.log(2)
+  this.$forceUpdate()//强制更新
+    },
+  getdescriptionlist() {
+      let data = [
+        {
+          id: 1,
+          name: "法定节假日",
+        },
+        {
+          id: 2,
+          name: "寒暑假",
+        },
+        {
+          id: 3,
+          name: "教学周",
+        },
+      ];
+      //赋给部门下拉框
+      this.descriptionlist = data;
+      console.log(this.descriptionlist)
+    },
+   
+  },
 }
+
 </script>
 <style scoped>
+.title{
+   text-align: center;
+   float: left;
+   font-size: 22px;
+   line-height: 50px;
+   /* font-family: "Helvetica Neue"; */
+}
+.right{
+  float: right;
+  margin: 10px auto;
+}
 ::v-deep .el-tabs__item{
   
   font-size: 12px !important;
@@ -362,7 +499,7 @@ export default {
   margin-bottom: 15px;
 }
 ::v-deep .cell{
-  font-size: 15px;
+  font-size: 14px;
   width: 400px;
 }
 .el-main{
