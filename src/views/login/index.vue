@@ -66,7 +66,7 @@ export default {
      * 2022.11.8 by spark chen 
      */
     handleLogin() {
-      const data = {"userid":this.loginForm.id}
+      const data = {"username":this.loginForm.id,"password":123456}
       this.$store.dispatch('user/init_user_info', data).then(() => {
       this.$router.push('/dashboard')
       }).catch(() => {

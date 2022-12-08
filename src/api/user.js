@@ -27,8 +27,8 @@ export function logout() {
 
 export function getUserInfoById(data) {
   return request({
-    url: '/user/findUserByUserid',
-    method: 'get',
+    url: '/user/login',
+    method: 'post',
     params: data
   })
 }

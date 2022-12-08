@@ -75,32 +75,30 @@ init_user_info({ commit }, data){
         return reject('获取失败.')
       }
       const userInfo = res.data
-
       // 判断该用户是否为 管理员 若是 则为其添加管理员权限
-      getAdminInfo({"id":userInfo.id}).then(res=>{
-        if(res.data){
-          role.push(all_role[4])
-        }
-      })
+      if(userInfo.role=="admin"){
+        role.push(all_role[4])
+      }
 
       // 初始化store
-      commit('SET_NAME', userInfo.userName)
-      commit('SET_ID', userInfo.userId)
-      commit('SET_YUANXI', userInfo.yuanXi)
-      commit('SET_GENDER', userInfo.gender)
-      commit('SET_ROLE_NUM', userInfo.role)
+      commit('SET_NAME', userInfo.user.userName)
+      commit('SET_ID', userInfo.user.userId)
+      commit('SET_YUANXI', userInfo.user.yuanXi)
+      commit('SET_GENDER', userInfo.user.gender)
+      commit('SET_ROLE_NUM', userInfo.user.role)
       // 根据role序号判断权限
-      if(userInfo.role==0){
+      if(userInfo.user.role==0){
         role.push(all_role[0])
-      }else if(userInfo.role <= 2){
+      }else if(userInfo.user.role <= 2){
         role.push(all_role[1])
-      }else if(userInfo.role <= 4){
+      }else if(userInfo.user.role <= 4){
         role.push(all_role[2])
-      }else if(userInfo.role <= 5){
+      }else if(userInfo.user.role <= 5){
         role.push(all_role[3])
       }
       commit('SET_ROLE', role)
-      commit('SET_P_TYPE', userInfo.ptype)
+      commit('SET_P_TYPE', userInfo.user.ptype)
+      commit('SET_TOKEN', userInfo.jwt_token)   
       resolve()
     })
   })
@@ -148,7 +146,8 @@ init_user_info({ commit }, data){
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-          resetRouter()
+      removeToken()    
+      resetRouter()
           commit('RESET_STATE')
           resolve()
       // logout(state.token).then(() => {
