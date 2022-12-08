@@ -66,9 +66,9 @@ export default {
      * 2022.11.8 by spark chen 
      */
     handleLogin() {
-      const data = {"id":this.loginForm.id}
+      const data = {"userid":this.loginForm.id}
       this.$store.dispatch('user/init_user_info', data).then(() => {
-        this.$router.push('/dashboard')
+      this.$router.push('/dashboard')
       }).catch(() => {
         this.$message.error("获取数据失败！");
       })

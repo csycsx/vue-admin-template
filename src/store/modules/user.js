@@ -5,14 +5,14 @@ import { resetRouter } from '@/router'
 const getDefaultState = () => {
   return {
     token: getToken(),
-    id:"19721580", // 工号
-    name: 'IT民工', // 
-    p_type: "教师", //人员类别
-    gender: "男", //性别
+    id:"", // 工号
+    name: '', // 
+    p_type: "", //人员类别
+    gender: "", //性别
     // avatar: '',
     role : [""], // 权限
     role_num: "", // 身份标识码
-    yuanxi: "ces" // 所属部门
+    yuanxi: "" // 所属部门
   }
 }
 const state = getDefaultState()
@@ -69,18 +69,21 @@ init_user_info({ commit }, data){
   return new Promise((resolve, reject) => {
     const all_role = ['user','department_auditor','hr_auditor','leader_auditor','admin']
     var role = []
-    getAdminInfo(data).then(res=>{
-      if(res.data){
-        role.push(all_role[4])
-      }
-    })
     
     getUserInfoById(data).then(res => {
       if(res.code!=200){
         return reject('获取失败.')
       }
       const userInfo = res.data
-      console.log(userInfo)
+
+      // 判断该用户是否为 管理员 若是 则为其添加管理员权限
+      getAdminInfo({"id":userInfo.id}).then(res=>{
+        if(res.data){
+          role.push(all_role[4])
+        }
+      })
+
+      // 初始化store
       commit('SET_NAME', userInfo.userName)
       commit('SET_ID', userInfo.userId)
       commit('SET_YUANXI', userInfo.yuanXi)
@@ -145,14 +148,17 @@ init_user_info({ commit }, data){
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
-        resetRouter()
-        commit('RESET_STATE')
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+          resetRouter()
+          commit('RESET_STATE')
+          resolve()
+      // logout(state.token).then(() => {
+      //   removeToken() // must remove  token  first
+      //   resetRouter()
+      //   commit('RESET_STATE')
+      //   resolve()
+      // }).catch(error => {
+      //   reject(error)
+      // })
     })
   },
 
