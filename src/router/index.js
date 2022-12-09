@@ -114,8 +114,7 @@ export const constantRoutes = [
         path: 'detailedLeave',
         name: 'DetailedLeave',
         component: () => import('@/views/apply/DetailedLeave'),
-        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
-        hidden: true
+        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','leader'] },
         // hidden: false
       },
       {
@@ -125,6 +124,7 @@ export const constantRoutes = [
         meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
         hidden: true
         // hidden: false
+>>>>>>> cdd7c00dabb8b5bcab231eb11f4b41b9ddc2cc88
       },
     ]
   },
@@ -187,7 +187,7 @@ export const constantRoutes = [
         component: () => import('@/views/audit/HrRevokeList'),
         meta: { title: '人事处销假审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
       },
-      
+
     ]
   },
 
@@ -204,7 +204,7 @@ export const constantRoutes = [
       name: 'AuthorityManagement',
       component: () => import('@/views/admin/AuthorityManagement'),
       meta: { title: '权限管理', icon:'el-icon-menu' ,roles: ['admin']}
-    },  
+    },
     {
       path: 'calender',
       name: 'CalenderManagement',
@@ -216,9 +216,9 @@ export const constantRoutes = [
       name: 'CommonManagement',
       component: () => import('@/views/admin/CommonManagement'),
       meta: { title: '时限管理', icon: 'el-icon-menu',roles: ['admin'] }
-  
+
     },
-  
+
     {
       path: 'hraudit',
       name: 'HrAuditManagement',
