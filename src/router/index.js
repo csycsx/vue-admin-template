@@ -124,7 +124,6 @@ export const constantRoutes = [
         meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
         hidden: true
         // hidden: false
->>>>>>> cdd7c00dabb8b5bcab231eb11f4b41b9ddc2cc88
       },
     ]
   },
