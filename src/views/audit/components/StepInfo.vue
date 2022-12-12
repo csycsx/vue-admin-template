@@ -4,9 +4,9 @@
       <el-col :span="12">
         <div>审核人工号：<span>{{stepInfo.id}}</span></div>
       </el-col>
-      <!-- <el-col :span="12">
-        <div>审核人姓名：<span>测试人</span></div>
-      </el-col> -->
+      <el-col :span="12">
+        <div>审核人姓名：<span>{{stepInfo.name}}</span></div>
+      </el-col>
     </el-row>
     <el-row class="row-box">
       <el-col :span="12">

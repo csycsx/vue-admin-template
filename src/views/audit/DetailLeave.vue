@@ -5,10 +5,10 @@
       <!-- 审核步骤 -->
       <div class="box-step">
         <el-steps :active=active finish-status="success" align-center>
-          <el-step title="部门人事初审"></el-step>
-          <el-step title="部门负责人审核"></el-step>
-          <el-step v-if="step>2" title="人事处科员初审"></el-step>
-          <el-step v-if="step>2" title="人事处负责人审核"></el-step>
+          <el-step title="部门初审"></el-step>
+          <el-step title="部门审核"></el-step>
+          <el-step v-if="step>2" title="人事处初审"></el-step>
+          <el-step v-if="step>2" title="人事处审核"></el-step>
           <el-step v-if="step>4" title="校领导审核"></el-step>
         </el-steps>
       </div>
@@ -51,7 +51,9 @@
           </el-row>
           <el-row class="row-box">
             <el-col :span="24">
-              <div class="name-box">证明文件：<span class="content-box" @click="downlode">{{info.leaveMaterial}}</span></div>
+              <div class="name-box">证明文件：
+                <span class="content-box" @click="downlode">{{info.leaveMaterial}}</span>
+              </div>
             </el-col>
           </el-row>
 
@@ -245,29 +247,34 @@ export default {
         if (res.code === 200) {
           if (res.data.departmentAuditMsg !== "尚未进行部门审核") {
             this.stepInfo1.id = res.data.departmentAuditMsg.dpOfficerId;
+            this.stepInfo1.name = res.data.departmentAuditMsg.dpOfficerName;
             this.stepInfo1.result = res.data.departmentAuditMsg.dpOfficerResult;
             this.stepInfo1.recommend = res.data.departmentAuditMsg.dpOfficerRecommend;
             this.stepInfo1.time = res.data.departmentAuditMsg.dpOfficerTime;
             this.stepInfo2.id = res.data.departmentAuditMsg.dpLeaderId;
+            this.stepInfo2.name = res.data.departmentAuditMsg.dpLeaderName;
             this.stepInfo2.result = res.data.departmentAuditMsg.dpLeaderResult;
             this.stepInfo2.recommend = res.data.departmentAuditMsg.dpLeaderRecommend;
             this.stepInfo2.time = res.data.departmentAuditMsg.dpLeaderTime;
           }
           if (this.step > 2 && res.data.hrAuditMsg !== "尚未进行人事处审核") {
             this.stepInfo3.id = res.data.hrAuditMsg.hrOfficerId;
+            this.stepInfo3.name = res.data.hrAuditMsg.hrOfficerName;
             this.stepInfo3.result = res.data.hrAuditMsg.hrOfficerResult;
             this.stepInfo3.recommend = res.data.hrAuditMsg.hrOfficerRecommend;
             this.stepInfo3.time = res.data.hrAuditMsg.hrOfficerTime;
             this.stepInfo4.id = res.data.hrAuditMsg.hrLeaderId;
+            this.stepInfo4.name = res.data.hrAuditMsg.hrLeaderName;
             this.stepInfo4.result = res.data.hrAuditMsg.hrLeaderResult;
             this.stepInfo4.recommend = res.data.hrAuditMsg.hrLeaderRecommend;
             this.stepInfo4.time = res.data.hrAuditMsg.hrLeaderTime;
           }
           if (this.step > 4 && res.data.schoolAuditMsg !== "尚未进行校领导审核") {
-            this.stepInfo5.id = res.data.departmentAuditMsg.scOfficerId;
-            this.stepInfo5.result = res.data.departmentAuditMsg.scOfficerResult;
-            this.stepInfo5.recommend = res.data.departmentAuditMsg.scOfficerRecommend;
-            this.stepInfo5.time = res.data.departmentAuditMsg.scOfficerTime;
+            this.stepInfo5.id = res.data.schoolAuditMsg.scOfficerId;
+            this.stepInfo5.name = res.data.schoolAuditMsg.scLeaderName;
+            this.stepInfo5.result = res.data.schoolAuditMsg.scOfficerResult;
+            this.stepInfo5.recommend = res.data.schoolAuditMsg.scOfficerRecommend;
+            this.stepInfo5.time = res.data.schoolAuditMsg.scOfficerTime;
           }
         }
       })

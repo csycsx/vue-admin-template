@@ -402,7 +402,7 @@ export default {
         "leave_type": this.leave_type
       }).then(res => {
         if (res.code === 200) {
-          this.allDay = '系统计算您的请假天数为：' + res.data + '天，具体判定以人事处为准。'
+          this.allDay = '系统计算您的请假天数为：' + res.data + '天，最终时间以人事处核定时间为准。'
           this.submitLeave();
         }
       })

@@ -9,10 +9,10 @@
           <!-- 所需审核步骤 -->
           <div class="box-step top-container">
             <el-steps :active="currentStep" :process-status="stepFinishStep" finish-status="success" align-center>
-              <el-step title="部门人事初审" description="" v-if="totalStep>0"></el-step>
-              <el-step title="部门负责人审核" description="" v-if="totalStep>0"></el-step>
-              <el-step title="人事处科员初审" description="" v-if="totalStep>2"></el-step>
-              <el-step title="人事处负责人审核" description="" v-if="totalStep>2"></el-step>
+              <el-step title="部门初审" description="" v-if="totalStep>0"></el-step>
+              <el-step title="部门审核" description="" v-if="totalStep>0"></el-step>
+              <el-step title="人事处初审" description="" v-if="totalStep>2"></el-step>
+              <el-step title="人事处审核" description="" v-if="totalStep>2"></el-step>
               <el-step title="校领导审核" description="" v-if="totalStep>4"></el-step>
 
             </el-steps>
