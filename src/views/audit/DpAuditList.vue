@@ -20,7 +20,6 @@
               <el-radio-button label="全部"></el-radio-button>
               <el-radio-button label="待审核"></el-radio-button>
               <el-radio-button label="已审核"></el-radio-button>
-              <el-radio-button v-if="role==2" label="未流经"></el-radio-button>
             </el-radio-group>
           </div>
         </div>
@@ -41,9 +40,7 @@
           </el-table-column>
           <el-table-column prop="showStatus" label="状态" width="120">
             <template slot-scope="scope">
-              <el-tag
-                :type="scope.row.showStatus === '待审核' ? 'danger' : (scope.row.showStatus === '未流经' ? 'info' : 'success')"
-                disable-transitions>
+              <el-tag :type="scope.row.showStatus === '待审核' ? 'danger' :  'success'" disable-transitions>
                 {{scope.row.showStatus}}
               </el-tag>
             </template>

@@ -49,7 +49,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getAuditLoadingDataByUserId } from "../../api/audit";
+import { getAuditLoadingDataByUserId, getRevokeAuditSelected } from "../../api/audit";
 export default {
   data () {
     return {
@@ -63,6 +63,11 @@ export default {
       currentPage: 1,
       total: 0,
       pageSize: 10,
+      searchInfo: {
+        department: "null",
+        selectuserid: "null",
+        username: "null"
+      },
     }
   },
   created () { },
@@ -94,15 +99,76 @@ export default {
         }
       })
     },
-    handleCurrentChange (val) {
-      getAuditLoadingDataByUserId({ "pageNum": val, "userid": this.id }).then(res => {
-        console.log(res);
-        if (res.code === 200) {
-          this.tableData = res.data.records;
-          this.pageSize = res.data.size;
-          this.total = res.data.total;
+    search () {
+      if (this.select === "") {
+        this.$notify({
+          title: '警告',
+          message: '请选择搜索类别',
+          type: 'warning'
+        });
+      }
+      else if (this.input === "") {
+        this.$notify({
+          title: '警告',
+          message: '请填写搜索内容',
+          type: 'warning'
+        });
+      }
+      else {
+        if (this.select === "1") {
+          this.searchInfo.selectuserid = this.input;
         }
-      })
+        else if (this.select === "2") {
+          this.searchInfo.username = this.input;
+        }
+        else {
+          this.searchInfo.department = this.input;
+        }
+        this.currentPage = 1;
+        getRevokeAuditSelected({
+          "department": this.searchInfo.department,
+          "pageNum": this.currentPage,
+          "selectuserid": this.searchInfo.selectuserid,
+          "userid": this.id,
+          "username": this.searchInfo.username
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      }
+
+    },
+    handleCurrentChange (val) {
+      if (this.searchInfo.department === "null" && this.searchInfo.username === "null" && this.searchInfo.selectuserid === "null") {
+        getAuditLoadingDataByUserId({ "pageNum": val, "userid": this.id }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      } else {
+        getRevokeAuditSelected({
+          "department": this.searchInfo.department,
+          "pageNum": val,
+          "selectuserid": this.searchInfo.selectuserid,
+          "status": this.searchInfo.status,
+          "userid": this.id,
+          "username": this.searchInfo.username
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      }
     }
   },
   components: {}

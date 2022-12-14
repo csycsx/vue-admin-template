@@ -125,3 +125,12 @@ export function getRevokeDetailById(data) {
     params: data
   })
 }
+
+//获取销假审核信息
+export function getCurrentRevokeAuditMsg(data) {
+  return request({
+    url: '/revokeAudit/getCurrentRevokeAuditMsg',
+    method: 'get',
+    params: data
+  })
+}

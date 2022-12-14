@@ -49,7 +49,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="5">
+          <el-col :span="8">
             <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'">
               <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
                 <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
@@ -402,7 +402,7 @@ export default {
         "leave_type": this.leave_type
       }).then(res => {
         if (res.code === 200) {
-          this.allDay = '系统计算您的请假天数为：' + res.data + '天，具体判定以人事处为准。'
+          this.allDay = '系统计算您的请假天数为：' + res.data + '天，最终时间以人事处核定时间为准。'
           this.submitLeave();
         }
       })

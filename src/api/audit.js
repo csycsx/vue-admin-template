@@ -185,3 +185,14 @@ export function addRevokeAudit(data) {
     }
   )
 }
+
+//销假审核页面多条件复杂查询
+export function getRevokeAuditSelected(data) {
+  return request(
+    {
+    url: '/revokeAudit/getRevokeAuditSelected',
+    method: 'get',
+    params: data
+    }
+  )
+}

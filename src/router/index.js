@@ -33,12 +33,13 @@ import Layout from '@/layout'
  */
 
 export const constantRoutes = [
+  { path: '/', redirect: '/login' ,meta:{roles:["all"]},},
   {
-    path: '/login',
     name: 'Login',
     meta:{
       roles:["all"]
     },
+    path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true  // hidden 属性，若需要在siderBar中隐藏则设置为True,默认为false
   },
@@ -54,15 +55,15 @@ export const constantRoutes = [
   },
 
   {
-    path: '/',
+    path: '/dashboard',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/dashboard/index',
     name: 'HomePage',
     meta:{
       roles:['admin','user','department_auditor','hr_auditor','leader_auditor']
     },
     children: [{
-      path: 'dashboard',
+      path: 'index',
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'el-icon-user' ,roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']}
     }]
@@ -115,7 +116,7 @@ export const constantRoutes = [
         name: 'DetailedLeave',
         component: () => import('@/views/apply/DetailedLeave'),
         meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','leader'] },
-        // hidden: false
+        hidden: true
       },
       {
         path: 'detailedRevoke',
