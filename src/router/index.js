@@ -191,6 +191,47 @@ export const constantRoutes = [
     ]
   },
 
+  // 历史记录查询
+  {
+    path: '/history',
+    component: Layout,
+    name:"History",
+    meta: {title: '历史统计', icon: 'el-icon-document',roles: ['department_auditor','hr_auditor','leader_auditor']},
+    children: [
+      {
+        path: 'deptLeaveHistory',
+        name: 'DeptLeaveHistory',
+        component: () => import('@/views/audit/history/deptLeaveHistory'),
+        meta: { title: '部门请假记录统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','department_auditor','leader_auditor']}
+      },
+      {
+        path: 'deptRevokeHistory',
+        name: 'DeptRevokeHistory',
+        component: () => import('@/views/audit/history/deptRevokeHistory'),
+        meta: { title: '部门销假记录统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','department_auditor','leader_auditor']}
+      },
+      {
+        path: 'hrLeaveHistory',
+        name: 'HrLeaveHistory',
+        component: () => import('@/views/audit/history/hrLeaveHistory'),
+        meta: { title: '各部门请假历史统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','hr_auditor']}
+      },
+      {
+        path: 'hrRevokeHistory',
+        name: 'hrRevokeHistory',
+        component: () => import('@/views/audit/history/hrRevokeHistory'),
+        meta: { title: '各部门销假历史统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','hr_auditor']}
+      },
+      {
+        path: 'detailHistory',
+        name: 'DetailHistory',
+        component: () => import('@/views/audit/history/DetailHistory'),
+        meta: { title: '部门请假历史详情', icon: 'el-icon-s-check' ,roles:['department_auditor','hr_auditor','leader_auditor']},
+        hidden: true
+      }
+    ]
+  },
+
  // 管理员模块开始：
  {
   path: '/admin',
