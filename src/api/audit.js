@@ -196,3 +196,30 @@ export function getRevokeAuditSelected(data) {
     }
   )
 }
+
+
+//人事干事：考勤日历
+export function getMonthByUserId(data) {
+  return request({
+    url: '/history/getMonthByUserId',
+    method: 'get',
+    params: data
+  })
+}
+
+//获取用户信息
+export function findAllUser() {
+  return request({
+    url: '/user/findAllUser',
+    method: 'get'
+  })
+}
+
+//
+export function addAdminLeaveForm(data){
+  return request({
+    url: '/leave/addAdminLeaveForm',
+    method: 'post',
+    params: data
+  })
+}

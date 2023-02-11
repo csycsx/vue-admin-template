@@ -190,6 +190,22 @@ export const constantRoutes = [
 
     ]
   },
+  //考勤
+  {
+    path: '/attendance',
+    component: Layout,
+    name:"Attendance",
+    meta: {title: '考勤统计', icon: 'el-icon-document',roles: ['department_auditor','hr_auditor','leader_auditor']},
+    children:[
+      {
+        path: 'attendManage',
+        name: 'AttendManage',
+        component: () => import('@/views/audit/attendance/attendManage'),
+        meta: { title: '编辑考勤', icon: 'el-icon-s-check' ,roles: ['admin','leader','department_auditor','leader_auditor']}
+      },
+    ]
+
+  },
 
   // 历史记录查询
   {
