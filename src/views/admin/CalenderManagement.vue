@@ -5,12 +5,23 @@
     <!-- 搜索和添加 -->
      <header class="title">
         <div>校历信息列表</div>
-    </header>
+    </header> 
     <nav class="right">
         <el-button 
         type="primary"
         @click="addVocationVisible = true">+添加</el-button>
     </nav>
+    <div class="block">
+    <el-date-picker
+      v-model="text"
+      type="year"
+      placeholder="选择年份信息进行查阅"
+      format="yyyy"
+      >
+    </el-date-picker>
+     <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+  </div>
+   
     <!-- 卡片视图 -->
     
         <!-- 表单 -->
@@ -67,18 +78,18 @@
       title="修改信息"
       :visible.sync="editDialogVisible"
       @close="editDialogClosed">
-     <el-form :inline="true" ref="editForm" :model="editForm">
-      <el-form-item label="ID" :label-width="formLabelWidth" prop='ID'>
-        <el-input v-model="editForm.id" disabled=true style="width:200px"></el-input>
+     <el-form :inline="true" v-model="editForm" ref="editForm" :model="editForm">
+      <el-form-item label="ID" :label-width="formLabelWidth" >
+        <el-input v-model="editForm.id" :disabled=true style="width:200px"></el-input>
       </el-form-item>
-      <el-form-item label="管理员 " :label-width="formLabelWidth" prop='adminId'>
-        <el-input v-model="editForm.adminId" disabled=true style="width:200px"></el-input>
+      <el-form-item label="管理员工号" :label-width="formLabelWidth" >
+        <el-input v-model="addForm.adminId" :disabled=true style="width:200px"></el-input>
       </el-form-item>
       <el-form-item label="假期名称" :label-width="formLabelWidth"  prop='holidayName'>
-        <el-input v-model="editForm.holidayName" disabled=true style="width:200px"></el-input>
+        <el-input v-model="editForm.holidayName" :disabled=true  style="width:200px"></el-input>
       </el-form-item>
      <el-form-item label="描述信息"  :label-width="formLabelWidth" prop='description'>
-        <el-input v-model="editForm.description" disabled=true style="width:200px"></el-input>
+        <el-input v-model="editForm.description" :disabled=true style="width:200px"></el-input>
       </el-form-item>
       <el-form-item label="开始日期"  :label-width="formLabelWidth" prop="holidayStartDate">
       <el-input v-model="editForm.holidayStartDate" type="date"  style="width: 200px"></el-input>
@@ -100,10 +111,12 @@
       width=30%
       >
       <el-form  v-model="addForm" ref="addForm" :model="addForm">
-      <el-form-item label="管理员"  prop='adminId' :label-width="formLabelWidth">
-        <el-input v-model="addForm.adminId" style="width: 200px"></el-input>
+      <el-form-item label="管理员工号"  :label-width="formLabelWidth">
+        <el-input v-model="addForm.adminId" :disabled=true style="width: 200px"></el-input>
       </el-form-item>
-      
+       <!-- <el-form-item label="管理员姓名" prop="name" :label-width="formLabelWidth" >
+        <el-input v-model="addForm.userName"  disabled=true style="width:200px"></el-input>
+      </el-form-item> -->
         <el-form-item label="描述信息" prop='description' :label-width="formLabelWidth">
            <el-select
               style="width:200px"
@@ -175,21 +188,21 @@ export default {
       //   pagesize:2
       // },
       formLabelWidth:'120px',
-   
      // total:0,
+      text:'',
       calenderList:[],
       editDialogVisible:false,
       addVocationVisible:false,
       addForm:{
-        adminId:"",
+        adminId:this.$store.getters.id,
         holidayName:"",
         holidayStartDate:"",
         holidayEndDate:"",
         description:"",
       },
-        editForm:{
-        id:"",
-        adminId:"",
+      editForm:{
+        adminId:this.$store.getters.id,
+         id:"",
         holidayName:"",
         holidayStartDate:"",
         holidayEndDate:"",
@@ -248,34 +261,60 @@ export default {
   },
   created () {
     this.getcalenderList()
-  //  this.editcalender()
-    //this.removeById(id)
-    //this.deletecalenderFrom()
-    //this.updatecalenderForm()
-   // this.addVocationTo()
-   // this.getdescriptionlist()
+  //  this.defaultValue = new Date().getFullYear()
+    // var year = new Date().getFullYear();
+    // this.text=year
   },
   methods: {
     //获取全部数据     
       async getcalenderList(){ 
-        getcalenderList().then((res) => {
+        // let item=this.formatDate(this.text)
+        // let params={
+        //     'year':item
+        //   }
+         let params={
+             'year':new Date().getFullYear()
+          }
+          getcalenderList(params).then((res) => {
             console.log(res)
             this.calenderList=res.data
          })
-        //console.log(calenderList)    
+         console.log(111)
+        console.log(this.$store.getters.id )    
       }, 
    //日期格式化
-    dateFormat(row, column) {
+    dateFormat(row, column){
         // 获取单元格数据
         let date = row[column.property]
         if (date == undefined) {
+          
           return ''
         }
         let dt = new Date(date)
         return dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate()
       },
-    //搜索
+      //保留年份
+      formatDate(date){ 
+        var year = date.getFullYear(); 
+        return year; 
+    },
+    //
+      // getYear(){
+      //   var year = new Date().getFullYear();
+      //   this.text = year;
+      //   // return year
+      // },
      //搜索接口
+      async search (){
+        let item=this.formatDate(this.text)
+        let params={
+            'year':item
+          }
+      getcalenderList(params).then((res) => {
+            console.log(res)
+            this.calenderList=res.data
+         })
+      },
     
     //添加
     async addVocation(){
@@ -393,15 +432,6 @@ export default {
     //控制调休信息是否展示
     Route(id){
         console.log(id)
-
-        // let params={
-        //         'id':id.id,
-        //         'adjust_name':'中秋节调休'
-        //    }
-        // findAdjustById(params).then((res) => {
-        //     console.log(res)
-        //     this.adjustList=res.data
-        // })
         if(id.description=="法定节假日")
         {
            
@@ -463,6 +493,10 @@ export default {
    font-size: 22px;
    line-height: 50px;
    /* font-family: "Helvetica Neue"; */
+}
+.block{
+  float: right;
+  margin: 10px 20px;
 }
 .right{
   float: right;

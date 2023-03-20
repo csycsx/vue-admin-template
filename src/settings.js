@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'Vue Admin Template',
+  title: '上海大学教职工请假与考勤系统',
 
   /**
    * @type {boolean} true | false

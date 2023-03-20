@@ -43,6 +43,15 @@ export const constantRoutes = [
     component: () => import('@/views/login/index'),
     hidden: true  // hidden 属性，若需要在siderBar中隐藏则设置为True,默认为false
   },
+  {
+    name: 'LoginRedirect',
+    meta:{
+      roles:["all"]
+    },
+    path: '/loginRedirect',
+    component: () => import('@/views/login/loginRedirect'),
+    hidden: true  // hidden 属性，若需要在siderBar中隐藏则设置为True,默认为false
+  },
 
   {
     path: '/404',
@@ -81,13 +90,6 @@ export const constantRoutes = [
         name: 'LeaveApply',
         component: () => import('@/views/apply/LeaveApply'),
         meta: { title: '请假申请', icon: 'el-icon-top-right' ,roles:['admin','user','department_auditor','hr_auditor','leader_auditor']}
-      },
-      {
-        path: 'revokeapply',
-        name: 'revokeApply',
-        component: () => import('@/views/apply/RevokeApply'),
-        meta: { title: '销假申请', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']},
-        hidden: true
       }
     ]
   },
@@ -248,7 +250,7 @@ export const constantRoutes = [
     ]
   },
 
- // 管理员模块开始：
+ // 管理员模块
  {
   path: '/admin',
   component: Layout,
@@ -296,7 +298,27 @@ export const constantRoutes = [
     },
   ]
 },
-//管理员模块结束
+{ 
+  path: '/display',
+  component: Layout,
+  redirect: '/admin/calenderview',
+  name: 'Display',
+  meta: { title: '考勤汇总', icon: 'el-icon-s-operation' ,roles: ['admin']},
+  children: [
+    {
+      path: 'calenderview',
+      name: 'CalendarView',
+      component: () => import('@/views/admin/CalendarView'),
+      meta: { title: '校历视图', icon:'el-icon-menu' ,roles: ['admin','department_auditor']}
+    },
+    // {
+    //   path: 'attendance',
+    //   name: 'AttendanceSummary',
+    //   component: () => import('@/views/admin/AttendanceSummary'),
+    //   meta: { title: '汇总视图', icon:'el-icon-menu' ,roles: ['admin']}
+    // },
+  ]
+},
 
 
   // 404 page must be placed at the end !!!
@@ -305,7 +327,7 @@ export const constantRoutes = [
 
 
 const createRouter = () => new Router({
-  // mode: 'history', // require service support
+  mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })

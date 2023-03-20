@@ -9,9 +9,14 @@
       <el-table border
         :data="timeLimitList"
         style="width: 100%">
-        <el-table-column type="index" label="#">
+        <!-- <el-table-column type="index" label="#">
+        </el-table-column> -->
+        <el-table-column
+          label="#" 
+          prop="id"
+          width="50%"
+        >
         </el-table-column>
-      
         <el-table-column
           label="请假类型" 
           prop="type"
@@ -33,6 +38,10 @@
           </div>
         </el-table-column>
       </el-table>
+      <!-- 导出按钮 -->
+      <!-- <div class="botmBtnContainer">
+      <el-button @click="exportWord" size="small" type="primary">导出word</el-button>
+      </div> -->
     </el-card>
       <el-dialog
       title="修改信息"
@@ -40,9 +49,11 @@
       width="30%"
      >
       <el-form :model="editForm" label-width="80px">
-     
+      <!-- <el-form-item label="管理员工号" >
+        <el-input v-model="editForm.adminId" disabled=true></el-input>
+      </el-form-item> -->
       <el-form-item label="请假类型" >
-        <el-input v-model="editForm.type" ></el-input>
+        <el-input v-model="editForm.type" :disabled=true></el-input>
       </el-form-item>
       
       <el-form-item label="最长时限">
@@ -61,6 +72,11 @@
 
 <script>
 import axios from 'axios'
+import docxtemplater from 'docxtemplater'
+import PizZip from 'pizzip'
+import JSZipUtils from 'jszip-utils'
+import {saveAs} from 'file-saver'
+    
 import {findAllLimitTimeByRoleId ,UpdateLimitTimeById} from '@/api/admin'
 export default {
   data() {
@@ -80,6 +96,7 @@ export default {
       editDialogVisible:false,
       editForm:{
         id:"",
+        adminId:this.$store.getters.id,
         type:"",
         limitTime:"",
       },
@@ -132,12 +149,59 @@ export default {
           console.log(err);
         });
     },
-   
- 
+   // 点击导出word
+     // 点击导出word
+  // exportWord: function() {
+  //    let that = this;
+  //   // 读取并获得模板文件的二进制内容
+  //   JSZipUtils.getBinaryContent("时限管理.docx", function(error, content) {
+  //     // model.docx是模板。我们在导出的时候，会根据此模板来导出对应的数据
+  //     // 抛出异常
+  //     if (error) {
+  //       throw error;
+  //     }
+
+  //     // 创建一个PizZip实例，内容为模板的内容
+  //     let zip = new PizZip(content);
+  //     // 创建并加载docxtemplater实例对象
+  //     let doc = new docxtemplater().loadZip(zip);
+  //     // 设置模板变量的值
+  //     doc.setData({
+  //       name:'各类型请假时长',
+  //       table: that.timeLimitList
+  //     });
+
+  //     try {
+  //       // 用模板变量的值替换所有模板变量
+  //       doc.render();
+  //     } catch (error) {
+  //       // 抛出异常
+  //       let e = {
+  //         message: error.message,
+  //         name: error.name,
+  //         stack: error.stack,
+  //         properties: error.properties
+  //       };
+  //       console.log(JSON.stringify({ error: e }));
+  //       throw error;
+  //     }
+
+  //     // 生成一个代表docxtemplater对象的zip文件（不是一个真实的文件，而是在内存中的表示）
+  //     let out = doc.getZip().generate({
+  //       type: "blob",
+  //       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  //     });
+  //     // 将目标文件对象保存为目标类型的文件，并命名
+  //     saveAs(out, "导出文件.docx");
+  //   });
+  // }
+
+  }
+
     
 
   }
-}
+
 
 </script>
 
@@ -185,5 +249,9 @@ export default {
   margin: 16px 17px;
   /* background-color: #f9fafc; */
   }
+.botmBtnContainer{
+  text-align: center;
+  margin-top: 20px;
+}
 
 </style>

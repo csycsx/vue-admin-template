@@ -29,8 +29,7 @@
         <div slot="header" class="clearfix">
           <h3>个人历史销假申请列表</h3>
         </div>
-        <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;"
-          @row-click="rowChick">
+        <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;">
           <el-table-column label="序号" prop="id" width="50" />
           <el-table-column label="请假开始时间" prop="leave.leaveStartTime" width="150" />
           <el-table-column label="请假结束时间" prop="leave.leaveEndTime" width="150" />
@@ -47,9 +46,8 @@
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="100">
             <template slot-scope="scope">
-              <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" size="small">
-                删除
-              </el-button>
+              <el-button @click="rowChick(scope.row)" type="text" size="small">查看</el-button>
+              <el-button @click.native.prevent="deleteRow(scope.row)" type="text" size="small">撤销 </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -64,8 +62,9 @@
 </template>
   
 <script>
-import { getRevokeListByUserId } from "@/api/apply"
+import { getRevokeListByUserId,undoRevoke } from "@/api/apply"
 export default {
+  inject:['reload'],
   data () {
     return {
       auditStatus: ["未审核", "审核通过", "审核不通过", "已撤销"],
@@ -110,7 +109,24 @@ export default {
         }
       })
     },
-
+    //撤销某条销假申请
+    deleteRow(row) {
+      this.$confirm('确认撤销请假申请？')
+        .then(_ => {
+          let param = {
+            "revoke_form_id": row.id
+          }
+          undoRevoke(param).then(res => {
+            if (res.code === 200) {
+              this.$message.success("撤销成功");
+              this.reload();
+            } else {
+              this.$message.error("撤销失败");
+            }
+          })
+        })
+        .catch(_ => { });
+    }
   }
 }
 

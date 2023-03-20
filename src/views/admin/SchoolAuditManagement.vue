@@ -42,7 +42,7 @@
       <el-form :model="editForm" label-width="80px">
      
       <el-form-item label="请假类型" >
-        <el-input v-model="editForm.type" ></el-input>
+        <el-input v-model="editForm.type" :disabled=true></el-input>
       </el-form-item>
       
       <el-form-item label="最长时限">

@@ -55,9 +55,9 @@
               <el-col :span="24">
                 <el-card class="box-card">
                   <div slot="header" class="clearfix">
-                    <h3>{{ department }}历史请假记录</h3>
+                    <h3>{{ department }}缺勤人员名单</h3>
                   </div>
-                  <div class="search">
+                  <!-- <div class="search">
                     <el-input placeholder="根据工号或姓名查询" v-model="input" class="input" clearable>
                       <el-select v-model="select" slot="prepend" placeholder="请选择">
                         <el-option label="工号" value="1"></el-option>
@@ -65,7 +65,7 @@
                       </el-select>
                       <el-button slot="append" icon="el-icon-search" ></el-button>
                     </el-input>
-                  </div>
+                  </div> -->
                   <el-table
                     ref="filterTable"
                     :data="tableData"
@@ -81,29 +81,31 @@
                       width="100"
                     >
                     </el-table-column>
-                    <el-table-column
+                       <el-table-column
                       prop="user.userName"
                       label="姓名"
                       width="200"
                     >
                     </el-table-column>
                     <el-table-column
-                      prop="user.yuanXi"
-                      label="学院(部门)"
-                      width="200"
-                    >
-                    </el-table-column>
-                    <el-table-column
                       prop="leaveType"
                       label="请假类型"
-                      width="100"
+                      width="220"
                     >
                     </el-table-column>
-                    <el-table-column prop="leaveStartTime" label="起始时间">
+                    <el-table-column prop="leaveStartTime" label="起始时间" width="220">
                     </el-table-column>
-                    <el-table-column prop="leaveEndTime" label="结束时间">
+                    <el-table-column prop="leaveEndTime" label="结束时间" width="220">
+                    </el-table-column> -->
+                    <el-table-column
+                      prop="leaveReason"
+                      label="请假原因"
+                      width=320px
+                    >
                     </el-table-column>
-                  </el-table>
+                  
+              
+                </el-table>
                   <div class="block">
                     <el-pagination
                       @current-change="handleCurrentChange"
@@ -128,13 +130,12 @@
             >
               <div id="he-plugin-standard"></div>
             </el-card> -->
-
-            <el-card
+                   <el-card
               shadow="hover"
               style="margin-top: 5px"
               :body-style="{ padding: '0px' }"
             >
-              <div class="title">日期选择</div>
+              <!-- <ShowCalender></ShowCalender> -->
               <div class="con">
                 <div class="now-data-myself">
                   <div class="now-data-myself-time">{{ date }}</div>
@@ -148,27 +149,39 @@
                 >
                 </Calendar>
               </div>
+               <div class="botmBtnContainer">
+      <el-button @click="exportWord" size="medium" type="primary">下载</el-button>
+      </div>
+         
             </el-card>
-
-            <el-card
+              <el-card
               shadow="hover"
-              style="height: 200px; margin-top: 15px"
+              style="height: 400px; margin-top: 10px"
               :body-style="{ padding: '0px' }"
             >
               <div class="title">操作提示</div>
               <div style="padding: 0 20px; font-weight: 300">
                 <p style="text-indent: 2em">
                   <span
-                    >您可以通过点击日历上的日期来筛选当日缺勤的记录列表（请假时间包含所选中的日期）<br
+                    >*您可以通过点击日历上的日期来筛选当日缺勤的记录列表（请假时间包含所选中的日期）<br
                   /></span>
                 </p>
                 <p style="text-indent: 2em">
                   <span
-                    >灰色标记区域为当日存在请假记录的日期，绿色区域为当前日期。</span
+                    >*灰色标记区域为当日存在请假记录的日期，绿色区域为当前日期。</span
+                  >
+                </p>
+                  <p style="text-indent: 2em">
+                  <span
+                    >*点击下载按钮，可下载当前选中月份的考勤汇总信息表</span
                   >
                 </p>
               </div>
             </el-card>
+     
+
+
+          
           </el-col>
         </td>
       </tr>
@@ -179,14 +192,20 @@
 <script>
 import Calendar from "vue-calendar-component";
 import {
+  getMonthDeptLeaveDate,
   getMonthDeptAbsenceDate,
   getDeptHistoryLeaveTypeCount,
   getDeptHistoryLeaveDays,
   getDeptMemberFrequencyList,
   getHistoryLoadingList,
-  getHistoryRecordByOneDate
-} from "@/api/history";
+  getHistoryRecordByOneDate,
+  getLeaveHistoryByMonthAndDept,
+} from "@/api/summary";
 import { getAuditSelected } from "@/api/audit";
+import docxtemplater from 'docxtemplater'
+import PizZip from 'pizzip'
+import JSZipUtils from 'jszip-utils'
+import {saveAs} from 'file-saver'
 export default {
   name: "deptLeaveHistory",
   components: {
@@ -201,6 +220,8 @@ export default {
       input: "",
       select: "",
       length: 0,
+      summaryList:[],
+      resultList:[],
       tableData: [],
       arr: [],
       arr_week: new Array(
@@ -222,9 +243,16 @@ export default {
       leaveTypeOption: {},
       leaveTimeOption: {},
       leaveFrequencyOption: {},
+      nowDate:[
+        {
+          year:new Date().getFullYear(),
+          month:new Date().getMonth()+1,
+        }
+      ],
     };
   },
   created() {
+    this.getsummaryList()
     var now = new Date();
     this.date = now.getDate(); //得到日期
     var day = now.getDay(); //得到周几
@@ -236,7 +264,7 @@ export default {
       dept: that.$store.getters.yuanxi,
     };
     // console.log(params);
-    getMonthDeptAbsenceDate(params).then((res) => {
+    getMonthDeptLeaveDate(params).then((res) => {
       if (res.data.resultCode == "0") {
         return;
       } else {
@@ -302,6 +330,8 @@ export default {
     this.role = this.$store.getters.role_num;
     this.id = this.$store.getters.id;
     this.loading();
+    this.getsummaryList();
+    
   },
   methods: {
     goTarget(href) {
@@ -329,13 +359,15 @@ export default {
     changeDate(data) {
       //左右点击切换月份
       var that = this;
-      console.log(data);
+      //console.log(data);
+      that.nowDate[0].year = data.split("/")[0];
+      that.nowDate[0].month = data.split("/")[1]
       let params = {
         year: data.split("/")[0],
         month: data.split("/")[1],
         dept: this.$store.getters.yuanxi,
       };
-      getMonthDeptAbsenceDate(params).then((res) => {
+      getMonthDeptLeaveDate(params).then((res) => {
         if (res.data.resultCode == "0") {
           return;
         } else {
@@ -351,6 +383,7 @@ export default {
           console.log(that.arr);
         }
       });
+     that.getsummaryList();
     },
     clickToday(data) {
       // 跳到了本月（轮询）
@@ -527,7 +560,6 @@ export default {
           ],
         });
       });
-
       // 使用刚指定的配置项和数据显示图表。
       leaveTypeChart.setOption(this.leaveTypeOption);
       leaveTimeChart.setOption(this.leaveTimeOption);
@@ -553,6 +585,109 @@ export default {
         name: "DetailLeave",
       });
     },
+    //获取考勤表数据
+   getsummaryList(){ 
+        // let item=this.formatDate(this.text)
+        // let params={
+        //     'year':item
+        //   }
+        // console.log('%%%%%')
+        // console.log(this.nowDate[0].year)
+        // console.log(this.nowDate[0].month)
+
+  
+         let params={
+             'dept':this.department,
+             'year':this.nowDate[0].year,
+             'month':this.nowDate[0].month,
+          }
+          getLeaveHistoryByMonthAndDept(params).then((res) => {
+            console.log(res)
+             this.summaryList=res.data
+         }) 
+   this.resultList=this.summaryList.map(item => ({
+           userName:item.user.userName,
+           a:item.shijiaDays,
+           b:item.bingjiaDays,
+           c:item.hunjiaDays,
+           d:item.shengyujiaDays,
+           e:item.tanqinjiaDays,
+           f:item.sangjiaDays,
+           g:item.gongshangjiaDays,
+           h:item.gongchaiDays,
+           i:item.kuanggongDays,
+         }))
+      //    console.log(222)
+      //  console.log(resultList)
+      }, 
+    //点击导出word
+  exportWord: function() {
+     let that = this;
+      // this.resultList=this.summaryList.map(item => ({
+      //      userId:item.userId,
+      //      a:item.shijiaDays,
+      //      b:item.bingjiaDays,
+      //      c:item.hunjiaDays,
+      //      d:item.shengyujiaDays,
+      //      e:item.tanqinjiaDays,
+      //      f:item.sangjiaDays,
+      //      g:item.gongshangjiaDays,
+      //      h:item.gongchaiDays,
+      //      i:item.kuanggongDays,
+      //    }))
+     that.getsummaryList(),
+
+    // 读取并获得模板文件的二进制内容
+    JSZipUtils.getBinaryContent("考勤汇总表.docx", function(error, content) {
+      // model.docx是模板。我们在导出的时候，会根据此模板来导出对应的数据
+      // 抛出异常
+      if (error) {
+        throw error;
+      }
+
+      // 创建一个PizZip实例，内容为模板的内容
+      let zip = new PizZip(content);
+      // 创建并加载docxtemplater实例对象
+      let doc = new docxtemplater().loadZip(zip);
+      // console.log(111222333)
+     // console.log(that.resultList)
+      // 设置模板变量的值
+      console.log('aaaaa')
+      console.log(that.resultList)
+      doc.setData({
+        nowyear:that.nowDate[0].year,
+        nowmonth:that.nowDate[0].month,
+        department:that.department,
+        year:new Date().getFullYear(),
+        month:new Date().getMonth()+1,
+        day:new Date().getDate(),
+        table: that.resultList,
+      });
+
+      try {
+        // 用模板变量的值替换所有模板变量
+        doc.render();
+      } catch (error) {
+        // 抛出异常
+        let e = {
+          message: error.message,
+          name: error.name,
+          stack: error.stack,
+          properties: error.properties
+        };
+        console.log(JSON.stringify({ error: e }));
+        throw error;
+      }
+
+      // 生成一个代表docxtemplater对象的zip文件（不是一个真实的文件，而是在内存中的表示）
+      let out = doc.getZip().generate({
+        type: "blob",
+        mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      });
+      // 将目标文件对象保存为目标类型的文件，并命名
+      saveAs(out, "考勤汇总信息表.docx");
+    });
+  }
   },
 };
 </script>
@@ -593,7 +728,11 @@ export default {
   margin: 0 auto;
   text-align: center;
 }
-
+.botmBtnContainer{
+  float: right;
+  margin: 5px 5px;
+  
+}
 .el-card {
   border-radius: 1px;
 }

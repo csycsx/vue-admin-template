@@ -5,7 +5,7 @@
     <el-card >
       <!-- 搜索 -->
     <div class="search"> 
-      <el-input placeholder="请输入内容" v-model="input" class="input" clearable @clear="getUserList">
+      <el-input placeholder="请输入教师的工号" v-model="input" class="input" clearable @clear="getUserList">
         <!-- <el-select v-model="select" slot="prepend" placeholder="请选择">
           <el-option label="工号" value="1"></el-option>
           <el-option label="姓名" value="2"></el-option>
@@ -183,15 +183,15 @@
       @close="editDialogClosed">
         <el-form :model="editForm"  ref="editFormRef" :inline="true">
           <el-form-item label="工号"  :label-width="formLabelWidth">
-            <el-input v-model="editForm.userId" style="width:200px"  disabled ></el-input>
+            <el-input v-model="editForm.userId" style="width:200px"  :disabled=true ></el-input>
           </el-form-item>
           <el-form-item label="姓名"  :label-width="formLabelWidth" >
-            <el-input v-model="editForm.userName" autocomplete="off" style="width:200px" disabled=true ></el-input>
+            <el-input v-model="editForm.userName" autocomplete="off" style="width:200px" :disabled=true ></el-input>
           </el-form-item>
           <el-form-item label="院系"  :label-width="formLabelWidth">
-            <el-select v-model="editForm.yuanXi"  disabled=true style="width:200px">
-              <el-option label="计算机" ></el-option>
-              <el-option label="微电子" ></el-option>
+            <el-select v-model="editForm.yuanXi"  :disabled=true style="width:200px">
+              <el-option label="计算机" value="0"></el-option>
+              <el-option label="微电子" value="1"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="用户权限" :label-width="formLabelWidth">
@@ -205,14 +205,14 @@
             </el-select>
           </el-form-item>
           <el-form-item label="人员类别" prop="ptype" :label-width="formLabelWidth">
-            <el-select v-model="editForm.ptype"  disabled=true style="width:200px">
+            <el-select v-model="editForm.ptype"  :disabled=true style="width:200px">
               <el-option label="教师" value="0"></el-option>
               <el-option label="人事处" value="1"></el-option>
               <el-option label="工作人员" value="2"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="人员状态" prop="pstatus" :label-width="formLabelWidth">
-            <el-select v-model="editForm.pstatus"  disabled=true style="width:200px">
+            <el-select v-model="editForm.pstatus"  :disabled=true style="width:200px">
               <el-option label="在编在岗" value="0"></el-option>
               <el-option label="在岗不在编" value="1"></el-option>
               <el-option label="在编不在岗" value="2"></el-option>
@@ -270,7 +270,7 @@ export default {
         // 修改用户的表单数据
         editForm:{
           id:'',
-          userId:'',
+          userId:this.$store.getters.id,
           userName:'',
           gender:'',
           yuanXi:'',
@@ -298,6 +298,7 @@ export default {
 
     created(){
      this.getUserList()
+     
    //  this.filterChange()
       //this.exchange()
       // this.deleteUserFrom()
@@ -314,6 +315,7 @@ export default {
        //获取全部数据     
       async getUserList(){ 
           console.log(this.num)
+         console.log(this.$store.getters.id )  
         // console.log(this.filters,role[0])
             let params={
               'pageNum':this.queryInfo.pageNum,
@@ -442,9 +444,12 @@ export default {
       //修改后关闭窗口
     editDialogClosed(){
      this.EditUserVisible=false
-     this.$nextTick(()=>{
+     if (this.$refs.editForm!==undefined)
+     {this.$nextTick(()=>{
           this.$refs.editForm.resetFields();
-     })                              
+     })  
+     }
+                                 
    },
 
       // 监听添加用户对话框的关闭事件 关闭后清除表单内容

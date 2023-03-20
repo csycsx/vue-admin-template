@@ -29,8 +29,7 @@
         <div slot="header" class="clearfix">
           <h3>个人历史申请列表</h3>
         </div>
-        <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;"
-          @row-click="rowChick">
+        <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;">
 
           <el-table-column label="序号" prop="id" width="80" />
           <el-table-column label="请假开始时间" prop="leaveStartTime" width="200" />
@@ -46,9 +45,8 @@
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="100">
             <template slot-scope="scope">
-              <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" size="small">
-                删除
-              </el-button>
+              <el-button @click="rowChick(scope.row)" type="text" size="small">查看</el-button>
+              <el-button @click="deleteRow(scope.row)" type="text" size="small">撤销</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -61,11 +59,12 @@
 </template>
 
 <script>
-import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus } from "@/api/apply"
+import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
 export default {
-  data () {
+  inject:['reload'],
+  data() {
     return {
-      auditStatus: ["未审核", "审核通过", "审核不通过", "已撤销"],
+      auditStatus: ["未审核", "审核通过", "审核不通过", "已撤销", "管理员补录"],
       queryParams: {
         roleKey: '',
       },
@@ -106,7 +105,7 @@ export default {
       // value3: [new Date(2022, 10, 10, 10, 10), new Date(2022, 10, 11, 10, 10)],
     }
   },
-  created () {
+  created() {
     this.userid = this.$store.getters.id;
     let param = { "userid": this.userid }
     findLeaveFormByUserid(param).then(res => {
@@ -128,7 +127,7 @@ export default {
     /**
      * 查询事件修改
      * */
-    selectDate (val) {
+    selectDate(val) {
       if (val) {
         this.queryStartTime = val[0];
         this.queryEndTime = val[1];
@@ -141,7 +140,7 @@ export default {
     /**
      * 选择查询
      */
-    queryByOptions () {
+    queryByOptions() {
       let param = {
         "userId": this.userid,
         "status": this.queryAuditOption,
@@ -155,7 +154,7 @@ export default {
       })
     },
     // 分页事件控制
-    changePage (pageNum) {
+    changePage(pageNum) {
       let param = {
         "userid": this.userid,
         "pageNum": pageNum
@@ -168,7 +167,8 @@ export default {
     },
 
     //点击某条信息，跳转详情页面
-    rowChick (row, event, column) {
+    rowChick(row, event, column) {
+      console.log(row);
       this.$router.push({
         name: 'DetailedLeave',    // 详情页传入行参数
         query: {
@@ -176,7 +176,26 @@ export default {
         }
       })
     },
+    //撤销某条请假申请信息
+    deleteRow(row, tableData) {
+      console.log("将撤销：", row);
+      this.$confirm('确认撤销请假申请？')
+        .then(_ => {
+          let param = {
+            "leave-id": row.id
+          }
+          quashLeaveById(param).then(res => {
+            if (res.code === 200) {
+              this.$message.success("撤销成功");
+              this.reload();
+            } else {
+              this.$message.error("撤销失败");
+            }
+          })
+        })
+        .catch(_ => { });
 
+    },
   }
 
 }

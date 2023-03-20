@@ -1,6 +1,8 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-text">name: {{ name }}</div>
+    <div class="dashboard-text">姓名: {{ name }}</div>
+    <div class="dashboard-text">部门: {{ yuanxi }}</div>
+    <!-- <div class="dashboard-text">身份权限: {{ role }}</div> -->
   </div>
 </template>
 
@@ -12,7 +14,8 @@ export default {
   name: 'Dashboard',
   computed: {
     ...mapGetters([
-      'name'
+      'name',
+      'yuanxi'
     ])
   },
   created(){

@@ -49,14 +49,14 @@
       width="30%"
       @close="editDialogClosed">
      <el-form>
-        <el-form-item label="ID" :label-width="formLabelWidth">
+        <!-- <el-form-item label="ID" :label-width="formLabelWidth">
         <el-input v-model="editForm.id" ></el-input>
-      </el-form-item>
+      </el-form-item> -->
        <el-form-item label="校历ID" :label-width="formLabelWidth">
-        <el-input v-model="editForm.calenderId" ></el-input>
+        <el-input v-model="editForm.calenderId" :disabled=true></el-input>
       </el-form-item>
       <el-form-item label="假期名称" :label-width="formLabelWidth" >
-        <el-input v-model="editForm.adjustName" ></el-input>
+        <el-input v-model="editForm.adjustName" :disabled=true></el-input>
       </el-form-item>
       <el-form-item label="开始日期"  :label-width="formLabelWidth">
       <el-input v-model="editForm.adjustStartDate" type="date"></el-input>

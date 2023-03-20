@@ -215,7 +215,7 @@ export function findAllUser() {
   })
 }
 
-//
+//考勤模块：管理员补录请假信息
 export function addAdminLeaveForm(data){
   return request({
     url: '/leave/addAdminLeaveForm',
@@ -223,3 +223,13 @@ export function addAdminLeaveForm(data){
     params: data
   })
 }
+
+//根据工号查询用户
+export function findUserByUserid(data){
+  return request({
+    url: '/user/findUserByUserid',
+    method: 'get',
+    params: data
+  })
+}
+

@@ -42,9 +42,13 @@
                 </el-col>
               </el-row>
               <el-row class="row-box">
-                <el-col :span="24">
-                  <div class="name-box">证明文件：<span class="content-box"
-                      @click="downlode">{{detailInfo.leaveMaterial}}</span></div>
+                <el-col :span="12">
+                  <div class="name-box">证明材料：<span class="content-box">{{detailInfo.leaveMaterial}}</span></div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="name-box">
+                    <el-button type="primary" @click="downlode">预览证明材料</el-button>
+                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -207,9 +211,10 @@ export default {
     },
 
     downlode () {
-      let a = document.createElement('a');
-      a.href = this.leave_material
-      a.click();
+      // let a = document.createElement('a');
+      // a.href = this.leave_material
+      // a.click();
+      this.$message("功能尚未健全");
     },
     getDate (myDate) {
       var Y = myDate.getFullYear();   //获取当前完整年份
@@ -430,6 +435,9 @@ export default {
 .content-box {
   color: #5c5a5a;
   font-weight: 600;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
 .button-box {
