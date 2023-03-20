@@ -2,6 +2,22 @@
   <div class="app-container">
     <div class="title">
       <div class="word">教师请假申请表</div>
+      <div class="foot" style="color:#f0000f">
+        <el-popover
+          placement="right-start"
+          title="说明："
+          width="400"
+          trigger="hover"
+          >
+          <p>1. 请假类型包括：事假、病假、婚假、产假、丧假、因公出差、工伤假</p>
+          <p>2. 事假包含因私出国（境）</p>
+          <p>3. 产假包含男方配偶陪产假</p>
+          <p>4. 因公出差包含因公外借、挂职锻炼、公派出国。公派出国需在系统关联PIM中已完成的因公出国（境）申请流程</p>
+          <p>5. 中层干部及其他报备人员仍在PIM系统提交流程，包括：PIM中层干部及其他报备人员因私出国(境)审批流程、二级单位主要负责同志外出请假流程、非二级单位主要负责同志外出请假流程。</p>
+          
+          <a href="https://hr.shu.edu.cn/info/1042/4217.htm" slot="reference">上海大学教职工请假和考勤制度的规定</a>
+        </el-popover>
+      </div>
     </div>
     <div class="body">
       <el-form style="height: 510px; padding: 0px auto;" ref="queryRef" label="left" label-width="184px"
@@ -36,10 +52,14 @@
                 <el-option v-for="item in options2" :key="item.leave_type" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
-              <el-popover placement="right" title="当前年度累计" width="200" trigger="hover" :content="historyContent">
-                <i class="el-icon-warning-outline" slot="reference" style="margin-left: 50px;"></i>
-              </el-popover>
             </el-form-item>
+          </el-col>
+          <el-col :span="1">
+            <div style="height: 40px; display: table-cell; vertical-align: middle;">
+              <el-popover v-show="historyFlag" placement="right" title="当前年度累计" width="50" trigger="hover" :content="historyContent">
+                <i class="el-icon-warning-outline" slot="reference" ></i>
+              </el-popover>
+            </div>
           </el-col>
           <el-col :span="8">
             <el-form-item label="是否出境" prop="child" v-if="leave_type == '事假'">
@@ -64,6 +84,17 @@
           </el-col>
         </el-row>
 
+        <el-row v-show="historyLeaveExplain">
+          <el-col :span="16">
+            <el-form-item label="" prop="child">
+              <el-card shadow="never" :body-style="{ padding: '15px'}">
+                <span class="explain-title">{{ leave_type }}</span><span style="font-size: large;">  请假类型说明</span>
+                <p class="explain-details">{{ leaveExplainMap[leave_type] }}</p>
+              </el-card>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-form-item label="选择请假时间" style="height: 62px; margin-bottom: 10px;">
           <el-date-picker :picker-options="pickerOptions" v-model="start_end_time" type="datetimerange"
             format="yyyy 年 MM 月 dd 日 HH 时" value-format="yyyy-MM-dd HH" range-separator="至" start-placeholder="开始日期"
@@ -74,8 +105,8 @@
             <i class="el-icon-warning-outline" slot="reference" style="margin-left: 50px;"></i>
           </el-popover> -->
           <div style="display:flex;">
-            <div style="margin-left:80px">{{start}}</div>
-            <div style="margin-left:80px">{{end}}</div>
+            <div style="margin-left:80px">{{ start }}</div>
+            <div style="margin-left:80px">{{ end }}</div>
           </div>
         </el-form-item>
 
@@ -109,11 +140,11 @@
         <el-row style="height: 62px; margin-bottom: 10px;">
           <el-col :span="8">
             <el-form-item label="文件上传" prop="leave_matrial">
-              <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/"
-                accept=".jpg,.png,.pdf" multiple :limit="5" :name="leave_matrial" :on-exceed="handleExceed"
-                :on-change="handleChange" :on-preview="handlePreview" :on-remove="handleRemove"
-                :before-upload="beforeAvatarUpload" :file-list="fileList" :auto-upload="true" :show-file-list="true">
-                <el-popover placement="right" width="200" trigger="hover" content="只能上传jpg/png/pdf文件，且不超过2MB">
+              <el-upload class="upload-demo" ref="upload" action :http-request="uploadFile" accept=".jpg,.png,.pdf"
+                multiple :limit="5" :name="leave_matrial" :on-remove="handleRemove" :on-exceed="handleExceed"
+                :before-upload="beforeAvatarUpload" :on-change="handleChange" :file-list="fileList" :auto-upload="true"
+                :show-file-list="true">
+                <el-popover placement="right" width="200" trigger="hover" content="请上传jpg/png/pdf格式文件，文件大小不超过10M">
                   <el-button slot="reference" size="medium" type="primary">选取文件
                     <i class="el-icon-upload el-icon--right"></i>
                   </el-button>
@@ -122,25 +153,22 @@
             </el-form-item>
           </el-col>
         </el-row>
-      </el-form>
-      <div style="text-align: center; margin-top: 20px;">
-        <el-button type="primary" style="margin-right: 120px;" size="medium" @click="submit()">提交</el-button>
 
-        <el-button type="primary" size="medium">重置</el-button>
-      </div>
-      <div class="foot" style="color:#f0000f">
-        <a href="https://hr.shu.edu.cn/info/1042/4217.htm">@上海大学教职工请假和考勤制度的规定</a>
-      </div>
+        <el-col style="text-align: center; margin-top: 20px;">
+          <el-button type="primary" style="width: 6%;  margin-right: 20%;" size="medium" @click="submit()">提交</el-button>
+          <el-button type="primary" style="width: 6%;" size="medium">重置</el-button>
+        </el-col>
+      </el-form>
     </div>
   </div>
 </template>
 
 <script>
-import { getUserInfoById, addTeacherLeaveFormMsg, getSystemMaxLimitTime, checkTeachingDate } from "@/api/apply"
-import { getSumLeaveTypeDays, getCurrentLeaveDays, getReferenceLeaveDay } from "@/api/apply"
+import { addTeacherLeaveFormMsg, getSystemMaxLimitTime, checkTeachingDate } from "@/api/apply"
+import { getSumLeaveTypeDays, getReferenceLeaveDay } from "@/api/apply"
 
 export default {
-  data () {
+  data() {
     return {
       labelPosition: "left",
       dept: "",
@@ -185,7 +213,7 @@ export default {
         {
           value: "工伤假",
           label: "工伤假",
-        },
+        }
       ],
       leave_type1: {
 
@@ -208,8 +236,20 @@ export default {
       ],
       dataConstrain: {},
       historyContent: '',
+      historyFlag: false,
+      historyLeaveExplain: false,
       leaveRealDaysContent: '',
       selectData: '',
+      leaveExplainMap: {
+        '事假': '事假（含因私出国（境））。单次事假超过10天，需流经人事处审核；单次事假超过30天或全年事假累计超过60天，需流经校领导审核。',
+        '病假': '病假当年累计超过60天，需流经人事处审核。病假最长不可超过180天。需上传二级甲等及以上医院有效病假证明。',
+        '婚假': '婚假最长不可超过10天。需上传结婚证书。',
+        '产假': '产假起止日期由申请人先提交。怀孕未满4个月流产不超过15天；怀孕满4个月流产不超过42天。产假实际请假时间以人事处核定时间为准。需上传医院开具的相关产育证明（含怀孕流产）',
+        '陪产假': '男方配偶陪产假不超过10天。',
+        '丧假': '丧假最长不超过3天',
+        '因公出差': '因公出差包含因公外借、挂职锻炼、公派出国。公派出国需在系统关联PIM中已完成的因公出国（境）申请流程。',
+        '工伤假': '需开具定点医疗机构或三级甲等医院出具的工伤休假证明书。'
+      },
       nowDate: '',    // 当前事件（）
       pickerOptions: {
         // 点击时，选择的是开始时间，也就是minDate
@@ -240,9 +280,9 @@ export default {
     };
   },
 
-  created () {
-    // 设置默认的开始时间
-    this.start_end_time = new Date().getFullYear().toString();
+  created() {
+    // // 设置默认的开始时间
+    // this.start_end_time = new Date().getFullYear().toString();
     // 在页面加载时读取后端系统请假类型时间条件
     getSystemMaxLimitTime().then(res => {
       this.systemTimeConstrain = res.data;
@@ -250,7 +290,6 @@ export default {
       for (var i = 0; i < this.systemTimeConstrain.length; i++) {
         this.dataConstrain[String(this.systemTimeConstrain[i].type)] = parseInt(this.systemTimeConstrain[i].limitTime);
       }
-      console.log(this.dataConstrain);
     })
 
     // 在页面加载时首先加载当前登录的用户信息（暂时以查询单个用户信息代替）
@@ -261,31 +300,26 @@ export default {
 
   methods: {
     // 检查是否为空
-    isNull (value) {
+    isNull(value) {
       if (value) {
         return false
       }
       return true
     },
-    beforeAvatarUpload (file) {
-      console.log(file.type)
-      const isJPG = file.type === 'image/png';
-      const isPNG = file.type === 'image/jpeg';
-      const isPDF = file.type === 'pdf';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+    beforeAvatarUpload(file) {
+      const fileSuffix = file.name.substring(file.name.lastIndexOf(".") + 1);   //解析上传文件的后缀
+      const whiteList = ["pdf", "jpg", "png"];
 
-      if (!isJPG && !isPNG && !isPNG) {
-        this.$message.error('上传头像图片只能是 JPG/PDF 格式!');
+      const isTypeLimit = whiteList.indexOf(fileSuffix) !== -1; //上传文件后缀名夫是否符合要求
+      const isLt10M = file.size / 1024 / 1024 < 10; //上传文件大小是否小于10MB
+      if (!isTypeLimit || !isLt10M) {
+        this.$message.error('请上传jpg/png/pdf格式文件，文件大小不超过10M');
       }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
-      }
-      return isJPG && isLt2M;
+      return isTypeLimit && isLt10M;
     },
     // 文件上传获取文本框内本地文件路径
-    handleChange (file, fileLists) {
+    handleChange(file, fileLists) {
       // 本地电脑路径
-      console.log(document.getElementsByClassName("el-upload__input")[0].value);
       var path = document.getElementsByClassName("el-upload__input")[0].value;
       // 对用户提交的文件材料进行重命名，命名格式为：时间-工号-xx假证明材料.jpg/png/pdf
       let path_arr = path.split(".");
@@ -298,20 +332,26 @@ export default {
       var hour = now.getHours();//得到小时
       var minu = now.getMinutes();//得到分钟
       this.leave_matrial = path_arr[0] + year + month + date + hour + minu + "-" + id_str + "." + path_arr[1];
-      console.log(this.leave_matrial);
     },
-    handleRemove (file, fileList) {
-      console.log(file, fileList);
+    // beforeRemove(file, fileList) {
+    //   return this.$confirm(`确定移除【 ${file.name} 】？`, '提示', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     type: "warning"
+    //   });
+    // },
+    handleRemove(file, fileList) {
+      this.fileList = fileList;
+      console.log("删除后当前文件列表", this.fileList);
     },
-    handlePreview (file) {
+    handlePreview(file) {
       console.log(file);
     },
-    handleExceed (files, fileList) {
+    handleExceed(files, fileList) {
       this.$message.warning(`当前限制选择 5 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
     },
     // 处理时间选择器变化事件
-    handleTimePicker () {
-      console.log("当前选择的起止时间分别为：", this.start_end_time[0], this.start_end_time[1]);
+    handleTimePicker() {
       checkTeachingDate({ "checking_date": this.start_end_time[0].substring(0, 10) }).then(res => {
         if (res.code === 200) {
           this.start = res.data.dateIndex;
@@ -325,7 +365,7 @@ export default {
 
     },
     // 下拉列表变化时的方法
-    detectSelect () {
+    detectSelect() {
       // 查询当前用户本年度对应请假类型的总天数
       var nowDate = new Date();
       var params = {
@@ -333,79 +373,87 @@ export default {
         "type": this.leave_type,
         "year": nowDate.getFullYear()
       };
-      console.log(params);
       getSumLeaveTypeDays(params).then(res => {
-        console.log("本年度累计", this.leave_type, "总天数：", res.data);
+        // console.log("本年度累计", this.leave_type, "总天数：", res.data);
+        this.historyFlag = true;
+        this.historyLeaveExplain = true;
         this.historyContent = "本年度累计" + this.leave_type + "总天数：" + res.data + "天";
       });
-      // console.log("当前选择的请假类型：", this.leave_type);
       if (this.dataConstrain[this.leave_type] != "") {
         console.log("当前请假类型对应的最大请假期限：", this.dataConstrain[this.leave_type]);
       }
 
     },
-    showMsg () {
+    showMsg() {
       this.leave_reason = '赴' + this.country + this.reason;
-      console.log(this.leave_reason);
     },
-
-    submitLeave () {
-      this.$confirm(this.allDay, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        let _this = this;
-        if (this.leave_matrial == "") {
-          this.leave_matrial = "暂无证明材料"
-        }
-        if (this.leave_type == "事假" && this.leave_type1.child == '是') {
-          this.showMsg();   //选择事假类型则进行文本框字符串拼接
-          console.log("当前请假事由：", this.leave_reason);
-        }
-        let param = {
-          "userid": this.userid,
-          "leave-type": this.leave_type,
-          "leave-start-time": this.start_end_time[0],
-          "leave-end-time": this.start_end_time[1],
-          "leave-reason": this.leave_reason,
-          "leave-material": this.leave_matrial
-        };
-        console.log(param);
-        addTeacherLeaveFormMsg(param).then((res) => {
-          if (res.code === 200) {
-            this.$message({
-              type: 'success',
-              message: '申请成功!'
-            });
-            this.$router.push({
-              name: 'LeaveRecord'
-            })
-
+    //上传文件的方法
+    uploadFile(item) {
+      //上传文件的需要formdata类型;所以要转
+      this.fileList.push(item.file);  //手动讲文件添加到fileList当中
+    },
+    //提交表单信息
+    submitLeave() {
+      if (this.fileList.length === 0) {
+        this.$message.warning("请选择作证材料");
+      } else if (this.leave_reason == "") {
+        this.leave_reason = "(暂无说明缘由)";
+      } else {
+        console.log("添加前当前文件列表", this.fileList);
+        this.$confirm(this.allDay, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          if (this.leave_type == "事假" && this.leave_type1.child == '是') {
+            this.showMsg();   //选择事假类型则进行文本框字符串拼接
           }
-        });
+          let formData = new FormData();
+          formData.append("file", this.fileList[0]);
+          formData.append("userid", this.userid);
+          formData.append("leave-type", this.leave_type);
+          formData.append("leave-start-time", this.start_end_time[0]);
+          formData.append("leave-end-time", this.start_end_time[1]);
+          formData.append("leave-reason", this.leave_reason);
+          addTeacherLeaveFormMsg(formData).then((res) => {
+            if (res.code === 200) {
+              this.$message({
+                type: 'success',
+                message: '申请成功!'
+              });
+              this.$router.push({
+                name: 'LeaveRecord'
+              })
 
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消提交请假申请'
+            }
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消提交请假申请'
+          });
         });
-      });
+      }
     },
 
-    submit () {
-      let leave_start_time = this.start_end_time[0] + ':00:00';
-      let leave_end_time = this.start_end_time[1] + ':00:00';
-      getReferenceLeaveDay({
-        "leave_start_time": leave_start_time,
-        "leave_end_time": leave_end_time,
-        "leave_type": this.leave_type
-      }).then(res => {
-        if (res.code === 200) {
-          this.allDay = '系统计算您的请假天数为：' + res.data + '天，最终时间以人事处核定时间为准。'
-          this.submitLeave();
-        }
-      })
+    submit() {
+      if (this.leave_type == "" || this.start_end_time.length === 0) {
+        this.$message.warning("未选择请假类型或请假起止时间");
+      } else {
+        let leave_start_time = this.start_end_time[0] + ':00:00';
+        let leave_end_time = this.start_end_time[1] + ':00:00';
+        getReferenceLeaveDay({
+          "leave_start_time": leave_start_time,
+          "leave_end_time": leave_end_time,
+          "leave_type": this.leave_type
+        }).then(res => {
+          if (res.code === 200) {
+            this.allDay = '系统计算您的请假天数为：' + res.data + '天，最终时间以人事处核定时间为准。'
+            this.submitLeave();
+          }
+        })
+      }
+
     }
 
   },
@@ -441,7 +489,6 @@ export default {
   font-weight: 400;
   color: #000000;
   line-height: 70px;
-
   margin: 0 auto;
 }
 
@@ -451,8 +498,7 @@ export default {
   /* background: #ffffff; */
   /* border-radius: 4px 4px 4px 4px; */
   opacity: 1;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin: 20px auto;
 }
 
 .input1 {
@@ -466,12 +512,11 @@ export default {
 .foot {
   width: 300px;
   height: 20px;
-  margin: 30px auto;
+  margin: 10px auto;
   text-decoration: underline;
-  font-style: italic;
 }
 
-.inputDeep >>> .el-input__inner {
+.inputDeep>>>.el-input__inner {
   width: 100px;
   height: 30px;
   border-radius: 0;
@@ -504,5 +549,29 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* 请假说明字段标题 */
+.explain-title {
+  padding: 20px auto;
+  width: auto;
+  height: 27px;
+  font-size: 20px;
+  font-family: Segoe UI-Semibold, Segoe UI;
+  font-weight: 600;
+  color: rgba(49,40,40,0.78);
+}
+/* 请假类型解释信息 */
+.explain-details {
+  width: 100%;
+  /* height: 81px; */
+  margin-top: 1rem;
+  font-size: 15px;
+  font-family: Segoe UI-Semibold, Segoe UI;
+  /* font-weight: 600; */
+  color: rgba(8, 24, 240, 0.78);
+  display: -webkit-box;
+  /* -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden; */
 }
 </style>

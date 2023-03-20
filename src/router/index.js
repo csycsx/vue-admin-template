@@ -43,6 +43,15 @@ export const constantRoutes = [
     component: () => import('@/views/login/index'),
     hidden: true  // hidden 属性，若需要在siderBar中隐藏则设置为True,默认为false
   },
+  {
+    name: 'LoginRedirect',
+    meta:{
+      roles:["all"]
+    },
+    path: '/loginRedirect',
+    component: () => import('@/views/login/loginRedirect'),
+    hidden: true  // hidden 属性，若需要在siderBar中隐藏则设置为True,默认为false
+  },
 
   {
     path: '/404',
@@ -81,13 +90,6 @@ export const constantRoutes = [
         name: 'LeaveApply',
         component: () => import('@/views/apply/LeaveApply'),
         meta: { title: '请假申请', icon: 'el-icon-top-right' ,roles:['admin','user','department_auditor','hr_auditor','leader_auditor']}
-      },
-      {
-        path: 'revokeapply',
-        name: 'revokeApply',
-        component: () => import('@/views/apply/RevokeApply'),
-        meta: { title: '销假申请', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']},
-        hidden: true
       }
     ]
   },
@@ -300,7 +302,7 @@ export const constantRoutes = [
   path: '/display',
   component: Layout,
   redirect: '/admin/calenderview',
-  name: 'Admin',
+  name: 'Display',
   meta: { title: '考勤汇总', icon: 'el-icon-s-operation' ,roles: ['admin']},
   children: [
     {
@@ -325,7 +327,7 @@ export const constantRoutes = [
 
 
 const createRouter = () => new Router({
-  // mode: 'history', // require service support
+  mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })

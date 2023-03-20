@@ -17,6 +17,18 @@ export function addTeacherLeaveFormMsg(data) {
   return request({
     url: '/leave/addLeaveForm',
     method: 'post',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'   // 设置请求头格式为：x-www-form-urlencoded
+    },
+    data: data
+  })
+}
+
+// 调用后端"撤销某一条请假记录"接口
+export function quashLeaveById(data) {
+  return request({
+    url: '/leave/quashLeaveById',
+    method: 'get',
     params: data
   })
 }
@@ -130,6 +142,15 @@ export function getRevokeDetailById(data) {
 export function getCurrentRevokeAuditMsg(data) {
   return request({
     url: '/revokeAudit/getCurrentRevokeAuditMsg',
+    method: 'get',
+    params: data
+  })
+}
+
+//
+export function undoRevoke(data) {
+  return request({
+    url: '/revoke/undoRevoke',
     method: 'get',
     params: data
   })

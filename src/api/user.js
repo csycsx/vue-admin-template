@@ -9,6 +9,15 @@ export function login(data) {
   })
 }
 
+// 后端统一身份认证登录
+export function loginOauth(data) {
+  return request({
+    url: '/user/loginOauth',
+    method: 'post',
+    params: data
+  })
+}
+
 
 export function getInfo(token) {
   return request({

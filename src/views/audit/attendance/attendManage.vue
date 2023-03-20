@@ -157,15 +157,9 @@ export default {
         this.week = res.data.dateIndex;
       }
     });
-    // findAllUser().then((res) => {
-    //   if (res.code === 200) {
-    //     this.userList = res.data;
-    //   }
-    // });
-    // this.selectDay = nowDate;
-    // this.userid = this.$store.getters.id;
-    // this.name = this.$store.getters.name;
-    // this.dept = this.$store.getters.yuanxi;
+    this.userid = this.$store.getters.id;
+    this.name = this.$store.getters.name;
+    this.dept = this.$store.getters.yuanxi;
   },
   mounted() {},
   methods: {

@@ -20,7 +20,7 @@
           auto-complete="on"
         />
       </el-form-item>
-
+      <el-button type="primary"  @click.native.prevent="loginOauth">统一身份认证登录</el-button>
       <el-button type="primary"  @click.native.prevent="handleLogin">登录成功</el-button>
       <el-button type="primary"  @click.native.prevent="handleLoginFail">登录失败</el-button>
 
@@ -51,6 +51,14 @@ export default {
   //   }
   // },
   methods: {
+    /**
+     * 统一身份认证登录
+     * 
+     * 2023.03.13 by spark chen 
+     */
+    loginOauth() {
+      window.location.href = "https://newsso.shu.edu.cn/oauth/authorize?response_type=code&client_id=99X18w3r296fP0XX89g1h48xf8fFXwXd&redirect_uri=http%3A%2F%2F10.10.0.98%2FloginRedirect"
+    },
 
     /**
      * 模拟获取一网通办获取数据失败
@@ -68,7 +76,7 @@ export default {
     handleLogin() {
       const data = {"username":this.loginForm.id,"password":123456}
       this.$store.dispatch('user/init_user_info', data).then(() => {
-      this.$router.push('/dashboard')
+        this.$router.push('/dashboard')
       }).catch(() => {
         this.$message.error("获取数据失败！");
       })

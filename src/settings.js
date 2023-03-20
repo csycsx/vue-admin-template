@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: '上海大学人事处请假考勤系统',
+  title: '上海大学教职工请假与考勤系统',
 
   /**
    * @type {boolean} true | false
