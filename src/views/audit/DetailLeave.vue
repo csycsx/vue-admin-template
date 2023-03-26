@@ -52,7 +52,8 @@
           <el-row class="row-box">
             <el-col :span="24">
               <div class="name-box">证明文件：
-                <span class="content-box" @click="downlode">{{info.leaveMaterial}}</span>
+                <el-button type="primary" @click="downlode">预览证明材料</el-button>
+                <!-- <span class="content-box" @click="downlode">{{info.leaveMaterial}}</span> -->
               </div>
             </el-col>
           </el-row>
@@ -172,9 +173,7 @@ export default {
       this.dialogVisible = false;
     },
     downlode () {
-      let a = document.createElement('a');
-      a.href = this.leave_material
-      a.click();
+      window.location.href = this.info.leaveMaterial
     },
     onSubmit () {
 

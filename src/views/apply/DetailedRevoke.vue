@@ -27,8 +27,11 @@
               </el-row>
               <el-row class="row-box">
                 <el-col :span="24">
-                  <div class="name-box">证明文件：<span class="content-box"
-                      @click="downlode">{{detailInfo.leave.leaveMaterial}}</span></div>
+                  <div class="name-box">证明文件：
+                    <el-button type="primary" @click="downlode">预览证明材料</el-button>
+                    <!-- <span class="content-box"
+                      @click="downlode">{{detailInfo.leave.leaveMaterial}}</span> -->
+                  </div>
                 </el-col>
               </el-row>
               <h2>销假信息</h2>
@@ -97,7 +100,7 @@ export default {
   },
   methods: {
     downlode () {
-      console.log("11")
+      window.location.href = this.detailInfo.leave.leaveMaterial
     },
     initDate () {
       getRevokeDetailById({ "revoke_id": this.queryData.id }).then(res => {
