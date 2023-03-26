@@ -47,7 +47,8 @@
           <el-table-column fixed="right" label="操作" width="100">
             <template slot-scope="scope">
               <el-button @click="rowChick(scope.row)" type="text" size="small">查看</el-button>
-              <el-button @click.native.prevent="deleteRow(scope.row)" type="text" size="small">撤销 </el-button>
+              <el-button v-if="scope.row.status!='1'" @click.native.prevent="deleteRow(scope.row)" type="text"
+                size="small">撤销 </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -62,9 +63,9 @@
 </template>
   
 <script>
-import { getRevokeListByUserId,undoRevoke } from "@/api/apply"
+import { getRevokeListByUserId, undoRevoke } from "@/api/apply"
 export default {
-  inject:['reload'],
+  inject: ['reload'],
   data () {
     return {
       auditStatus: ["未审核", "审核通过", "审核不通过", "已撤销"],
@@ -110,7 +111,7 @@ export default {
       })
     },
     //撤销某条销假申请
-    deleteRow(row) {
+    deleteRow (row) {
       this.$confirm('确认撤销请假申请？')
         .then(_ => {
           let param = {

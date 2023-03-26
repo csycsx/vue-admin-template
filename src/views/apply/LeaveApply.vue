@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="title">
       <div class="word">教师请假申请表</div>
-      <div class="foot" style="color:#f0000f">
+      <!-- <div class="foot" style="color:#f0000f">
         <el-popover
           placement="right-start"
           title="说明："
@@ -17,148 +17,163 @@
           
           <a href="https://hr.shu.edu.cn/info/1042/4217.htm" slot="reference">上海大学教职工请假和考勤制度的规定</a>
         </el-popover>
-      </div>
+      </div> -->
     </div>
     <div class="body">
-      <el-form style="height: 510px; padding: 0px auto;" ref="queryRef" label="left" label-width="184px"
-        label-position="labelPosition">
-        <el-row type="flex" style="height: 62px; margin-bottom: 10px;">
-          <el-col :span="8">
-            <el-form-item label="申请人姓名" prop="name">
-              <el-input id="input1" v-model="name" :disabled="true" />
-            </el-form-item>
-          </el-col>
+      <el-row :gutter="10">
+        <el-col :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
+          <el-form style="height: 510px; padding: 0px auto;" ref="queryRef" label="left" label-width="184px"
+            label-position="labelPosition">
+            <el-row type="flex" style="height: 62px; margin-bottom: 10px;">
+              <el-col :span="8">
+                <el-form-item label="申请人姓名" prop="name">
+                  <el-input id="input1" v-model="name" :disabled="true" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="8">
+                <el-form-item label="工号" prop="userid">
+                  <el-input id="input2" v-model="userid" :disabled="true" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="8">
+                <el-form-item label="所在部门" prop="department" style="height: 62px; margin-bottom: 10px;">
+                  <el-input id="input3" v-model="dept" :disabled="true" />
+                </el-form-item>
+              </el-col>
+            </el-row>
 
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="工号" prop="userid">
-              <el-input id="input2" v-model="userid" :disabled="true" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="所在部门" prop="department" style="height: 62px; margin-bottom: 10px;">
-              <el-input id="input3" v-model="dept" :disabled="true" />
-            </el-form-item>
-          </el-col>
-        </el-row>
+            <el-row>
+              <el-col :span="11">
+                <el-form-item label="选择请假类型" prop="type" style="height: 62px; margin-bottom: 10px; ">
+                  <el-select v-model="leave_type" placeholder="请选择请假类型" @change="detectSelect" style="width:100%">
+                    <el-option v-for="item in options2" :key="item.leave_type" :label="item.label" :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="1">
+                <div style="height: 40px; display: table-cell; vertical-align: middle;">
+                  <el-popover v-show="historyFlag" placement="right" title="当前年度累计" width="50" trigger="hover"
+                    :content="historyContent">
+                    <i class="el-icon-warning-outline" slot="reference"></i>
+                  </el-popover>
+                </div>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="是否出境" prop="child" v-if="leave_type == '事假'" label-width="70px">
+                  <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
+                    <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'" label-width="70px">
+                  <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
+                    <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-form-item prop="child" v-if="leave_type1.child == '是' & leave_type == '因公出差'" style="color:red">
+                需在请假系统关联PIM中已完成的因公出国（境）申请流程
+              </el-form-item>
+            </el-row>
+            <div v-if="!(leave_type1.child == '是' & leave_type == '因公出差')">
+              <el-row v-show="historyLeaveExplain">
+                <el-col :span="20">
+                  <el-form-item label="" prop="child" label-width="100px">
+                    <el-card :body-style="{ padding: '15px'}">
+                      <span class="explain-title">{{ leave_type }}</span><span style="font-size: large;"> 请假类型说明</span>
+                      <p class="explain-details">{{ leaveExplainMap[leave_type] }}</p>
+                    </el-card>
+                  </el-form-item>
+                </el-col>
+              </el-row>
 
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="选择请假类型" prop="type" style="height: 62px; margin-bottom: 10px;">
-              <el-select v-model="leave_type" placeholder="请选择请假类型" @change="detectSelect">
-                <el-option v-for="item in options2" :key="item.leave_type" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="1">
-            <div style="height: 40px; display: table-cell; vertical-align: middle;">
-              <el-popover v-show="historyFlag" placement="right" title="当前年度累计" width="50" trigger="hover" :content="historyContent">
-                <i class="el-icon-warning-outline" slot="reference" ></i>
-              </el-popover>
+              <el-form-item label="选择请假时间" style="height: 62px; margin-bottom: 10px;">
+                <el-date-picker :picker-options="pickerOptions" v-model="start_end_time" type="datetimerange"
+                  format="yyyy 年 MM 月 dd 日 HH 时" value-format="yyyy-MM-dd HH" range-separator="至"
+                  start-placeholder="开始日期" end-placeholder="结束日期" @change="handleTimePicker">
+                </el-date-picker>
+                <div style="display:flex;">
+                  <div style="margin-left:80px">{{ start }}</div>
+                  <div style="margin-left:80px">{{ end }}</div>
+                </div>
+              </el-form-item>
+
+              <el-row style="height: 62px; margin-bottom: 10px;">
+                <el-col :span="8">
+                  <el-form-item label="请假事由说明" prop="explain" v-if="leave_type1.child == '是' & leave_type == '事假'">
+                    <div style="display: flex;" class="inputDeep">
+                      <div class="left">
+                        <p style="display: inline;">赴</p>
+                      </div>
+                      <el-input v-model="country"></el-input>
+                      <div class="left">
+                        <p style="display: inline;">国家、地区</p>
+                      </div>
+                      <el-input v-model="reason"></el-input>
+                      <div class="left">
+                        <p style="display: inline;">事由</p>
+                      </div>
+                    </div>
+                  </el-form-item>
+
+                  <el-form-item label="请假事由说明" prop="explain" v-if="leave_type != '事假'">
+                    <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;" />
+                  </el-form-item>
+                  <el-form-item label="请假事由说明" prop="explain" v-if="leave_type1.child == '否' & leave_type == '事假'">
+                    <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;" />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+
+              <el-row style="height: 62px; margin-bottom: 10px;">
+                <el-col :span="16">
+                  <el-form-item label="文件上传" prop="leave_matrial">
+                    <el-upload class="upload-demo" ref="upload" action :http-request="uploadFile"
+                      accept=".jpg,.png,.pdf" multiple :limit="1" :name="leave_matrial" :on-remove="handleRemove"
+                      :on-exceed="handleExceed" :before-upload="beforeAvatarUpload" :on-change="handleChange"
+                      :file-list="fileList" :auto-upload="true" :show-file-list="true">
+                      <el-popover placement="right" width="200" trigger="hover" content="请上传jpg/png/pdf格式文件，文件大小不超过10M">
+                        <el-button slot="reference" size="medium" type="primary">选取文件
+                          <i class="el-icon-upload el-icon--right"></i>
+                        </el-button>
+                      </el-popover>
+                    </el-upload>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+
+              <el-col style="text-align: center; margin-top: 20px;">
+                <el-button type="primary" style="width: 10%;  margin-right: 20%;" size="medium"
+                  @click="submit()">提交</el-button>
+                <el-button type="primary" style="width: 10%;" size="medium">重置</el-button>
+              </el-col>
+
             </div>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="是否出境" prop="child" v-if="leave_type == '事假'">
-              <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
-                <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'">
-              <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
-                <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10">
-            <el-form-item prop="child" v-if="leave_type1.child == '是' & leave_type == '因公出差'">
-              需在请假系统关联PIM中已完成的因公出国（境）申请流程
-            </el-form-item>
-          </el-col>
-        </el-row>
 
-        <el-row v-show="historyLeaveExplain">
-          <el-col :span="16">
-            <el-form-item label="" prop="child">
-              <el-card shadow="never" :body-style="{ padding: '15px'}">
-                <span class="explain-title">{{ leave_type }}</span><span style="font-size: large;">  请假类型说明</span>
-                <p class="explain-details">{{ leaveExplainMap[leave_type] }}</p>
-              </el-card>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-form-item label="选择请假时间" style="height: 62px; margin-bottom: 10px;">
-          <el-date-picker :picker-options="pickerOptions" v-model="start_end_time" type="datetimerange"
-            format="yyyy 年 MM 月 dd 日 HH 时" value-format="yyyy-MM-dd HH" range-separator="至" start-placeholder="开始日期"
-            end-placeholder="结束日期" @change="handleTimePicker">
-          </el-date-picker>
-          <!-- <el-popover placement="right" title="当前系统判定实际请假天数共" width="200" trigger="hover"
-            :content="leaveRealDaysContent">
-            <i class="el-icon-warning-outline" slot="reference" style="margin-left: 50px;"></i>
-          </el-popover> -->
-          <div style="display:flex;">
-            <div style="margin-left:80px">{{ start }}</div>
-            <div style="margin-left:80px">{{ end }}</div>
-          </div>
-        </el-form-item>
-
-        <el-row style="height: 62px; margin-bottom: 10px;">
-          <el-col :span="8">
-            <el-form-item label="请假事由说明" prop="explain" v-if="leave_type1.child == '是' & leave_type == '事假'">
-              <div style="display: flex;" class="inputDeep">
-                <div class="left">
-                  <p style="display: inline;">赴</p>
-                </div>
-                <el-input v-model="country"></el-input>
-                <div class="left">
-                  <p style="display: inline;">国家、地区</p>
-                </div>
-                <el-input v-model="reason"></el-input>
-                <div class="left">
-                  <p style="display: inline;">事由</p>
-                </div>
-              </div>
-            </el-form-item>
-
-            <el-form-item label="请假事由说明" prop="explain" v-if="leave_type != '事假'">
-              <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;" />
-            </el-form-item>
-            <el-form-item label="请假事由说明" prop="explain" v-if="leave_type1.child == '否' & leave_type == '事假'">
-              <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row style="height: 62px; margin-bottom: 10px;">
-          <el-col :span="8">
-            <el-form-item label="文件上传" prop="leave_matrial">
-              <el-upload class="upload-demo" ref="upload" action :http-request="uploadFile" accept=".jpg,.png,.pdf"
-                multiple :limit="5" :name="leave_matrial" :on-remove="handleRemove" :on-exceed="handleExceed"
-                :before-upload="beforeAvatarUpload" :on-change="handleChange" :file-list="fileList" :auto-upload="true"
-                :show-file-list="true">
-                <el-popover placement="right" width="200" trigger="hover" content="请上传jpg/png/pdf格式文件，文件大小不超过10M">
-                  <el-button slot="reference" size="medium" type="primary">选取文件
-                    <i class="el-icon-upload el-icon--right"></i>
-                  </el-button>
-                </el-popover>
-              </el-upload>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-col style="text-align: center; margin-top: 20px;">
-          <el-button type="primary" style="width: 6%;  margin-right: 20%;" size="medium" @click="submit()">提交</el-button>
-          <el-button type="primary" style="width: 6%;" size="medium">重置</el-button>
+          </el-form>
         </el-col>
-      </el-form>
+        <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+          <el-card class="box-card">
+            <h2>说明</h2>
+            <p>1. 请假类型包括：事假、病假、婚假、产假、丧假、因公出差、工伤假</p>
+            <p>2. 事假包含因私出国（境）</p>
+            <p>3. 产假包含男方配偶陪产假</p>
+            <p>4. 因公出差包含因公外借、挂职锻炼、公派出国。公派出国需在系统关联PIM中已完成的因公出国（境）申请流程</p>
+            <p>5. 中层干部及其他报备人员仍在PIM系统提交流程，包括：PIM中层干部及其他报备人员因私出国(境)审批流程、二级单位主要负责同志外出请假流程、非二级单位主要负责同志外出请假流程。</p>
+          </el-card>
+        </el-col>
+      </el-row>
+
     </div>
   </div>
 </template>
@@ -168,7 +183,7 @@ import { addTeacherLeaveFormMsg, getSystemMaxLimitTime, checkTeachingDate } from
 import { getSumLeaveTypeDays, getReferenceLeaveDay } from "@/api/apply"
 
 export default {
-  data() {
+  data () {
     return {
       labelPosition: "left",
       dept: "",
@@ -280,7 +295,7 @@ export default {
     };
   },
 
-  created() {
+  created () {
     // // 设置默认的开始时间
     // this.start_end_time = new Date().getFullYear().toString();
     // 在页面加载时读取后端系统请假类型时间条件
@@ -300,13 +315,13 @@ export default {
 
   methods: {
     // 检查是否为空
-    isNull(value) {
+    isNull (value) {
       if (value) {
         return false
       }
       return true
     },
-    beforeAvatarUpload(file) {
+    beforeAvatarUpload (file) {
       const fileSuffix = file.name.substring(file.name.lastIndexOf(".") + 1);   //解析上传文件的后缀
       const whiteList = ["pdf", "jpg", "png"];
 
@@ -318,7 +333,7 @@ export default {
       return isTypeLimit && isLt10M;
     },
     // 文件上传获取文本框内本地文件路径
-    handleChange(file, fileLists) {
+    handleChange (file, fileLists) {
       // 本地电脑路径
       var path = document.getElementsByClassName("el-upload__input")[0].value;
       // 对用户提交的文件材料进行重命名，命名格式为：时间-工号-xx假证明材料.jpg/png/pdf
@@ -340,18 +355,18 @@ export default {
     //     type: "warning"
     //   });
     // },
-    handleRemove(file, fileList) {
+    handleRemove (file, fileList) {
       this.fileList = fileList;
       console.log("删除后当前文件列表", this.fileList);
     },
-    handlePreview(file) {
+    handlePreview (file) {
       console.log(file);
     },
-    handleExceed(files, fileList) {
-      this.$message.warning(`当前限制选择 5 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+    handleExceed (files, fileList) {
+      this.$message.warning(`当前限制只能上传1个文件`);
     },
     // 处理时间选择器变化事件
-    handleTimePicker() {
+    handleTimePicker () {
       checkTeachingDate({ "checking_date": this.start_end_time[0].substring(0, 10) }).then(res => {
         if (res.code === 200) {
           this.start = res.data.dateIndex;
@@ -365,7 +380,7 @@ export default {
 
     },
     // 下拉列表变化时的方法
-    detectSelect() {
+    detectSelect () {
       // 查询当前用户本年度对应请假类型的总天数
       var nowDate = new Date();
       var params = {
@@ -384,16 +399,16 @@ export default {
       }
 
     },
-    showMsg() {
+    showMsg () {
       this.leave_reason = '赴' + this.country + this.reason;
     },
     //上传文件的方法
-    uploadFile(item) {
+    uploadFile (item) {
       //上传文件的需要formdata类型;所以要转
       this.fileList.push(item.file);  //手动讲文件添加到fileList当中
     },
     //提交表单信息
-    submitLeave() {
+    submitLeave () {
       if (this.fileList.length === 0) {
         this.$message.warning("请选择作证材料");
       } else if (this.leave_reason == "") {
@@ -436,7 +451,7 @@ export default {
       }
     },
 
-    submit() {
+    submit () {
       if (this.leave_type == "" || this.start_end_time.length === 0) {
         this.$message.warning("未选择请假类型或请假起止时间");
       } else {
@@ -516,7 +531,7 @@ export default {
   text-decoration: underline;
 }
 
-.inputDeep>>>.el-input__inner {
+.inputDeep >>> .el-input__inner {
   width: 100px;
   height: 30px;
   border-radius: 0;
@@ -552,26 +567,19 @@ export default {
 }
 /* 请假说明字段标题 */
 .explain-title {
-  padding: 20px auto;
   width: auto;
   height: 27px;
-  font-size: 20px;
+  font-size: 18px;
   font-family: Segoe UI-Semibold, Segoe UI;
   font-weight: 600;
-  color: rgba(49,40,40,0.78);
+  color: rgba(49, 40, 40, 0.78);
 }
 /* 请假类型解释信息 */
 .explain-details {
   width: 100%;
-  /* height: 81px; */
-  margin-top: 1rem;
-  font-size: 15px;
+  margin: 0;
+  line-height: 25px;
   font-family: Segoe UI-Semibold, Segoe UI;
-  /* font-weight: 600; */
-  color: rgba(8, 24, 240, 0.78);
   display: -webkit-box;
-  /* -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden; */
 }
 </style>

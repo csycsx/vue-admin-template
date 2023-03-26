@@ -22,11 +22,7 @@
           </el-row>
           <el-row>
             <el-col :span="8">
-              <el-form-item
-                label="所在部门"
-                prop="department"
-                style="height: 62px; margin-bottom: 10px"
-              >
+              <el-form-item label="所在部门" prop="department" style="height: 62px; margin-bottom: 10px">
                 <el-input v-model="dept" :disabled="true" />
               </el-form-item>
             </el-col>
@@ -62,12 +58,7 @@
             <el-col :span="8">
               <el-form-item label="缺勤类型">
                 <el-select v-model="form.region" placeholder="请选择缺勤类型">
-                  <el-option
-                    v-for="item in options2"
-                    :key="item.leave_type"
-                    :label="item.label"
-                    :value="item.value"
-                  >
+                  <el-option v-for="item in options2" :key="item.leave_type" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -77,12 +68,7 @@
       </div>
       <div class="cal-box">
         <div class="week-box">{{ week }}</div>
-        <Calendar
-          v-on:choseDay="clickDay"
-          v-on:changeMonth="changeDate"
-          :markDate="dateArr"
-          :markDateMore="selectDate"
-        >
+        <Calendar v-on:choseDay="clickDay" v-on:changeMonth="changeDate" :markDateMore="selectDate">
         </Calendar>
       </div>
       <el-button type="primary" @click="addAttend">添加考勤</el-button>
@@ -98,7 +84,7 @@ export default {
   components: {
     Calendar,
   },
-  data() {
+  data () {
     return {
       dept: "",
       name: "",
@@ -149,7 +135,7 @@ export default {
       ],
     };
   },
-  created() {
+  created () {
     var myDate = new Date(); //创建Date对象
     var nowDate = this.changeDateFormat(myDate);
     checkTeachingDate({ checking_date: nowDate }).then((res) => {
@@ -161,17 +147,17 @@ export default {
     this.name = this.$store.getters.name;
     this.dept = this.$store.getters.yuanxi;
   },
-  mounted() {},
+  mounted () { },
   methods: {
     //输入用户数据后提示当前是否存在该用户或是否为空
-    changeUserIdInput() {
+    changeUserIdInput () {
       if (this.form.id == null) {
         this.$message.error("补录用户工号不能为空！");
       } else {
-        findUserByUserid({userid: this.form.id});
+        findUserByUserid({ userid: this.form.id });
       }
     },
-    changeDateFormat(date) {
+    changeDateFormat (date) {
       var myDate = new Date(date);
       var Y = myDate.getFullYear(); //获取当前完整年份
       var M = myDate.getMonth() + 1; //获取当前月份
@@ -185,11 +171,11 @@ export default {
       var nowDate = Y + "-" + M + "-" + D;
       return nowDate;
     },
-    resetSelect() {
+    resetSelect () {
       //重置选中的日期
       this.selectDate = [];
     },
-    clickDay(today) {
+    clickDay (today) {
       //选中日期
       var nowDate = this.changeDateFormat(today);
       //日历组件左上角“教学周”显示
@@ -217,7 +203,7 @@ export default {
       }
       console.log("this.selectDate===>", JSON.stringify(this.selectDate));
     },
-    changeDate(data) {
+    changeDate (data) {
       //左右点击切换月份
       var nowDate = this.changeDateFormat(data);
       this.selectDay = nowDate;
@@ -227,12 +213,12 @@ export default {
         this.showMarkedCalendar(Y, M, this.form.id);
       }
     },
-    getDateArr(val) {
+    getDateArr (val) {
       var Y = this.selectDay.substring(0, 4); //获取当前完整年份
       var M = this.selectDay.substring(5, 7); //获取当前月份
       this.showMarkedCalendar(Y, M, val);
     },
-    showMarkedCalendar(year, month, val) {
+    showMarkedCalendar (year, month, val) {
       //左右切换时更新标记的日期
       let params = {
         year: year,
@@ -256,35 +242,45 @@ export default {
         }
       });
     },
-    addAttend() {
+    addAttend () {
       if (this.form.id == null || this.form.region == null) {
         this.$message.error("补录考勤工号或补录请假类型为空！");
       } else {
-        var flag = true;//全部补录信息标志位
-        for (var i = 0; i < this.selectDate.length; i++) {
-          var leaveStartTime =
-            this.changeDateFormat(this.selectDate[i]["date"]) + " 00";
-          var leaveEndTime =
-            this.changeDateFormat(this.selectDate[i]["date"]) + " 23";
-          let param = {
-            adminId: this.userid,
-            "leave-start-time": leaveStartTime,
-            "leave-end-time": leaveEndTime,
-            "leave-type": this.form.region,
-            userid: this.form.id,
-          };
-          console.log(param);
-          addAdminLeaveForm(param).then(res => {
-            if (res.code != 200) {
-              flag = false;
-            }
-          })
-        }
-        if (flag) {
-          this.$message.success("补录信息成功。");
-        } else {
-          this.$message.error("补录信息失败！")
-        }
+        this.$confirm('确认添加考勤？添加后将无法撤销！', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var flag = true;//全部补录信息标志位
+          for (var i = 0; i < this.selectDate.length; i++) {
+            var leaveStartTime =
+              this.changeDateFormat(this.selectDate[i]["date"]) + " 00";
+            var leaveEndTime =
+              this.changeDateFormat(this.selectDate[i]["date"]) + " 23";
+            let param = {
+              adminId: this.userid,
+              "leave-start-time": leaveStartTime,
+              "leave-end-time": leaveEndTime,
+              "leave-type": this.form.region,
+              userid: this.form.id,
+            };
+            console.log(param);
+            addAdminLeaveForm(param).then(res => {
+              if (res.code != 200) {
+                flag = false;
+              }
+            })
+          }
+          if (flag) {
+            this.$message.success("补录信息成功。");
+          } else {
+            this.$message.error("补录信息失败！")
+          }
+
+        }).catch(() => {
+
+        });
+
       }
     },
   },
@@ -331,7 +327,13 @@ export default {
   background: #1890ff !important;
   border-radius: 50%;
   user-select: none;
-  
+}
+
+.mark2 {
+  color: white !important;
+  background: #616468 !important;
+  border-radius: 50%;
+  user-select: none;
 }
 
 .cal-box {
@@ -402,7 +404,8 @@ export default {
           color: #bfbfbf;
         }
 
-        .wh_chose_day { //选中
+        .wh_chose_day {
+          //选中
           background: #ffffff;
           color: #000000;
         }
@@ -415,9 +418,7 @@ export default {
       }
     }
   }
-
 }
-
 
 // ::v-deep .wh_content_all {
 //   background-color: #ffffff;

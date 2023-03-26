@@ -43,13 +43,14 @@
               </el-row>
               <el-row class="row-box">
                 <el-col :span="12">
-                  <div class="name-box">证明材料：<span class="content-box">{{detailInfo.leaveMaterial}}</span></div>
+                  <div class="name-box">证明材料：<el-button type="primary" @click="downlode">预览证明材料</el-button></div>
+                  <!-- <div class="name-box">证明材料：<span class="content-box">{{detailInfo.leaveMaterial}}</span></div> -->
                 </el-col>
-                <el-col :span="12">
+                <!-- <el-col :span="12">
                   <div class="name-box">
                     <el-button type="primary" @click="downlode">预览证明材料</el-button>
                   </div>
-                </el-col>
+                </el-col> -->
               </el-row>
             </div>
             <el-button class="button-box" type="primary" v-if="detailInfo.status==1" @click="exportWord">导出文档
@@ -211,10 +212,8 @@ export default {
     },
 
     downlode () {
-      // let a = document.createElement('a');
-      // a.href = this.leave_material
-      // a.click();
-      this.$message("功能尚未健全");
+      window.location.href = this.detailInfo.leaveMaterial
+
     },
     getDate (myDate) {
       var Y = myDate.getFullYear();   //获取当前完整年份
@@ -320,7 +319,8 @@ export default {
     },
     //导出文档
     exportWord () {
-      let data = this.getWordData();
+      let that = this;
+      let data = that.getWordData();
       // 读取并获得模板文件的二进制内容
       JSZipUtils.getBinaryContent("上海大学教职工请假申请表模板.docx", function (error, content) {
         // model.docx是模板。我们在导出的时候，会根据此模板来导出对应的数据

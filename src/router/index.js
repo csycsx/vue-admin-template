@@ -33,7 +33,7 @@ import Layout from '@/layout'
  */
 
 export const constantRoutes = [
-  { path: '/', redirect: '/login' ,meta:{roles:["all"]},},
+  { path: '/', redirect: '/login' ,meta:{roles:["all"]},hidden: true},
   {
     name: 'Login',
     meta:{
@@ -69,12 +69,12 @@ export const constantRoutes = [
     redirect: '/dashboard/index',
     name: 'HomePage',
     meta:{
-      roles:['admin','user','department_auditor','hr_auditor','leader_auditor']
+      roles:['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin']
     },
     children: [{
       path: 'index',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: '首页', icon: 'el-icon-user' ,roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']}
+      meta: { title: '首页', icon: 'el-icon-user' ,roles: ['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin']}
     }]
   },
 
@@ -83,13 +83,13 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/apply/leaveapply',
     name: 'Apply',
-    meta: { title: '表单申请', icon: 'el-icon-document',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
+    meta: { title: '表单申请', icon: 'el-icon-document',roles: ['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin'] },
     children: [
       {
         path: 'leaveapply',
         name: 'LeaveApply',
         component: () => import('@/views/apply/LeaveApply'),
-        meta: { title: '请假申请', icon: 'el-icon-top-right' ,roles:['admin','user','department_auditor','hr_auditor','leader_auditor']}
+        meta: { title: '请假申请', icon: 'el-icon-top-right' ,roles:['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin']}
       }
     ]
   },
@@ -99,32 +99,32 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/apply/leaverecord',
     name: 'Record',
-    meta: { title: '个人记录', icon: 'el-icon-document',roles:['admin','user','department_auditor','hr_auditor','leader_auditor'] },
+    meta: { title: '个人记录', icon: 'el-icon-document',roles:['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin'] },
     children: [
       {
         path: 'leaverecord',
         name: 'LeaveRecord',
         component: () => import('@/views/apply/LeaveRecord'),
-        meta: { title: '个人请假申请记录', icon: 'el-icon-top-right' ,roles: ['admin','user','department_auditor','hr_auditor','leader_auditor']}
+        meta: { title: '个人请假申请记录', icon: 'el-icon-top-right' ,roles: ['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin']}
       },
       {
         path: 'revokeRecord',
         name: 'RevokeRecord',
         component: () => import('@/views/apply/RevokeRecord'),
-        meta: { title: '个人销假申请记录', icon: 'el-icon-bottom-left',roles:['admin','user','department_auditor','hr_auditor','leader_auditor'] }
+        meta: { title: '个人销假申请记录', icon: 'el-icon-bottom-left',roles:['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin'] }
       },
       {
         path: 'detailedLeave',
         name: 'DetailedLeave',
         component: () => import('@/views/apply/DetailedLeave'),
-        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','leader'] },
+        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin'] },
         hidden: true
       },
       {
         path: 'detailedRevoke',
         name: 'DetailedRevoke',
         component: () => import('@/views/apply/DetailedRevoke'),
-        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['admin','user','department_auditor','hr_auditor','leader_auditor'] },
+        meta: { title: '记录详情', icon: 'el-icon-bottom-left',roles: ['user','department_officer','department_leader','hr_officer','hr_leader','leader_auditor','admin'] },
         hidden: true
         // hidden: false
       },
@@ -136,7 +136,7 @@ export const constantRoutes = [
     path: '/audit',
     component: Layout,
     name:"Audit",
-    meta: {title: '表单审核', icon: 'el-icon-document',roles: ['department_auditor','hr_auditor','leader_auditor']},
+    meta: {title: '表单审核', icon: 'el-icon-document',roles: ['department_officer','department_leader','hr_officer','hr_leader','leader_auditor']},
     children: [
       // {
       //   path: 'auditlist',
@@ -148,13 +148,13 @@ export const constantRoutes = [
         path: 'dpAuditList',
         name: 'DpAuditList',
         component: () => import('@/views/audit/DpAuditList'),
-        meta: { title: '部门请假审核', icon: 'el-icon-s-check' ,roles: ['department_auditor']}
+        meta: { title: '部门请假审核', icon: 'el-icon-s-check' ,roles: ['department_officer','department_leader']}
       },
       {
         path: 'hrAuditList',
         name: 'HrAuditList',
         component: () => import('@/views/audit/HrAuditList'),
-        meta: { title: '人事处请假审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
+        meta: { title: '人事处请假审核', icon: 'el-icon-s-check' ,roles: ['hr_officer','hr_leader']}
       },
       {
         path: 'scAuditList',
@@ -167,27 +167,27 @@ export const constantRoutes = [
         name: 'DetailLeave',
         props:true ,
         component: () => import('@/views/audit/DetailLeave'),
-        meta: { title: '表单审核详情', icon: 'el-icon-s-check' ,roles:['department_auditor','hr_auditor','leader_auditor']},
+        meta: { title: '表单审核详情', icon: 'el-icon-s-check' ,roles:['department_officer','department_leader','hr_officer','hr_leader','leader_auditor']},
         hidden: true
       },
       {
         path: 'detailRevoke',
         name: 'DetailRevoke',
         component: () => import('@/views/audit/DetailRevoke'),
-        meta: { title: '销假审核详情', icon: 'el-icon-s-check' ,roles:['department_auditor','hr_auditor','leader_auditor']},
+        meta: { title: '销假审核详情', icon: 'el-icon-s-check' ,roles:['department_officer','department_leader','hr_officer','hr_leader','leader_auditor']},
         hidden: true
       },
       {
         path: 'dpRevokeList',
         name: 'DpRevokeList',
         component: () => import('@/views/audit/DpRevokeList'),
-        meta: { title: '部门销假审核', icon: 'el-icon-s-check' ,roles: ['department_auditor']}
+        meta: { title: '部门销假审核', icon: 'el-icon-s-check' ,roles:  ['department_officer','department_leader']}
       },
       {
         path: 'hrRevokelist',
         name: 'HrRevokeList',
         component: () => import('@/views/audit/HrRevokeList'),
-        meta: { title: '人事处销假审核', icon: 'el-icon-s-check' ,roles: ['hr_auditor']}
+        meta: { title: '人事处销假审核', icon: 'el-icon-s-check' ,roles: ['hr_officer','hr_leader']}
       },
 
     ]
@@ -197,13 +197,13 @@ export const constantRoutes = [
     path: '/attendance',
     component: Layout,
     name:"Attendance",
-    meta: {title: '考勤统计', icon: 'el-icon-document',roles: ['department_auditor','hr_auditor','leader_auditor']},
+    meta: {title: '考勤统计', icon: 'el-icon-document',roles: ['department_leader']},
     children:[
       {
         path: 'attendManage',
         name: 'AttendManage',
         component: () => import('@/views/audit/attendance/attendManage'),
-        meta: { title: '编辑考勤', icon: 'el-icon-s-check' ,roles: ['admin','leader','department_auditor','leader_auditor']}
+        meta: { title: '编辑考勤', icon: 'el-icon-s-check' ,roles: ['department_leader']}
       },
     ]
 
@@ -214,37 +214,37 @@ export const constantRoutes = [
     path: '/history',
     component: Layout,
     name:"History",
-    meta: {title: '历史统计', icon: 'el-icon-document',roles: ['department_auditor','hr_auditor','leader_auditor']},
+    meta: {title: '历史统计', icon: 'el-icon-document',roles: ['department_officer','department_leader','hr_officer','hr_leader','leader_auditor']},
     children: [
       {
         path: 'deptLeaveHistory',
         name: 'DeptLeaveHistory',
         component: () => import('@/views/audit/history/deptLeaveHistory'),
-        meta: { title: '部门请假记录统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','department_auditor','leader_auditor']}
+        meta: { title: '部门请假记录统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','department_officer','department_leader','leader_auditor']}
       },
       {
         path: 'deptRevokeHistory',
         name: 'DeptRevokeHistory',
         component: () => import('@/views/audit/history/deptRevokeHistory'),
-        meta: { title: '部门销假记录统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','department_auditor','leader_auditor']}
+        meta: { title: '部门销假记录统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','department_officer','department_leader','leader_auditor']}
       },
       {
         path: 'hrLeaveHistory',
         name: 'HrLeaveHistory',
         component: () => import('@/views/audit/history/hrLeaveHistory'),
-        meta: { title: '各部门请假历史统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','hr_auditor']}
+        meta: { title: '各部门请假历史统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','hr_officer','hr_leader']}
       },
       {
         path: 'hrRevokeHistory',
         name: 'hrRevokeHistory',
         component: () => import('@/views/audit/history/hrRevokeHistory'),
-        meta: { title: '各部门销假历史统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','hr_auditor']}
+        meta: { title: '各部门销假历史统计', icon: 'el-icon-s-check' ,roles: ['admin','leader','hr_officer','hr_leader']}
       },
       {
         path: 'detailHistory',
         name: 'DetailHistory',
         component: () => import('@/views/audit/history/DetailHistory'),
-        meta: { title: '部门请假历史详情', icon: 'el-icon-s-check' ,roles:['department_auditor','hr_auditor','leader_auditor']},
+        meta: { title: '部门请假历史详情', icon: 'el-icon-s-check' ,roles:['department_officer','department_leader','hr_officer','hr_leader','leader_auditor']},
         hidden: true
       }
     ]
@@ -303,13 +303,13 @@ export const constantRoutes = [
   component: Layout,
   redirect: '/admin/calenderview',
   name: 'Display',
-  meta: { title: '考勤汇总', icon: 'el-icon-s-operation' ,roles: ['admin']},
+  meta: { title: '考勤汇总', icon: 'el-icon-s-operation' ,roles: ['admin','department_officer','department_leader']},
   children: [
     {
       path: 'calenderview',
       name: 'CalendarView',
       component: () => import('@/views/admin/CalendarView'),
-      meta: { title: '校历视图', icon:'el-icon-menu' ,roles: ['admin','department_auditor']}
+      meta: { title: '校历视图', icon:'el-icon-menu' ,roles: ['admin','department_officer','department_leader']}
     },
     // {
     //   path: 'attendance',
