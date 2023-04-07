@@ -23,7 +23,7 @@ export default {
     loginOauth(param).then(res => {
         if (res.data.code === 200) {
             console.log(res.data);
-            var userId = res.data.data.user.userId;
+            var userId = res.data.data.user.basic.userId;
             const data = {"username": userId, "password":123456}
             this.$store.dispatch('user/init_user_info', data).then(() => {
                 this.$router.push('/dashboard');

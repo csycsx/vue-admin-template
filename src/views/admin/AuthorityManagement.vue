@@ -374,7 +374,7 @@ export default {
           }
           findUserByUserid(params).then((res) => {
             console.log(res.data)   
-            this.userlist1=res.data   
+            this.userlist1=res.data.basic   
             this.userlist=this.userlist.concat(this.userlist1) 
          })
       }

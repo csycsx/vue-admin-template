@@ -12,7 +12,12 @@ const getDefaultState = () => {
     // avatar: '',
     role : [""], // 权限
     role_num: "", // 身份标识码
-    yuanxi: "" // 所属部门
+    yuanxi: "", // 所属部门
+    gw: "", //岗位
+    xzzj: "", //行政职级
+    zyjsdj: "", //专业技术等级
+    glgwzw: "", //管理岗位职务
+    zyjszw: ""  //专业技术职务
   }
 }
 const state = getDefaultState()
@@ -49,6 +54,21 @@ const mutations = {
   SET_P_TYPE: (state, p_type) => {
     state.p_type = p_type
   },
+  SET_XZZJ: (state, xzzj) => {
+    state.xzzj = xzzj
+  },
+  SET_ZYJSDJ: (state, zyjsdj) => {
+    state.zyjsdj = zyjsdj
+  },
+  SET_GLGWZW: (state, glgwzw) => {
+    state.glgwzw = glgwzw
+  },
+  SET_ZYJSZW: (state, zyjszw) => {
+    state.zyjszw = zyjszw
+  },
+  SET_GW: (state, gw) => {
+    state.gw = gw
+  },
 }
 
 
@@ -82,11 +102,16 @@ init_user_info({ commit }, data){
       console.log(userInfo);
 
       // 初始化store
-      commit('SET_NAME', userInfo.user.userName)
-      commit('SET_ID', userInfo.user.userId)
-      commit('SET_YUANXI', userInfo.user.yuanXi)
-      commit('SET_GENDER', userInfo.user.gender)
-      commit('SET_ROLE_NUM', userInfo.user.role)
+      commit('SET_NAME', userInfo.user.basic.userName)
+      commit('SET_ID', userInfo.user.basic.userId)
+      commit('SET_YUANXI', userInfo.user.basic.yuanXi)
+      commit('SET_GENDER', userInfo.user.basic.gender)
+      commit('SET_ROLE_NUM', userInfo.user.basic.role)
+      commit('SET_XZZJ', userInfo.user.db3.xzzj)
+      commit('SET_ZYJSDJ', userInfo.user.db3.zyjsdj)
+      commit('SET_GLGWZW', userInfo.user.db3.glgwzw)
+      commit('SET_ZYJSZW', userInfo.user.db3.zyjszw)
+      commit('SET_GW', userInfo.user.db3.gw)
       // 根据role序号判断权限
       // if(userInfo.user.role==0){
       //   role.push(all_role[0])
@@ -97,7 +122,7 @@ init_user_info({ commit }, data){
       // }else if(userInfo.user.role <= 5){
       //   role.push(all_role[3])
       // }
-      switch(userInfo.user.role){
+      switch(userInfo.user.basic.role){
         case "0":
           role.push(all_role[0]);
           break;
@@ -119,7 +144,7 @@ init_user_info({ commit }, data){
       }
       console.log('role',role);
       commit('SET_ROLE', role)
-      commit('SET_P_TYPE', userInfo.user.ptype)
+      commit('SET_P_TYPE', userInfo.user.basic.ptype)
       commit('SET_TOKEN', userInfo.jwt_token)   
       resolve()
     })

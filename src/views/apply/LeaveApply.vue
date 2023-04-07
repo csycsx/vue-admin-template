@@ -26,30 +26,55 @@
             label-position="labelPosition">
             <el-row type="flex" style="height: 62px; margin-bottom: 10px;">
               <el-col :span="8">
-                <el-form-item label="申请人姓名" prop="name">
-                  <el-input id="input1" v-model="name" :disabled="true" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="8">
                 <el-form-item label="工号" prop="userid">
                   <el-input id="input2" v-model="userid" :disabled="true" />
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row>
+              <el-col :span="8">
+                <el-form-item label="申请人姓名" prop="name">
+                  <el-input id="input1" v-model="name" :disabled="true" />
+                </el-form-item>
+              </el-col>
               <el-col :span="8">
                 <el-form-item label="所在部门" prop="department" style="height: 62px; margin-bottom: 10px;">
                   <el-input id="input3" v-model="dept" :disabled="true" />
                 </el-form-item>
               </el-col>
             </el-row>
+            <el-row>
+              <el-col :span="8" v-show="gw!=null">
+                <el-form-item label="所属岗位" prop="gw" style="height: 62px; margin-bottom: 10px;">
+                  <el-input id="input3" v-model="gw" :disabled="true" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8" v-show="zyjszw!=null">
+                <el-form-item label="专业技术职务" prop="zyjszw">
+                  <el-input id="input1" v-model="glgwzw" :disabled="true" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8" v-show="zyjsdj!=null">
+                <el-form-item label="专业技术等级" prop="zyjsdj">
+                  <el-input id="input1" v-model="zyjsdj" :disabled="true" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="8" v-show="glgwzw!=null">
+                <el-form-item label="管理岗位职务" prop="glgwzw">
+                  <el-input id="input1" v-model="glgwzw" :disabled="true" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8" v-show="zyjszw!=null">
+                <el-form-item label="行政职级" prop="zyjszw">
+                  <el-input id="input1" v-model="zyjszw" :disabled="true" />
+                </el-form-item>
+              </el-col>
+            </el-row>
 
             <el-row>
-              <el-col :span="11">
-                <el-form-item label="选择请假类型" prop="type" style="height: 62px; margin-bottom: 10px; ">
-                  <el-select v-model="leave_type" placeholder="请选择请假类型" @change="detectSelect" style="width:100%">
+              <el-col :span="8">
+                <el-form-item label="选择请假类型" prop="type" style="height: 62px; margin-bottom: 10px;">
+                  <el-select v-model="leave_type" placeholder="请选择请假类型" @change="detectSelect" style="width:100%; ">
                     <el-option v-for="item in options2" :key="item.leave_type" :label="item.label" :value="item.value">
                     </el-option>
                   </el-select>
@@ -63,7 +88,7 @@
                   </el-popover>
                 </div>
               </el-col>
-              <el-col :span="5">
+              <el-col :span="8">
                 <el-form-item label="是否出境" prop="child" v-if="leave_type == '事假'" label-width="70px">
                   <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
                     <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
@@ -162,7 +187,7 @@
 
           </el-form>
         </el-col>
-        <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+        <!-- <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
           <el-card class="box-card">
             <h2>说明</h2>
             <p>1. 请假类型包括：事假、病假、婚假、产假、丧假、因公出差、工伤假</p>
@@ -171,7 +196,7 @@
             <p>4. 因公出差包含因公外借、挂职锻炼、公派出国。公派出国需在系统关联PIM中已完成的因公出国（境）申请流程</p>
             <p>5. 中层干部及其他报备人员仍在PIM系统提交流程，包括：PIM中层干部及其他报备人员因私出国(境)审批流程、二级单位主要负责同志外出请假流程、非二级单位主要负责同志外出请假流程。</p>
           </el-card>
-        </el-col>
+        </el-col> -->
       </el-row>
 
     </div>
@@ -311,6 +336,12 @@ export default {
     this.userid = this.$store.getters.id;
     this.name = this.$store.getters.name;
     this.dept = this.$store.getters.yuanxi;
+    // 获取当前用户的人事处信息（专业技术职务、专业技术等级、行政职级、管理岗位职务）
+    this.zyjszw = this.$store.getters.zyjszw;
+    this.zyjsdj = this.$store.getters.zyjsdj;
+    this.xzzj = this.$store.getters.xzzj;
+    this.glgwzw = this.$store.getters.glgwzw;
+    this.gw = this.$store.getters.gw;
   },
 
   methods: {

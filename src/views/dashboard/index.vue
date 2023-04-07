@@ -29,11 +29,15 @@ export default {
       gender : this.$store.getters.gender , // 获取 store中的 gender
       role : this.$store.getters.role , // 获取 store中的 role
       yuanxi : this.$store.getters.yuanxi , // 获取 store中的 yuanxi 院系
+      zyjszw : this.$store.getters.zyjszw,
+      zyjsdj : this.$store.getters.zyjsdj,
+      xzzj : this.$store.getters.xzzj,
+      glgwzw : this.$store.getters.glgwzw,
+      gw: this.$store.getters.gw
     }
     console.log("这里存储的是用户信息")
     console.log(data)
     // this.$store.commit('user/SET_NAME',"修改名字")
-    console.log(this.$store.getters.name)
     // 调用 src/api/example.js 中写好的接口
     // example().then(response => {
     //   console.log("后端传回的数据")

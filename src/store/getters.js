@@ -12,6 +12,12 @@ const getters = {
  role: state => state.user.role,
  role_num: state => state.user.role_num,
  yuanxi: state => state.user.yuanxi,
- p_type: state => state.user.p_type
+ p_type: state => state.user.p_type,
+
+ xzzj: state => state.user.xzzj,
+ zyjsdj: state => state.user.zyjsdj,
+ glgwzw: state => state.user.glgwzw,
+ zyjszw: state => state.user.zyjszw,
+ gw: state => state.user.gw
 }
 export default getters
