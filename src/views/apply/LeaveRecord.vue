@@ -30,12 +30,10 @@
           <h3>个人历史申请列表</h3>
         </div>
         <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;">
-
-          <el-table-column label="序号" prop="id" width="80" />
-          <el-table-column label="提交时间" prop="gmtModified" width="160" />
-          <el-table-column label="请假开始时间" prop="leaveStartTime" width="150" />
-          <el-table-column label="请假结束时间" prop="leaveEndTime" width="150" />
-          <el-table-column label="请假类型" prop="leaveType" width="140" />
+          <el-table-column label="提交时间" prop="gmtModified" width="170" />
+          <el-table-column label="请假开始时间" prop="leaveStartTime" width="170" />
+          <el-table-column label="请假结束时间" prop="leaveEndTime" width="170" />
+          <el-table-column label="请假类型" prop="leaveType" width="150" />
           <el-table-column label="请假原因" prop="leaveReason" />
           <el-table-column label="状态" prop="status" width="140">
             <template slot-scope="scope">
@@ -47,7 +45,7 @@
           <el-table-column fixed="right" label="操作" width="100">
             <template slot-scope="scope">
               <el-button @click="rowChick(scope.row)" type="text" size="small">查看</el-button>
-              <el-button v-if="scope.row.status!='1'" @click="deleteRow(scope.row)" type="text"
+              <el-button v-if="scope.row.status=='0'" @click="deleteRow(scope.row)" type="text"
                 size="small">撤销</el-button>
             </template>
           </el-table-column>
@@ -66,7 +64,7 @@ export default {
   inject: ['reload'],
   data () {
     return {
-      auditStatus: ["未审核", "审核通过", "审核不通过", "已撤销", "管理员补录"],
+      auditStatus: ["未审核", "审核通过", "审核不通过", "已撤销", "管理员录入"],
       // auditStatus: ["待学院初审", "待学院审核", "待人事处初审", "待人事处审核", "待校领导审核", "审核通过", "审核不通过", "已撤销", "管理员补录"],
       queryParams: {
         roleKey: '',
@@ -86,7 +84,7 @@ export default {
         },
         {
           value: '1',
-          label: '审核已通过'
+          label: '审核通过'
         },
         {
           value: '2',
@@ -96,6 +94,10 @@ export default {
           value: '3',
           label: '已撤销'
         },
+        {
+          value: '4',
+          label: '管理员录入'
+        }
       ],
       isShow: false,      // 默认不显示分页
       tableData: [],

@@ -30,7 +30,6 @@
           <h3>个人历史销假申请列表</h3>
         </div>
         <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;">
-          <el-table-column label="序号" prop="id" width="50" />
           <el-table-column label="请假开始时间" prop="leave.leaveStartTime" width="150" />
           <el-table-column label="请假结束时间" prop="leave.leaveEndTime" width="150" />
           <el-table-column label="请假类型" prop="leave.leaveType" width="100" />

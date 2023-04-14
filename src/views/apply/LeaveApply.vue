@@ -20,67 +20,64 @@
       </div> -->
     </div>
     <div class="body">
-      <el-row :gutter="10">
-        <el-col :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
-          <el-form style="height: 510px; padding: 0px auto;" ref="queryRef" label="left" label-width="184px"
-            label-position="labelPosition">
-            <el-row type="flex" style="height: 62px; margin-bottom: 10px;">
-              <el-col :span="8">
-                <el-form-item label="工号" prop="userid">
+      <el-row type="flex" justify="space-around">
+        <el-col :xs="24" :sm="24" :md="20" :lg="20" :xl="16">
+          <el-form>
+            <el-row>
+              <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="工号" prop="userid" label-width="100px">
                   <el-input id="input2" v-model="userid" :disabled="true" />
                 </el-form-item>
               </el-col>
-              <el-col :span="8">
-                <el-form-item label="申请人姓名" prop="name">
+              <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="申请人姓名" prop="name" label-width="100px">
                   <el-input id="input1" v-model="name" :disabled="true" />
                 </el-form-item>
               </el-col>
-              <el-col :span="8">
-                <el-form-item label="所在部门" prop="department" style="height: 62px; margin-bottom: 10px;">
+              <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="所在部门" prop="department" label-width="100px">
                   <el-input id="input3" v-model="dept" :disabled="true" />
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="8" v-show="gw!=null">
-                <el-form-item label="所属岗位" prop="gw" style="height: 62px; margin-bottom: 10px;">
+
+              <el-col v-show="gw!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="所属岗位" prop="gw" label-width="100px">
                   <el-input id="input3" v-model="gw" :disabled="true" />
                 </el-form-item>
               </el-col>
-              <el-col :span="8" v-show="zyjszw!=null">
-                <el-form-item label="专业技术职务" prop="zyjszw">
+              <el-col v-show="zyjszw!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="专业技术职务" prop="zyjszw" label-width="100px">
                   <el-input id="input1" v-model="glgwzw" :disabled="true" />
                 </el-form-item>
               </el-col>
-              <el-col :span="8" v-show="zyjsdj!=null">
-                <el-form-item label="专业技术等级" prop="zyjsdj">
+              <el-col v-show="zyjsdj!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="专业技术等级" prop="zyjsdj" label-width="100px">
                   <el-input id="input1" v-model="zyjsdj" :disabled="true" />
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="8" v-show="glgwzw!=null">
-                <el-form-item label="管理岗位职务" prop="glgwzw">
+
+              <el-col v-show="glgwzw!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="管理岗位职务" prop="glgwzw" label-width="100px">
                   <el-input id="input1" v-model="glgwzw" :disabled="true" />
                 </el-form-item>
               </el-col>
-              <el-col :span="8" v-show="zyjszw!=null">
-                <el-form-item label="行政职级" prop="zyjszw">
+              <el-col v-show="zyjszw!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="行政职级" prop="zyjszw" label-width="100px">
                   <el-input id="input1" v-model="zyjszw" :disabled="true" />
                 </el-form-item>
               </el-col>
             </el-row>
 
             <el-row>
-              <el-col :span="8">
-                <el-form-item label="选择请假类型" prop="type" style="height: 62px; margin-bottom: 10px;">
-                  <el-select v-model="leave_type" placeholder="请选择请假类型" @change="detectSelect" style="width:100%; ">
+              <el-col :xs="23" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="选择请假类型" prop="type" label-width="100px">
+                  <el-select v-model="leave_type" placeholder="请选择请假类型" @change="detectSelect">
                     <el-option v-for="item in options2" :key="item.leave_type" :label="item.label" :value="item.value">
                     </el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="1">
+              <el-col :xs="1" :sm="1" :md="1" :lg="1" :xl="1">
                 <div style="height: 40px; display: table-cell; vertical-align: middle;">
                   <el-popover v-show="historyFlag" placement="right" title="当前年度累计" width="50" trigger="hover"
                     :content="historyContent">
@@ -88,16 +85,16 @@
                   </el-popover>
                 </div>
               </el-col>
-              <el-col :span="8">
-                <el-form-item label="是否出境" prop="child" v-if="leave_type == '事假'" label-width="70px">
+              <el-col :xs="24" :sm="11" :md="11" :lg="8" :xl="8">
+                <el-form-item label="是否出境" prop="child" v-if="leave_type == '事假'" label-width="100px">
                   <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
                     <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="5">
-                <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'" label-width="70px">
+              <el-col :xs="24" :sm="12" :md="11" :lg="8" :xl="8">
+                <el-form-item label="是否出境" prop="child" v-if="leave_type == '因公出差'" label-width="100px">
                   <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
                     <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
@@ -122,19 +119,23 @@
                 </el-col>
               </el-row>
 
-              <el-form-item label="选择请假时间" style="height: 62px; margin-bottom: 10px;">
-                <el-date-picker :picker-options="pickerOptions" v-model="start_end_time" type="datetimerange"
-                  format="yyyy 年 MM 月 dd 日 HH 时" value-format="yyyy-MM-dd HH" range-separator="至"
-                  start-placeholder="开始日期" end-placeholder="结束日期" @change="handleTimePicker">
-                </el-date-picker>
-                <div style="display:flex;">
-                  <div style="margin-left:80px">{{ start }}</div>
-                  <div style="margin-left:80px">{{ end }}</div>
-                </div>
-              </el-form-item>
+              <el-row>
+                <el-col :span="20">
+                  <el-form-item label="选择请假时间" label-width="100px">
+                    <el-date-picker :picker-options="pickerOptions" v-model="start_end_time" type="datetimerange"
+                      format="yyyy 年 MM 月 dd 日 HH 时" value-format="yyyy-MM-dd HH" range-separator="至"
+                      start-placeholder="开始日期" end-placeholder="结束日期" @change="handleTimePicker">
+                    </el-date-picker>
+                    <div style="display:flex;">
+                      <div style="margin-left:80px">{{ start }}</div>
+                      <div style="margin-left:80px">{{ end }}</div>
+                    </div>
+                  </el-form-item>
+                </el-col>
+              </el-row>
 
-              <el-row style="height: 62px; margin-bottom: 10px;">
-                <el-col :span="8">
+              <el-row>
+                <el-col :span="20">
                   <el-form-item label="请假事由说明" prop="explain" v-if="leave_type1.child == '是' & leave_type == '事假'">
                     <div style="display: flex;" class="inputDeep">
                       <div class="left">
@@ -152,17 +153,17 @@
                   </el-form-item>
 
                   <el-form-item label="请假事由说明" prop="explain" v-if="leave_type != '事假'">
-                    <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;" />
+                    <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 60%" />
                   </el-form-item>
                   <el-form-item label="请假事由说明" prop="explain" v-if="leave_type1.child == '否' & leave_type == '事假'">
-                    <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 500px;" />
+                    <el-input v-model="leave_reason" placeholder="请输入请假事由具体说明" style="width: 60%" />
                   </el-form-item>
                 </el-col>
               </el-row>
 
-              <el-row style="height: 62px; margin-bottom: 10px;">
+              <el-row>
                 <el-col :span="16">
-                  <el-form-item label="文件上传" prop="leave_matrial">
+                  <el-form-item label="文件上传" prop="leave_matrial" label-width="100px">
                     <el-upload class="upload-demo" ref="upload" action :http-request="uploadFile"
                       accept=".jpg,.png,.pdf" multiple :limit="1" :name="leave_matrial" :on-remove="handleRemove"
                       :on-exceed="handleExceed" :before-upload="beforeAvatarUpload" :on-change="handleChange"
@@ -176,12 +177,15 @@
                   </el-form-item>
                 </el-col>
               </el-row>
+              <el-row>
+                <el-col span="16">
+                  <el-button type="primary" size="large" @click="submit()">提交</el-button>
 
-              <el-col style="text-align: center; margin-top: 20px;">
-                <el-button type="primary" style="width: 10%;  margin-right: 20%;" size="medium"
-                  @click="submit()">提交</el-button>
-                <el-button type="primary" style="width: 10%;" size="medium">重置</el-button>
-              </el-col>
+                  <el-button type="primary" size="large" style="margin-left:20px">重置</el-button>
+
+                </el-col>
+
+              </el-row>
 
             </div>
 
@@ -509,7 +513,6 @@ export default {
 <style scoped>
 .app-container {
   width: auto;
-  height: 1000px;
   margin: 20px;
   border-radius: 4px 4px 4px 4px;
   background-color: #ffffff;
@@ -612,5 +615,9 @@ export default {
   line-height: 25px;
   font-family: Segoe UI-Semibold, Segoe UI;
   display: -webkit-box;
+}
+
+.el-input.is-disabled /deep/.el-input__inner {
+  color: #303133;
 }
 </style>

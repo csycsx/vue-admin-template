@@ -203,7 +203,7 @@ export const constantRoutes = [
         path: 'attendManage',
         name: 'AttendManage',
         component: () => import('@/views/audit/attendance/attendManage'),
-        meta: { title: '编辑考勤', icon: 'el-icon-s-check' ,roles: ['department_leader']}
+        meta: { title: '考勤管理', icon: 'el-icon-s-check' ,roles: ['department_leader']}
       },
     ]
 
