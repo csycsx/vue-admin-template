@@ -174,12 +174,22 @@ export default {
     //点击某条信息，跳转详情页面
     rowChick (row, event, column) {
       console.log(row);
-      this.$router.push({
-        name: 'DetailedLeave',    // 详情页传入行参数
-        query: {
-          id: row.id,
-        }
-      })
+      if (row.status === "4") {
+        this.$router.push({
+          name: 'LeaveApply',    // 详情页传入行参数
+        })
+        sessionStorage.setItem("info", JSON.stringify(row));
+
+      }
+      else {
+        this.$router.push({
+          name: 'DetailedLeave',    // 详情页传入行参数
+          query: {
+            id: row.id,
+          }
+        })
+      }
+
     },
     //撤销某条请假申请信息
     deleteRow (row, tableData) {

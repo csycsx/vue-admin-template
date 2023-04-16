@@ -178,7 +178,7 @@
                 </el-col>
               </el-row>
               <el-row>
-                <el-col span="16">
+                <el-col :span="16">
                   <el-button type="primary" size="large" @click="submit()">提交</el-button>
 
                   <el-button type="primary" size="large" style="margin-left:20px">重置</el-button>
@@ -322,6 +322,24 @@ export default {
       end: '',
       allDay: '',
     };
+  },
+  beforeRouteEnter (to, from, next) {
+    console.log("****************Test1****Enter**************");
+    console.log('to', to);
+    console.log('from', from);
+    console.log('next', next);
+    next(vm => {
+      //因为当钩子执行前，组件实例还没被创建
+      // vm 就是当前组件的实例相当于上面的 this，所以在 next 方法里你就可以把 vm 当 this 来用了。
+      if (from.path === '/record/leaverecord') {
+        let info = JSON.parse(sessionStorage.getItem("info"));
+        console.log(info)
+        vm.leave_type = info.leaveType;
+        vm.leave_reason = info.leaveReason;
+        vm.start_end_time = [info.leaveStartTime.concat(":00:00"), info.leaveEndTime.concat(":00:00")]
+      }
+
+    });
   },
 
   created () {
