@@ -47,7 +47,7 @@
               </el-col>
               <el-col v-show="zyjszw!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
                 <el-form-item label="专业技术职务" prop="zyjszw" label-width="100px">
-                  <el-input id="input1" v-model="glgwzw" :disabled="true" />
+                  <el-input id="input1" v-model="zyjszw" :disabled="true" />
                 </el-form-item>
               </el-col>
               <el-col v-show="zyjsdj!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
@@ -61,9 +61,9 @@
                   <el-input id="input1" v-model="glgwzw" :disabled="true" />
                 </el-form-item>
               </el-col>
-              <el-col v-show="zyjszw!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
-                <el-form-item label="行政职级" prop="zyjszw" label-width="100px">
-                  <el-input id="input1" v-model="zyjszw" :disabled="true" />
+              <el-col v-show="xzzj!=null" :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+                <el-form-item label="行政职级" prop="xzzj" label-width="100px">
+                  <el-input id="input1" v-model="xzzj" :disabled="true" />
                 </el-form-item>
               </el-col>
             </el-row>

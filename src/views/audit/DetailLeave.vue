@@ -173,7 +173,8 @@ export default {
       this.dialogVisible = false;
     },
     downlode () {
-      window.location.href = this.info.leaveMaterial
+      var url = this.info.leaveMaterial.replace("/leaveMaterial", "")
+      window.location.href = url
     },
     onSubmit () {
 

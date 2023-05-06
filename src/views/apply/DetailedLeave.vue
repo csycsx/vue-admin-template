@@ -212,7 +212,9 @@ export default {
     },
 
     downlode () {
-      window.location.href = this.detailInfo.leaveMaterial
+      var url = this.detailInfo.leaveMaterial.replace("/leaveMaterial", "")
+
+      window.location.href = url
 
     },
     getDate (myDate) {

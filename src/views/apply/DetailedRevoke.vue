@@ -100,7 +100,8 @@ export default {
   },
   methods: {
     downlode () {
-      window.location.href = this.detailInfo.leave.leaveMaterial
+      var url = this.detailInfo.leave.leaveMaterial.replace("/leaveMaterial", "")
+      window.location.href = url
     },
     initDate () {
       getRevokeDetailById({ "revoke_id": this.queryData.id }).then(res => {

@@ -120,7 +120,9 @@ export default {
   },
   methods: {
     downlode () {
-      console.log("11")
+      var url = this.detailInfo.leaveMaterial.replace("/leaveMaterial", "")
+      window.location.href = urls
+
 
     },
     initDate () {
