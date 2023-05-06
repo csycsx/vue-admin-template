@@ -18,8 +18,8 @@
           <h3>申请列表</h3>
         </div>
         <el-table ref="filterTable" :data="tableData" border style="width: 100%" @row-click="rowChick">
-          <el-table-column prop="id" label="序号" width="100">
-          </el-table-column>
+          <!-- <el-table-column prop="id" label="序号" width="100">
+          </el-table-column> -->
           <el-table-column prop="leave.user.userId" label="工号" width="100">
           </el-table-column>
           <el-table-column prop="leave.user.userName" label="姓名" width="150">
@@ -35,6 +35,11 @@
               <el-tag :type="scope.row.hrStatus === '0' ? 'danger'  : 'success'" disable-transitions>
                 {{auditStatus[scope.row.hrStatus]}}
               </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column fixed="right" label="操作" width="60">
+            <template slot-scope="scope">
+              <el-button @click="rowChick(scope.row)" type="text" size="small">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -91,6 +96,8 @@ export default {
     rowChick (row, event, column) {
       let isShow = 0;
       if (row.hrStatus === "0") isShow = 1;
+      const leaveDetail = JSON.stringify(row);
+      window.sessionStorage.setItem('revokeDetail', leaveDetail);
       this.$router.push({
         name: 'DetailRevoke',    // 详情页传入行参数
         query: {

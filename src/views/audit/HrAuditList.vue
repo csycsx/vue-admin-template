@@ -25,8 +25,8 @@
           </div>
         </div>
         <el-table ref="filterTable" :data="tableData" border style="width: 100%" @row-click="rowChick">
-          <el-table-column prop="id" label="序号" width="100">
-          </el-table-column>
+          <!-- <el-table-column prop="id" label="序号" width="100">
+          </el-table-column> -->
           <el-table-column prop="user.userId" label="工号" width="100">
           </el-table-column>
           <el-table-column prop="user.userName" label="姓名" width="100">
@@ -44,6 +44,11 @@
               <el-tag :type="scope.row.showStatus === '待审核' ? 'danger'  : 'success'" disable-transitions>
                 {{scope.row.showStatus}}
               </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column fixed="right" label="操作" width="60">
+            <template slot-scope="scope">
+              <el-button @click="rowChick(scope.row)" type="text" size="small">查看</el-button>
             </template>
           </el-table-column>
         </el-table>

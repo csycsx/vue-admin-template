@@ -28,8 +28,9 @@
           </el-row>
           <el-row class="row-box">
             <el-col :span="24">
-              <div class="name-box">证明文件：<span class="content-box"
-                  @click="downlode">{{detailInfo.leave.leaveMaterial}}</span></div>
+              <div class="name-box">证明文件：
+                <el-button type="primary" @click="downlode">预览证明材料</el-button>
+              </div>
             </el-col>
           </el-row>
           <h2>销假信息</h2>
@@ -120,8 +121,8 @@ export default {
   },
   methods: {
     downlode () {
-      var url = this.detailInfo.leaveMaterial.replace("/leaveMaterial", "")
-      window.location.href = urls
+      var url = this.detailInfo.leave.leaveMaterial.replace("/leaveMaterial", "")
+      window.location.href = url
 
 
     },
