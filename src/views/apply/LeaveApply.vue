@@ -102,12 +102,12 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-row>
+            <!-- <el-row>
               <el-form-item prop="child" v-if="leave_type1.child == '是' & leave_type == '因公出差'" style="color:red">
                 需在请假系统关联PIM中已完成的因公出国（境）申请流程
               </el-form-item>
-            </el-row>
-            <div v-if="!(leave_type1.child == '是' & leave_type == '因公出差')">
+            </el-row> -->
+            <div>
               <el-row v-show="historyLeaveExplain">
                 <el-col :span="20">
                   <el-form-item label="" prop="child" label-width="100px">
@@ -123,8 +123,8 @@
                 <el-col :span="20">
                   <el-form-item label="选择请假时间" label-width="100px">
                     <el-date-picker :picker-options="pickerOptions" v-model="start_end_time" type="datetimerange"
-                      format="yyyy 年 MM 月 dd 日 HH 时" value-format="yyyy-MM-dd HH" range-separator="至"
-                      start-placeholder="开始日期" end-placeholder="结束日期" @change="handleTimePicker">
+                      format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期"
+                      end-placeholder="结束日期" @change="handleTimePicker">
                     </el-date-picker>
                     <div style="display:flex;">
                       <div style="margin-left:80px">{{ start }}</div>
@@ -143,11 +143,11 @@
                       </div>
                       <el-input v-model="country"></el-input>
                       <div class="left">
-                        <p style="display: inline;">国家、地区</p>
+                        <p style="display: inline;">（请填写国家/地区）</p>
                       </div>
                       <el-input v-model="reason"></el-input>
                       <div class="left">
-                        <p style="display: inline;">事由</p>
+                        <p style="display: inline;">（请填写事由）</p>
                       </div>
                     </div>
                   </el-form-item>
@@ -285,37 +285,34 @@ export default {
       leaveRealDaysContent: '',
       selectData: '',
       leaveExplainMap: {
-        '事假': '事假（含因私出国（境））。单次事假超过10天，需流经人事处审核；单次事假超过30天或全年事假累计超过60天，需流经校领导审核。',
-        '病假': '病假当年累计超过60天，需流经人事处审核。病假最长不可超过180天。需上传二级甲等及以上医院有效病假证明。',
+        '事假': '事假（含因私出国（境））。单次事假超过10天，需经人事处审核；单次事假超过30天或全年事假累计超过60天，需经校领导审核。',
+        '病假': '病假当年累计超过60天，需经人事处审核。病假最长不可超过180天。需上传二级甲等及以上医院有效病假证明。',
         '婚假': '婚假最长不可超过10天。需上传结婚证书。',
-        '产假': '产假起止日期由申请人先提交。怀孕未满4个月流产不超过15天；怀孕满4个月流产不超过42天。产假实际请假时间以人事处核定时间为准。需上传医院开具的相关产育证明（含怀孕流产）',
+        '产假': '产假（含怀孕流产、男方配偶陪产假）起止日期由申请人先提交，实际时间以人事外核定时间为准。需上传医院开具的相关产育证明。 ',
         '陪产假': '男方配偶陪产假不超过10天。',
         '丧假': '丧假最长不超过3天',
         '因公出差': '因公出差包含因公外借、挂职锻炼、公派出国。公派出国需在系统关联PIM中已完成的因公出国（境）申请流程。',
         '工伤假': '需开具定点医疗机构或三级甲等医院出具的工伤休假证明书。'
       },
       nowDate: '',    // 当前事件（）
+      pickerMinDate: null,
+      pickerMaxDate: null,
       pickerOptions: {
         // 点击时，选择的是开始时间，也就是minDate
         onPick: ({ maxDate, minDate }) => {
-          this.selectData = minDate.getTime()
-          if (maxDate) {
-            // 解除限制
-            this.selectData = ''
+          if (minDate && this.pickerMinDate) {
+            this.pickerMinDate = null;
+          } else if (minDate) {
+            this.pickerMinDate = minDate.getTime();
           }
         },
+
         disabledDate: (time) => {
-          // 是否限制的判断条件
-          if (!this.isNull(this.selectData)) {
-            var date = new Date(this.selectData)
-            const day = this.dataConstrain[this.leave_type] * 24 * 3600 * 1000;
-            const dateRegion = date.getTime() + day;
-            // 这里就是限制的条件，这里为大于或者小于本月的日期被禁用(尽量不使用这种方法，因为其他年份的本月也能进行选择，具体限制日期参考情况2)
-            // return date.getMonth() > new Date(time).getMonth() || date.getMonth() < new Date(time).getMonth()
-            return new Date(time).getTime() > dateRegion || new Date(time).getTime() < date.getTime();
-          } else {
-            return false
+          if (this.pickerMinDate) {
+            const day = (this.dataConstrain[this.leave_type] - 1) * 24 * 3600 * 1000;
+            return (time.getTime() > (this.pickerMinDate + day)) || (time.getTime() < (this.pickerMinDate - day));
           }
+          return false;
         }
       },
       start: '',
@@ -336,7 +333,7 @@ export default {
         console.log(info)
         vm.leave_type = info.leaveType;
         vm.leave_reason = info.leaveReason;
-        vm.start_end_time = [info.leaveStartTime.concat(":00:00"), info.leaveEndTime.concat(":00:00")]
+        vm.start_end_time = [info.leaveStartTime, info.leaveEndTime]
       }
 
     });
@@ -508,8 +505,8 @@ export default {
       if (this.leave_type == "" || this.start_end_time.length === 0) {
         this.$message.warning("未选择请假类型或请假起止时间");
       } else {
-        let leave_start_time = this.start_end_time[0] + ':00:00';
-        let leave_end_time = this.start_end_time[1] + ':00:00';
+        let leave_start_time = this.start_end_time[0];
+        let leave_end_time = this.start_end_time[1];
         getReferenceLeaveDay({
           "leave_start_time": leave_start_time,
           "leave_end_time": leave_end_time,

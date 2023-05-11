@@ -52,6 +52,14 @@
                   </div>
                 </el-col> -->
               </el-row>
+              <el-row class="row-box">
+                <el-col :span="12">
+                  <div class="name-box">审批不通过原因：<span class="content-box">{{detailInfo.leaveEndTime}}时</span></div>
+
+                </el-col>
+
+              </el-row>
+
             </div>
             <el-button class="button-box" type="primary" v-if="detailInfo.status==1" @click="exportWord">导出文档
             </el-button>
@@ -59,8 +67,8 @@
         </div>
       </el-card>
       <div class="revoke-box" v-if="detailInfo.status==1">
-        <el-form ref="form" :model="revoke" label-width="80px">
-          <el-form-item label="销假时间">
+        <el-form ref="form" :model="revoke" label-width="100px">
+          <el-form-item label="实际返岗时间">
             <el-date-picker type="date" placeholder="选择日期" v-model="revoke.revoke_report_time">
             </el-date-picker>
           </el-form-item>
@@ -129,6 +137,7 @@ export default {
         console.log(res);
         if (res.code === 200) {
           this.stepInfo = res.data;
+          console.log("------", this.stepInfo);
         }
       })
     },
@@ -213,8 +222,8 @@ export default {
 
     downlode () {
       var url = this.detailInfo.leaveMaterial.replace("/leaveMaterial", "")
-
-      window.location.href = url
+      window.open(url);
+      // window.location.href = url
 
     },
     getDate (myDate) {

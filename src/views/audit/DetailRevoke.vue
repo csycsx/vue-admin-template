@@ -14,7 +14,7 @@
               <div class="name-box">请假类型：<span class="content-box">{{detailInfo.leave.leaveType}}</span></div>
             </el-col>
             <el-col :span="12">
-              <div class="name-box">请假起始时间：<span class="content-box">{{detailInfo.leave.leaveStartTime}}时</span>
+              <div class="name-box">请假起始时间：<span class="content-box">{{detailInfo.leave.leaveStartTime}}</span>
               </div>
             </el-col>
           </el-row>
@@ -23,7 +23,7 @@
               <div class="name-box">请假原因：<span class="content-box">{{detailInfo.leave.leaveReason}}</span></div>
             </el-col>
             <el-col :span="12">
-              <div class="name-box">请假结束时间：<span class="content-box">{{detailInfo.leave.leaveEndTime}}时</span></div>
+              <div class="name-box">请假结束时间：<span class="content-box">{{detailInfo.leave.leaveEndTime}}</span></div>
             </el-col>
           </el-row>
           <el-row class="row-box">
@@ -44,7 +44,7 @@
               </div>
             </el-col>
             <el-col :span="12">
-              <div class="name-box">返岗报道日期：<span class="content-box">{{detailInfo.revokeReportTime}}</span>
+              <div class="name-box">返岗报到日期：<span class="content-box">{{detailInfo.revokeReportTime}}</span>
               </div>
             </el-col>
           </el-row>
@@ -58,7 +58,7 @@
               </div>
             </el-col>
             <el-col :span="12">
-              <div class="name-box">销假表提交日期：<span class="content-box">{{detailInfo.revokeSubmitTime}}</span></div>
+              <div class="name-box">销假提交日期：<span class="content-box">{{detailInfo.revokeSubmitTime}}</span></div>
             </el-col>
           </el-row>
 
@@ -122,7 +122,7 @@ export default {
   methods: {
     downlode () {
       var url = this.detailInfo.leave.leaveMaterial.replace("/leaveMaterial", "")
-      window.location.href = url
+      window.open(url);
 
 
     },

@@ -15,8 +15,11 @@
         <p>2. 事假包含因私出国（境）</p>
         <p>3. 产假包含男方配偶陪产假</p>
         <p>4. 因公出差包含因公外借、挂职锻炼、公派出国。公派出国需在系统关联PIM中已完成的因公出国（境）申请流程</p>
+        <a href="https://pim.shu.edu.cn/infoplus/form/ZZBYinSiChuGuo/start"
+          style="text-decoration:underline">(https://pim.shu.edu.cn/infoplus/form/ZZBYinSiChuGuo/start)</a>
         <p>5. 中层干部及其他报备人员仍在PIM系统提交流程，包括：PIM中层干部及其他报备人员因私出国(境)审批流程、二级单位主要负责同志外出请假流程、非二级单位主要负责同志外出请假流程。</p>
-
+        <a href="https://pim.shu.edu.cn/infoplus/form/DBErJiDanWeiWaiChuQingJia/start"
+          style="text-decoration:underline">(https://pim.shu.edu.cn/infoplus/form/DBErJiDanWeiWaiChuQingJia/start)</a>
       </el-col>
     </el-row>
     <!-- <div class="dashboard-text">身份权限: {{ role }}</div> -->

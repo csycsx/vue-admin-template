@@ -174,44 +174,54 @@ export default {
     },
     downlode () {
       var url = this.info.leaveMaterial.replace("/leaveMaterial", "")
-      window.location.href = url
+      window.open(url);
     },
     onSubmit () {
-
-      SingleleaveAudit({
-        "id": this.info.id,
-        "recommend": this.check.recomment,
-        "result": this.check.result,
-        "role": this.role,
-        "userid": this.userid
-      }).then(res => {
-        console.log(res);
-        if (res.code === 200) {
-          console.log(res.data);
-          this.$message({
-            message: '审核成功',
-            type: 'success'
-          });
-          if (this.role === "1" || this.role === "2") {
-            this.$router.push({
-              name: 'DpAuditList'
+      if (this.check.result === "不通过" && this.check.recomment === "") {
+        this.$notify.error({
+          title: '错误',
+          message: '审核不通过请填写理由'
+        });
+      }
+      else {
+        SingleleaveAudit({
+          "id": this.info.id,
+          "recommend": this.check.recomment,
+          "result": this.check.result,
+          "role": this.role,
+          "userid": this.userid
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            console.log(res.data);
+            this.$message({
+              message: '审核成功',
+              type: 'success'
             });
-          }
-          else if (this.role === "3" || this.role === "4") {
-            this.$router.push({
-              name: 'HrAuditList'
-            });
+            if (this.role === "1" || this.role === "2") {
+              this.$router.push({
+                name: 'DpAuditList'
+              });
+            }
+            else if (this.role === "3" || this.role === "4") {
+              this.$router.push({
+                name: 'HrAuditList'
+              });
+            }
+            else {
+              this.$router.push({
+                name: 'ScAuditList'
+              });
+            }
           }
           else {
-            this.$router.push({
-              name: 'ScAuditList'
-            });
+            this.$message.error(res.message);
           }
-        }
-        else {
-          this.$message.error(res.message);
-        }
-      })
+        })
+
+      }
+
+
     },
 
     init () {
