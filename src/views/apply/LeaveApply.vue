@@ -77,15 +77,15 @@
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :xs="1" :sm="1" :md="1" :lg="1" :xl="1">
+              <!-- <el-col :xs="1" :sm="1" :md="1" :lg="1" :xl="1">
                 <div style="height: 40px; display: table-cell; vertical-align: middle;">
                   <el-popover v-show="historyFlag" placement="right" title="当前年度累计" width="50" trigger="hover"
                     :content="historyContent">
                     <i class="el-icon-warning-outline" slot="reference"></i>
                   </el-popover>
                 </div>
-              </el-col>
-              <el-col :xs="24" :sm="11" :md="11" :lg="8" :xl="8">
+              </el-col> -->
+              <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
                 <el-form-item label="是否出境" prop="child" v-if="leave_type == '事假'" label-width="100px">
                   <el-select v-model="leave_type1.child" placeholder="请选择是否出境">
                     <el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value">
@@ -102,11 +102,10 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <!-- <el-row>
-              <el-form-item prop="child" v-if="leave_type1.child == '是' & leave_type == '因公出差'" style="color:red">
-                需在请假系统关联PIM中已完成的因公出国（境）申请流程
-              </el-form-item>
-            </el-row> -->
+            <el-row v-show="historyFlag" class="day-box">
+              <div>{{historyContent}}</div>
+
+            </el-row>
             <div>
               <el-row v-show="historyLeaveExplain">
                 <el-col :span="20">
@@ -291,7 +290,7 @@ export default {
         '产假': '产假（含怀孕流产、男方配偶陪产假）起止日期由申请人先提交，实际时间以人事外核定时间为准。需上传医院开具的相关产育证明。 ',
         '陪产假': '男方配偶陪产假不超过10天。',
         '丧假': '丧假最长不超过3天',
-        '因公出差': '因公出差包含因公外借、挂职锻炼、公派出国。公派出国需在系统关联PIM中已完成的因公出国（境）申请流程。',
+        '因公出差': '因公出差包含因公外借、挂职锻炼、公派出国。',
         '工伤假': '需开具定点医疗机构或三级甲等医院出具的工伤休假证明书。'
       },
       nowDate: '',    // 当前事件（）
@@ -556,6 +555,14 @@ export default {
   margin: 0 auto;
 }
 
+.day-box {
+  margin-left: 100px;
+  font-size: 16px;
+  font-family: Segoe UI-Semibold, Segoe UI;
+  font-weight: 600;
+  color: rgba(49, 40, 40, 0.78);
+}
+
 .title {
   width: 100%;
   height: 10%;
@@ -581,7 +588,7 @@ export default {
 }
 
 .inputDeep >>> .el-input__inner {
-  width: 100px;
+  width: 100%;
   height: 30px;
   border-radius: 0;
   border-top-width: 0px;

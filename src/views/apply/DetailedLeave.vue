@@ -52,9 +52,9 @@
                   </div>
                 </el-col> -->
               </el-row>
-              <el-row class="row-box">
+              <el-row class="row-box" v-if="showResult">
                 <el-col :span="12">
-                  <div class="name-box">审批不通过原因：<span class="content-box">{{detailInfo.leaveEndTime}}时</span></div>
+                  <div class="name-box">审批不通过原因：<span class="content-box">{{result}}</span></div>
 
                 </el-col>
 
@@ -73,7 +73,7 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">确认提交</el-button>
+            <el-button type="primary" @click="onSubmit">提交销假</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -105,6 +105,8 @@ export default {
       revokeStatus: '',
       revokeInfo: '',
       stepInfo: {},
+      showResult: false,
+      result: "",
 
     }
   },
@@ -124,7 +126,15 @@ export default {
         if (res.code === 200) {
           this.detailInfo = res.data;
           console.log(this.detailInfo)
-          this.initAuditFlow();
+          getCurrentAuditMsg({ "leave_id": this.queryData.id }).then(res => {
+            console.log(res);
+            if (res.code === 200) {
+              this.stepInfo = res.data;
+              console.log("------", this.stepInfo);
+              this.initAuditFlow();
+            }
+          })
+          // this.initAuditFlow();
         }
       })
       findRevokeByLeaveId({ "leave_id": this.queryData.id }).then(res => {
@@ -133,13 +143,13 @@ export default {
           this.revokeInfo = res.data.result;
         }
       })
-      getCurrentAuditMsg({ "leave_id": this.queryData.id }).then(res => {
-        console.log(res);
-        if (res.code === 200) {
-          this.stepInfo = res.data;
-          console.log("------", this.stepInfo);
-        }
-      })
+      // getCurrentAuditMsg({ "leave_id": this.queryData.id }).then(res => {
+      //   console.log(res);
+      //   if (res.code === 200) {
+      //     this.stepInfo = res.data;
+      //     console.log("------", this.stepInfo);
+      //   }
+      // })
     },
 
 
@@ -213,12 +223,37 @@ export default {
       let totalStatus = this.detailInfo.status;
       if (totalStatus == 2) {
         this.stepFinishStep = 'error'
+        this.showResult = true;
+        if (this.detailInfo.departmentStatus != 2) {
+          if (this.stepInfo.departmentAuditMsg.dpOfficerResult === "不通过") {
+            this.result = this.stepInfo.departmentAuditMsg.dpOfficerRecommend;
+          }
+          else if (this.stepInfo.departmentAuditMsg.dpLeaderResult === "不通过") {
+            this.result = this.stepInfo.departmentAuditMsg.dpLeaderRecommend;
+          }
+        }
+        if (this.detailInfo.hrStatus != 2) {
+          if (this.stepInfo.hrAuditMsg.hrOfficerResult === "不通过") {
+            this.result = this.stepInfo.hrAuditMsg.hrOfficerRecommend;
+          }
+          else if (this.stepInfo.hrAuditMsg.hrLeaderResult === "不通过") {
+            this.result = this.stepInfo.hrAuditMsg.hrLeaderRecommend;
+          }
+        }
+        if (this.detailInfo.schoolStatus != 2) {
+          if (this.stepInfo.schoolAuditMsg.scLeaderResult === "不通过") {
+            this.result = this.stepInfo.schoolAuditMsg.scLeaderRecommend;
+          }
+
+        }
       } else if (totalStatus == 3) {
         this.stepFinishStep = 'error'
       } else {
         this.stepFinishStep = 'finish'
       }
     },
+
+
 
     downlode () {
       var url = this.detailInfo.leaveMaterial.replace("/leaveMaterial", "")

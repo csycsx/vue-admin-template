@@ -41,7 +41,7 @@
             </el-col>
 
             <el-col :span="12">
-              <div class="name-box">请假结束时间：<span class="content-box">{{info.leaveEndTime}}</span></div>
+              <div class="name-box">请假结束时间：<span class="content-box">{{info.leaveEndTime}}</span> </div>
             </el-col>
           </el-row>
           <el-row class="row-box">
@@ -50,9 +50,16 @@
             </el-col>
           </el-row>
           <el-row class="row-box">
-            <el-col :span="24">
+            <el-col :span="12">
               <div class="name-box">证明文件：
                 <el-button type="primary" @click="downlode">预览证明材料</el-button>
+                <!-- <span class="content-box" @click="downlode">{{info.leaveMaterial}}</span> -->
+              </div>
+            </el-col>
+            <el-col :span="12" v-if="showChangeTime">
+              <div class="name-box">产假时间核定：
+                <el-date-picker v-model="changeTime" type="date" placeholder="选择日期">
+                </el-date-picker>
                 <!-- <span class="content-box" @click="downlode">{{info.leaveMaterial}}</span> -->
               </div>
             </el-col>
@@ -97,7 +104,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="审核意见">
-            <el-input type="textarea" v-model="check.recomment"></el-input>
+            <el-input type="textarea" v-model="check.recomment" maxlength="20" show-word-limit></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="onSubmit">确认提交</el-button>
@@ -146,6 +153,8 @@ export default {
       stepInfo3: {},
       stepInfo4: {},
       stepInfo5: {},
+      showChangeTime: false,
+      changeTime: ""
 
 
     }
@@ -162,7 +171,10 @@ export default {
   },
   mounted () {
     this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
-    console.log(this.info)
+    console.log(this.info, this.role)
+    if (this.info.leaveType === "产假" && this.role == 3) {
+      this.showChangeTime = true
+    }
     this.init();
   },
   methods: {

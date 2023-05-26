@@ -58,9 +58,9 @@
                     </span>
                   </div>
                 </el-col>
-                <el-col :span="12">
+                <!-- <el-col :span="12">
                   <div class="name-box">销假表提交日期：<span class="content-box">{{detailInfo.revokeSubmitTime}}</span></div>
-                </el-col>
+                </el-col> -->
               </el-row>
             </div>
             <el-button class="button-box" type="primary" v-if="detailInfo.status==1" @click="exportWord">导出文档
