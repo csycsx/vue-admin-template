@@ -26,12 +26,15 @@
                 </el-col>
               </el-row>
               <el-row class="row-box">
-                <el-col :span="24">
+                <el-col :span="12">
                   <div class="name-box">证明文件：
                     <el-button type="primary" @click="downlode">预览证明材料</el-button>
                     <!-- <span class="content-box"
                       @click="downlode">{{detailInfo.leave.leaveMaterial}}</span> -->
                   </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="name-box">请假时长：<span class="content-box">{{leaveTime}}</span></div>
                 </el-col>
               </el-row>
               <h2>销假信息</h2>
@@ -79,6 +82,7 @@ import docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import JSZipUtils from 'jszip-utils'
 import { saveAs } from 'file-saver'
+import { getReferenceLeaveDay } from "@/api/apply"
 export default {
   data () {
     return {
@@ -86,6 +90,7 @@ export default {
       detailInfo: {},
       auditStatus: ["未审核", "审核通过", "无需审核", "审核不通过"],
       stepInfo: {},
+      leaveTime: ""
 
 
     }
@@ -107,6 +112,8 @@ export default {
       getRevokeDetailById({ "revoke_id": this.queryData.id }).then(res => {
         if (res.code === 200) {
           this.detailInfo = res.data;
+          console.log(this.detailInfo);
+          this.getTime();
           this.initStatus();
         }
       });
@@ -121,6 +128,19 @@ export default {
         if (this.detailInfo.departmentStatus === "0") this.detailInfo.departmentStatus = "3";
         else this.detailInfo.hrStatus = "3";
       }
+    },
+    getTime () {
+      console.log("111111Time");
+      getReferenceLeaveDay({
+        "leave_start_time": this.detailInfo.leave.leaveStartTime,
+        "leave_end_time": this.detailInfo.leave.leaveEndTime,
+        "leave_type": this.detailInfo.leave.leaveType
+      }).then(res => {
+        if (res.code === 200) {
+          this.leaveTime = res.data + '天';
+        }
+      })
+
     },
     getWordData () {
       let data = {};

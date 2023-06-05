@@ -9,12 +9,12 @@
     </div>
     <h3>业务说明</h3>
     <el-row type="flex" justify="center">
-      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" type="flex">
+      <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="18" type="flex">
 
         <p>1. 请假类型包括：事假、病假、婚假、产假、丧假、因公出差、工伤假</p>
         <p>2. 事假包含因私出国（境）</p>
         <p>3. 产假包含男方配偶陪产假</p>
-        <p>4. 因公出差包含因公外借、挂职锻炼、公派出国。公派出国需在系统关联PIM中已完成的因公出国（境）申请流程</p>
+        <p>4. 因公出差包含因公外借、挂职锻炼、公派出国。</p>
         <p>5. 中层干部及其他报备人员仍在PIM系统提交:</p>
         <p>→中层干部及其他报备人员因私出国(境)审批流程</p>
         <a href="https://pim.shu.edu.cn/infoplus/form/ZZBYinSiChuGuo/start"

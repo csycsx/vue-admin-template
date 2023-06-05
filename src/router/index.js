@@ -267,18 +267,81 @@ export const constantRoutes = [{
     meta: {
       title: '考勤统计',
       icon: 'el-icon-document',
-      roles: ['department_leader']
+      roles: ['department_officer', 'department_leader', 'hr_officer', 'hr_leader']
     },
-    children: [{
-      path: 'attendManage',
-      name: 'AttendManage',
-      component: () => import('@/views/audit/attendance/attendManage'),
-      meta: {
-        title: '考勤管理',
-        icon: 'el-icon-s-check',
-        roles: ['department_leader']
-      }
-    }, ]
+    children: [
+      // 1用户界面
+      {
+        path: 'dpSubmit',
+        name: 'DpSubmit',
+        component: () => import('@/views/audit/attendance/DpSubmit'),
+        meta: {
+          title: '考勤管理',
+          icon: 'el-icon-s-check',
+          roles: ['department_officer']
+        }
+      },
+      // 2用户界面 放部门审核和人事处审核 下面1提交的放考勤汇总表
+      {
+        path: 'dpAttendanceAudit',
+        name: 'DpAttendanceAudit',
+        component: () => import('@/views/audit/attendance/AttendanceAuditTry'),
+        meta: {
+          title: '考勤管理',
+          icon: 'el-icon-s-check',
+          roles: ['department_leader']
+        }
+      },
+      // 3&4用户界面 首页放各院系提交的记录 院系 提交时间 审核情况 操作(可能有其他但其他没想好)
+      // 操作给个查看 跳转对应院系的考勤汇总 页面布局和2一样
+      {
+        path: 'hrAttendManageTry',
+        name: 'HrAttendManage',
+        component: () => import('@/views/audit/attendance/HrAttendManageTry'),
+        meta: {
+          title: '考勤管理',
+          icon: 'el-icon-s-check',
+          roles: ['hr_officer', 'hr_leader']
+        }
+      },
+      // 汇总表
+      {
+        path: 'summaryDetail',
+        name: 'SummaryDetail',
+        component: () => import('@/views/audit/attendance/SummaryDetail'),
+        meta: {
+          title: '考勤汇总',
+          icon: 'el-icon-s-check',
+          roles: ['department_officer']
+        },
+        hidden: true
+
+      },
+      // 审核表
+      {
+        path: 'summaryAudit',
+        name: 'SummaryAudit',
+        component: () => import('@/views/audit/attendance/SummaryAudit'),
+        meta: {
+          title: '考勤汇总审核',
+          icon: 'el-icon-s-check',
+          roles: ['department_leader', 'hr_officer', ]
+        },
+        hidden: true
+
+      },
+      // {
+      //   path: 'attendManage',
+      //   name: 'AttendManage',
+      //   component: () => import('@/views/audit/attendance/attendManage'),
+      //   meta: {
+      //     title: '考勤管理',
+      //     icon: 'el-icon-s-check',
+      //     roles: ['department_leader','hr_officer', 'hr_leader']
+      //   }
+      // }, 
+
+    ]
 
   },
 
@@ -467,6 +530,7 @@ const createRouter = () => new Router({
   }),
   routes: constantRoutes
 })
+
 
 
 const router = createRouter()

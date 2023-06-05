@@ -46,6 +46,9 @@
                   <div class="name-box">证明材料：<el-button type="primary" @click="downlode">预览证明材料</el-button></div>
                   <!-- <div class="name-box">证明材料：<span class="content-box">{{detailInfo.leaveMaterial}}</span></div> -->
                 </el-col>
+                <el-col :span="12">
+                  <div class="name-box">请假时长：<span class="content-box">{{leaveTime}}</span></div>
+                </el-col>
                 <!-- <el-col :span="12">
                   <div class="name-box">
                     <el-button type="primary" @click="downlode">预览证明材料</el-button>
@@ -90,6 +93,7 @@ import docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import JSZipUtils from 'jszip-utils'
 import { saveAs } from 'file-saver'
+import { getReferenceLeaveDay } from "@/api/apply"
 
 export default {
   data () {
@@ -107,6 +111,7 @@ export default {
       stepInfo: {},
       showResult: false,
       result: "",
+      leaveTime: ""
 
     }
   },
@@ -116,6 +121,7 @@ export default {
   mounted () {
     this.queryData = this.$route.query;
     this.initData();
+
   },
   methods: {
     /**
@@ -126,15 +132,16 @@ export default {
         if (res.code === 200) {
           this.detailInfo = res.data;
           console.log(this.detailInfo)
+          this.getTime();
           getCurrentAuditMsg({ "leave_id": this.queryData.id }).then(res => {
             console.log(res);
             if (res.code === 200) {
               this.stepInfo = res.data;
               console.log("------", this.stepInfo);
+
               this.initAuditFlow();
             }
           })
-          // this.initAuditFlow();
         }
       })
       findRevokeByLeaveId({ "leave_id": this.queryData.id }).then(res => {
@@ -150,6 +157,19 @@ export default {
       //     console.log("------", this.stepInfo);
       //   }
       // })
+    },
+    getTime () {
+      console.log("111111Time");
+      getReferenceLeaveDay({
+        "leave_start_time": this.detailInfo.leaveStartTime,
+        "leave_end_time": this.detailInfo.leaveEndTime,
+        "leave_type": this.detailInfo.leaveType
+      }).then(res => {
+        if (res.code === 200) {
+          this.leaveTime = res.data + '天';
+        }
+      })
+
     },
 
 

@@ -13,91 +13,36 @@
         </el-steps>
       </div>
       <!-- 请假信息表单 -->
-      <div class="info-box">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <h3>请假详细信息</h3>
-          </div>
-          <el-row class="row-box">
-            <el-col :span="12">
-              <div class="name-box">工号：<span class="content-box">{{info.user.userId}}</span></div>
-            </el-col>
-            <el-col :span="12">
-              <div class="name-box">姓名：<span class="content-box">{{info.user.userName}}</span></div>
-            </el-col>
-          </el-row>
-          <el-row class="row-box">
-            <el-col :span="12">
-              <div class="name-box">学院(部门)：<span class="content-box">{{info.user.yuanXi}}</span></div>
-            </el-col>
-            <el-col :span="12">
-              <div class="name-box">请假起始时间：<span class="content-box">{{info.leaveStartTime}}</span></div>
-            </el-col>
-
-          </el-row>
-          <el-row class="row-box">
-            <el-col :span="12">
-              <div class="name-box">请假类型：<span class="content-box">{{info.leaveType}}</span></div>
-            </el-col>
-
-            <el-col :span="12">
-              <div class="name-box">请假结束时间：<span class="content-box">{{info.leaveEndTime}}</span> </div>
-            </el-col>
-          </el-row>
-          <el-row class="row-box">
-            <el-col :span="12">
-              <div class="name-box">请假原因：<span class="content-box">{{info.leaveReason}}</span></div>
-            </el-col>
-            <el-col :span="12">
-              <div class="name-box">请假时长：<span class="content-box">{{leaveTime}}</span></div>
-            </el-col>
-          </el-row>
-
-          <el-row class="row-box">
-            <el-col :span="12">
-              <div class="name-box">证明文件：
-                <el-button type="primary" @click="downlode">预览证明材料</el-button>
-                <!-- <span class="content-box" @click="downlode">{{info.leaveMaterial}}</span> -->
-              </div>
-            </el-col>
-            <el-col :span="12" v-if="showChangeTime">
-              <div class="name-box">产假时间核定：
-                <el-date-picker v-model="changeTime" type="date" placeholder="选择日期">
-                </el-date-picker>
-                <!-- <span class="content-box" @click="downlode">{{info.leaveMaterial}}</span> -->
-              </div>
-            </el-col>
-          </el-row>
-
-        </el-card>
-      </div>
-      <!-- 审核详情 -->
-      <div class="detail-box">
-        <el-button type="text" @click="dialogVisible = true">点击查看审核详情</el-button>
-
-        <el-dialog title="审核详情" :visible.sync="dialogVisible" width="60%" :before-close="handleClose">
-          <el-collapse v-model="activeNames" @change="handleChange">
-            <el-collapse-item title="部门人事初审信息" name="1" v-if="active>0">
-              <StepInfo :step-info="stepInfo1" />
-
-            </el-collapse-item>
-            <el-collapse-item title="部门负责人审核信息" name="2" v-if="active>1">
-              <StepInfo :step-info="stepInfo2" />
-
-            </el-collapse-item>
-            <el-collapse-item title="人事处科员初审信息" name="3" v-if="active>2">
-              <StepInfo :step-info="stepInfo3" />
-            </el-collapse-item>
-            <el-collapse-item title="人事处负责人审核信息" name="4" v-if="active>3">
-              <StepInfo :step-info="stepInfo4" />
-            </el-collapse-item>
-            <el-collapse-item title="校领导审核信息" name="4" v-if="active>4">
-              <StepInfo :step-info="stepInfo5" />
-            </el-collapse-item>
-          </el-collapse>
-
-        </el-dialog>
-      </div>
+   <!-- 表格 -->
+   <div class="table">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <h3>考勤记录</h3>
+        </div>
+        <div class="kaoqing">
+          <el-table :data="gridData"  border style="">            
+            <el-table-column label="姓名" property="name"  ></el-table-column>
+            <el-table-column label="工号" prop="userid"   ></el-table-column>
+            <el-table-column label="事假" prop="shijia"  ></el-table-column>
+            <el-table-column label="病假" prop="bingjia"   ></el-table-column>
+            <el-table-column label="婚假" prop="hunjia"  ></el-table-column>
+            <el-table-column label="生育假" prop="shengyujia" ></el-table-column>
+            <el-table-column label="探亲假" prop="tanqinjia" ></el-table-column>
+            <el-table-column label="丧假" prop="sangjia" ></el-table-column>
+            <el-table-column label="工伤假" prop="gonshangjia" ></el-table-column>
+            <el-table-column label="公差" prop="gongcha"  ></el-table-column>
+            <el-table-column label="旷工" prop="kuanggong"  ></el-table-column>
+            <el-table-column label="其它" prop="qita" ></el-table-column>
+            <el-table-column label="备注" prop="tip" ></el-table-column>
+          </el-table>
+        </div>
+        <div class="block">
+          <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize"
+            layout="total, prev, pager, next, jumper" :total="total">
+          </el-pagination>
+        </div>
+      </el-card>
+    </div>
       <!-- 审核结果 -->
       <div class="check-box" v-if="isShow ">
         <el-form ref="form" :model="check" label-width="80px">
@@ -130,10 +75,8 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { init } from 'events';
-import { SingleleaveAudit, getCurrentAuditMsg } from "../../api/audit";
-import { getReferenceLeaveDay } from "@/api/apply"
-import StepInfo from "./components/StepInfo";
+import { SingleleaveAudit, getCurrentAuditMsg } from "../../../api/audit";
+import StepInfo from "../components/StepInfo";
 export default {
   props: ['info'],
   components: { StepInfo },
@@ -152,7 +95,6 @@ export default {
       isShow: 0,
       isFinish: 0,
       dialogVisible: false,
-      activeNames: ['1'],
       stepInfo1: {},
       stepInfo2: {},
       stepInfo3: {},
@@ -160,8 +102,24 @@ export default {
       stepInfo5: {},
       showChangeTime: false,
       changeTime: "",
-      leaveTime: ""
 
+
+      currentPage: 1,
+      total: 0,
+      pageSize: 10,
+
+      gridData: [
+          {
+          name: '王小虎',
+          },  {
+          name: '王小虎',
+          },  {
+          name: '王小虎',
+          },  {
+          name: '王小虎',
+          }, {
+          name: '王小虎',
+          },],
 
     }
   },
@@ -181,7 +139,6 @@ export default {
     if (this.info.leaveType === "产假" && this.role == 3) {
       this.showChangeTime = true
     }
-    this.getTime();
     this.init();
   },
   methods: {
@@ -191,10 +148,7 @@ export default {
     handleClose (done) {
       this.dialogVisible = false;
     },
-    downlode () {
-      var url = this.info.leaveMaterial.replace("/leaveMaterial", "")
-      window.open(url);
-    },
+  
     onSubmit () {
       if (this.check.result === "不通过" && this.check.recomment === "") {
         this.$notify.error({
@@ -242,19 +196,6 @@ export default {
 
 
     },
-    getTime () {
-      console.log("111111Time");
-      getReferenceLeaveDay({
-        "leave_start_time": this.info.leaveStartTime,
-        "leave_end_time": this.info.leaveEndTime,
-        "leave_type": this.info.leaveType
-      }).then(res => {
-        if (res.code === 200) {
-          this.leaveTime = res.data + '天';
-        }
-      })
-
-    },
 
     init () {
       //判断需要几步
@@ -279,8 +220,6 @@ export default {
         }
       }
       this.getDetail()
-
-
 
     },
     getDetail () {
@@ -320,6 +259,33 @@ export default {
           }
         }
       })
+    },
+    handleCurrentChange (val) {
+      if (this.searchInfo.department === "null" && this.searchInfo.username === "null" && this.searchInfo.selectuserid === "null") {
+        getAuditLoadingDataByUserId({ "pageNum": val, "userid": this.id }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      } else {
+        getRevokeAuditSelected({
+          "department": this.searchInfo.department,
+          "pageNum": val,
+          "selectuserid": this.searchInfo.selectuserid,
+          "userid": this.id,
+          "username": this.searchInfo.username
+        }).then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.tableData = res.data.records;
+            this.pageSize = res.data.size;
+            this.total = res.data.total;
+          }
+        })
+      }
     }
   },
 }
@@ -347,6 +313,10 @@ export default {
   margin-top: 20px;
   width: 80%;
 }
+.kaoqing{
+  position: relative;
+  left: -92px;
+}
 .clearfix:before,
 .clearfix:after {
   display: table;
@@ -356,6 +326,9 @@ export default {
   clear: both;
 }
 
+.table {
+  margin-top: 20px;
+}
 .box-card ::v-deep .el-card__header {
   border-bottom: 1.5px solid #ebeef5;
   width: 100%;

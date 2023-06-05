@@ -26,9 +26,9 @@
           </el-table-column>
           <el-table-column prop="leave.user.yuanXi" label="学院(部门)" width="200">
           </el-table-column>
-          <el-table-column prop="revokeReportTime" label="返岗报道日期：">
+          <el-table-column prop="revokeReportTime" label="返岗报到日期：">
           </el-table-column>
-          <el-table-column prop="revokeSubmitTime" label="销假表提交日期：">
+          <el-table-column prop="revokeSubmitTime" label="销假提交日期：">
           </el-table-column>
           <el-table-column prop="hrStatus" label="状态" width="120">
             <template slot-scope="scope">

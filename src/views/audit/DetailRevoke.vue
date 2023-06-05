@@ -27,10 +27,13 @@
             </el-col>
           </el-row>
           <el-row class="row-box">
-            <el-col :span="24">
+            <el-col :span="12">
               <div class="name-box">证明文件：
                 <el-button type="primary" @click="downlode">预览证明材料</el-button>
               </div>
+            </el-col>
+            <el-col :span="12">
+              <div class="name-box">请假时长：<span class="content-box">{{leaveTime}}</span></div>
             </el-col>
           </el-row>
           <h2>销假信息</h2>
@@ -95,6 +98,7 @@
 import { init } from 'events';
 import { getRevokeDetailById } from "../../api/apply"
 import { addRevokeAudit } from "../../api/audit"
+import { getReferenceLeaveDay } from "@/api/apply"
 export default {
   data () {
     return {
@@ -105,6 +109,7 @@ export default {
         result: "",
         recomment: "",
       },
+      leaveTime: ""
 
 
     }
@@ -116,6 +121,7 @@ export default {
   },
   mounted () {
     this.detailInfo = JSON.parse(window.sessionStorage.getItem('revokeDetail'));
+    this.getTime();
     this.initStatus();
 
   },
@@ -124,6 +130,19 @@ export default {
       var url = this.detailInfo.leave.leaveMaterial.replace("/leaveMaterial", "")
       window.open(url);
 
+
+    },
+    getTime () {
+      console.log("111111Time");
+      getReferenceLeaveDay({
+        "leave_start_time": this.detailInfo.leave.leaveStartTime,
+        "leave_end_time": this.detailInfo.leave.leaveEndTime,
+        "leave_type": this.detailInfo.leave.leaveType
+      }).then(res => {
+        if (res.code === 200) {
+          this.leaveTime = res.data + '天';
+        }
+      })
 
     },
     initDate () {
