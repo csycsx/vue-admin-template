@@ -29,18 +29,17 @@
             <el-table-column label="旷工" prop="leaveReason" width="80" ></el-table-column>
             <el-table-column label="其它" prop="leaveReason" width="130"></el-table-column>
             <el-table-column label="备注" prop="leaveReason" width="130"></el-table-column> -->
-            <el-table-column label="姓名" property="name"  ></el-table-column>
-            <el-table-column label="工号" prop="gmtModified"   ></el-table-column>
-            <el-table-column label="事假" prop="leaveStartTime"  ></el-table-column>
-            <el-table-column label="病假" prop="leaveEndTime"   ></el-table-column>
-            <el-table-column label="婚假" prop="leaveType"  ></el-table-column>
-            <el-table-column label="生育假" prop="leaveReason" ></el-table-column>
-            <el-table-column label="探亲假" prop="leaveReason" ></el-table-column>
-            <el-table-column label="丧假" prop="leaveReason" ></el-table-column>
-            <el-table-column label="丧假" prop="leaveReason" ></el-table-column>
-            <el-table-column label="公差" prop="leaveReason"  ></el-table-column>
-            <el-table-column label="旷工" prop="leaveReason"  ></el-table-column>
-            <el-table-column label="其它" prop="leaveReason" ></el-table-column>
+            <el-table-column label="编号" property="id"  ></el-table-column>
+            <el-table-column label="工号" prop="user.id"   ></el-table-column>
+            <el-table-column label="事假" prop="shijiaDays"  ></el-table-column>
+            <el-table-column label="病假" prop="bingjiaDays"   ></el-table-column>
+            <el-table-column label="婚假" prop="hunjiaDays"  ></el-table-column>
+            <el-table-column label="生育假" prop="shengyujiaDays" ></el-table-column>
+            <el-table-column label="探亲假" prop="tanqinjiaDays" ></el-table-column>
+            <el-table-column label="丧假" prop="sangjiaDays" ></el-table-column>
+            <el-table-column label="公差" prop="gongchaiDays"  ></el-table-column>
+            <el-table-column label="旷工" prop="kuanggongDays"  ></el-table-column>
+            <el-table-column label="其它" prop="inactiveDays" ></el-table-column>
             <el-table-column label="备注" prop="leaveReason" ></el-table-column>
             
           </el-table>
@@ -70,6 +69,7 @@
   import { checkTeachingDate } from "@/api/apply";
   import { getMonthByUserId, findUserByUserid, addAdminLeaveForm } from "@/api/audit";
   import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
+  import { getLeaveHistoryByDept } from '@/api/history'
 
   export default {
   inject: ['reload'],
@@ -181,8 +181,6 @@
       };
     },
     created () {
-      this.userid = this.$store.getters.id;
-      let param = { "userid": this.userid }
 
       var myDate = new Date(); //创建Date对象
       var nowDate = this.changeDateFormat(myDate);
@@ -191,22 +189,22 @@
           this.week = res.data.dateIndex;
         }
       });
-      findLeaveFormByUserid(param).then(res => {
-        if (res.code === 200) {
-          this.tableData = res.data.records;
-          // 获取总记录数
-          this.total = res.data.total;
-          // 获取每页的条数
-          this.pageSize = res.data.size;
-          // 请求成功后判断总记录数，如少于11条则不做分页
-          if (this.total > 10) {
-            this.isShow = true;
-          }
-        }
-      })
       this.userid = this.$store.getters.id;
       this.name = this.$store.getters.name;
       this.dept = this.$store.getters.yuanxi;
+      this.year = "2023";
+      this.month = "5"  
+
+      let param = { 
+        "year": this.year,
+        "month": this.month,
+        "dept": this.dept 
+      }
+
+      getLeaveHistoryByDept(param).then(res => {
+        console.log(res);
+        this.gridData = res.data.records
+      })
     },
     mounted () { },
     methods: {

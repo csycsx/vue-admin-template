@@ -96,8 +96,6 @@
             <el-table-column fixed="right" label="操作" width="100">
               <template slot-scope="scope">
                 <el-button @click="rowChick(scope.row)" type="text" size="small">查看</el-button>
-                <el-button v-if="scope.row.status=='0'" @click="deleteRow(scope.row)" type="text"
-                  size="small">撤销</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -148,7 +146,7 @@
 import Calendar from "vue-calendar-component";
 import { checkTeachingDate } from "@/api/apply";
 import { getMonthByUserId, findUserByUserid, addAdminLeaveForm } from "@/api/audit";
-import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
+import { findLeaveFormByUserid, findLeaveByDept, quashLeaveById } from "@/api/apply"
 
 export default {
   inject: ['reload'],
@@ -261,7 +259,14 @@ export default {
   },
   created () {
     this.userid = this.$store.getters.id;
-    let param = { "userid": this.userid }
+    this.dept = this.$store.getters.yuanxi;
+    this.year = "2023";
+    this.month = "5"
+    let param = { 
+      "year": this.year,
+      "month": this.month,
+      "dept": this.dept 
+    }
 
     var myDate = new Date(); //创建Date对象
     var nowDate = this.changeDateFormat(myDate);
@@ -270,7 +275,8 @@ export default {
         this.week = res.data.dateIndex;
       }
     });
-    findLeaveFormByUserid(param).then(res => {
+    console.log(param)
+    findLeaveByDept(param).then(res => {
       if (res.code === 200) {
         this.tableData = res.data.records;
         // 获取总记录数
@@ -468,10 +474,12 @@ export default {
     // 分页事件控制
     changePage (pageNum) {
       let param = {
-        "userid": this.userid,
+        "year": this.year,
+        "month": this.month,
+        "dept": this.dept,
         "pageNum": pageNum
       }
-      findLeaveFormByUserid(param).then(res => {
+      findLeaveByDept(param).then(res => {
         if (res.code === 200) {
           this.tableData = res.data.records;
         }

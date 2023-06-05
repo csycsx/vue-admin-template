@@ -63,3 +63,12 @@ export function getAllSchoolDeptMsg(data) {
     params: data
   })
 }
+
+// 查询某部门下当月的全部缺勤人员的考勤
+export function getLeaveHistoryByDept(data) {
+  return request({
+    url: '/history/getLeaveHistoryByDept',
+    method: 'get',
+    params: data
+  })
+}

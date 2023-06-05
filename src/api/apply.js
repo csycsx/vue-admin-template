@@ -155,3 +155,12 @@ export function undoRevoke(data) {
     params: data
   })
 }
+
+// 部门查找全部本部门的请假记录
+export function findLeaveByDept(data) {
+  return request({
+    url: '/history/findLeaveByDept',
+    method: 'get',
+    params: data
+  })
+}
