@@ -12,23 +12,13 @@
             range-separator="至"
             start-placeholder="开始月份"
             end-placeholder="结束月份"
+            
             :picker-options="pickerOptions">
           </el-date-picker>
           <el-button style="float: right; padding: 3px 0 8px 0" type="text" @click="exportTable">导出汇总表</el-button>
           <el-table :data="gridData"  border style="">
-            <!-- <el-table-column label="姓名" property="name" width="130"  ></el-table-column>
-            <el-table-column label="工号" prop="gmtModified" width="130"  ></el-table-column>
-            <el-table-column label="事假" prop="leaveStartTime" width="80" ></el-table-column>
-            <el-table-column label="病假" prop="leaveEndTime" width="80" ></el-table-column>
-            <el-table-column label="婚假" prop="leaveType" width="80" ></el-table-column>
-            <el-table-column label="生育假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="探亲假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="丧假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="丧假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="公差" prop="leaveReason" width="80" ></el-table-column>
-            <el-table-column label="旷工" prop="leaveReason" width="80" ></el-table-column>
-            <el-table-column label="其它" prop="leaveReason" width="130"></el-table-column>
-            <el-table-column label="备注" prop="leaveReason" width="130"></el-table-column> -->
+            <el-table-column label="起始日期" property="gmtCreate"  :formatter="formatDate"></el-table-column>
+            <el-table-column label="结束日期" property="gmtModified" :formatter="formatDate" ></el-table-column>
             <el-table-column label="编号" property="id"  ></el-table-column>
             <el-table-column label="工号" prop="user.id"   ></el-table-column>
             <el-table-column label="事假" prop="shijiaDays"  ></el-table-column>
@@ -44,18 +34,13 @@
             
           </el-table>
           <div slot="footer" class="dialog-footer">
-            <el-button @click="attendanceSummaryTable = false">取 消</el-button>
+            <!-- <el-button @click="attendanceSummaryTable = false">取 消</el-button> -->
             <el-button type="primary" @click="submitTable">提 交</el-button>
           </div>
         </div>
         <div class="table">
         
         </div>
-
-
-
-
-
 
         <!-- <el-dialog width="70%" title="考勤汇总表" :visible.sync="attendanceSummaryTable">
         
@@ -202,7 +187,7 @@
       }
 
       getLeaveHistoryByDept(param).then(res => {
-        console.log(res);
+        console.log("res",res);
         this.gridData = res.data.records
       })
     },
@@ -245,6 +230,20 @@
         var url = this.info.leaveMaterial.replace("/leaveMaterial", "")
         window.open(url);
       },
+
+
+       //改变年月显示格式 
+       formatDate(row, column) {
+          // 获取单元格数据
+          let data = row[column.property]
+          console.log("data",data)
+          if(data == null) {
+              return null
+          }
+          let dt = new Date(data)
+          return dt.getFullYear() + '-' + (dt.getMonth() + 1) 
+          // return dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()
+        },
 
       changeDateFormat (date) {
         var myDate = new Date(date);

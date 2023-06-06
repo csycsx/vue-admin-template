@@ -17,38 +17,27 @@
     <div class="table">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <h3>{{ yuanxi }}考勤汇总</h3>
+          <h3>各学院考勤汇总</h3>
         </div>
-        <el-date-picker
-            v-model="value2"
-            style="float: left;bottom: 5px;"
-            type="monthrange"
-            align="right"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始月份"
-            end-placeholder="结束月份"
-            :picker-options="pickerOptions">
-          </el-date-picker>
         <el-table ref="filterTable" :data="tableData" border style="width: 1000px">
           <el-table-column prop="id" label="序号" width="100">
           </el-table-column>
           <!-- prop的内容先这样之后记得换 -->
-          <el-table-column prop="leave.user.userId" label="提交时间" width="150">
-          </el-table-column>
+          <!-- <el-table-column prop="leave.user.userId" label="提交时间" width="150">
+          </el-table-column> -->
           <!-- <el-table-column prop="leave.user.userName" label="名称(月度及学院名)" width="200">
           </el-table-column> -->
-          <el-table-column prop="leave.user.userName" label="所属月度" width="200">
-          </el-table-column>
           <el-table-column prop="leave.user.userName" label="院系" width="200">
           </el-table-column>
-          <el-table-column prop="departmentStatus" label="状态" width="120">
+          <el-table-column prop="leave.user.userName" label="最后一次审核申请提交时间" width="200">
+          </el-table-column>
+          <!-- <el-table-column prop="departmentStatus" label="状态" width="120">
             <template slot-scope="scope">
               <el-tag :type="scope.row.departmentStatus === '0' ? 'danger'  : 'success'" disable-transitions>
                 {{auditStatus[scope.row.departmentStatus]}}
               </el-tag>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column prop="" label="备注" width="150">
           </el-table-column>
           <el-table-column  label="操作" width="120">
@@ -71,9 +60,9 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getAuditLoadingDataByUserId, getRevokeAuditSelected } from "../../../api/audit";
+import { getAuditLoadingDataByUserId, getRevokeAuditSelected,updateSchoolDepartment } from "@/api/audit";
 import StepInfo from "../components/StepInfo";
-import { SingleleaveAudit, getCurrentAuditMsg } from "../../../api/audit";
+import { SingleleaveAudit, getCurrentAuditMsg } from "@/api/audit";
 
 
 export default {
@@ -81,6 +70,7 @@ export default {
   components: { StepInfo },
   data () {
     return {
+
       auditStatus: ["未审核", "已审核"],
       tableData: [],
       input: '',
@@ -91,8 +81,6 @@ export default {
       currentPage: 1,
       total: 0,
       pageSize: 10,
-
-      // hrStatus:'',
 
       gridData: [
           {
@@ -128,31 +116,6 @@ export default {
       showChangeTime: false,
       changeTime: "",
 
-      pickerOptions: {
-        shortcuts: [{
-          text: '本月',
-          onClick (picker) {
-            picker.$emit('pick', [new Date(), new Date()]);
-          }
-        }, {
-          text: '今年至今',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date(new Date().getFullYear(), 0);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近六个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setMonth(start.getMonth() - 6);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
-      },
-      value1: '',
-      value2: '',
 
       searchInfo: {
         department: "null",
@@ -165,56 +128,67 @@ export default {
   created () {
     this.role = this.$store.getters.role_num;
     this.userid = this.$store.getters.id;
-   },
+
+
+    // let param = { 
+    //     "year": this.year,
+    //     "month": this.month,
+    //     "dept": this.dept 
+    //   }
+    // updateSchoolDepartment(param).then(res => {
+    //   console.log("res",res);
+    //   // this.gridData = res.data.records
+    // })
+  },
   mounted () {
     this.yuanxi = this.$store.getters.yuanxi
     this.role = this.$store.getters.role_num
     this.id = this.$store.getters.id
     this.init();
-    this.initTry();
-    this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));
-    console.log("THIS.INFO",this.info, this.role)
-    if (this.info.leaveType === "产假" && this.role == 3) {
-      this.showChangeTime = true
-    }
+    // this.initTry();
+    this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
+    console.log(this.info, this.role)
+    // if (this.info.leaveType === "产假" && this.role == 3) {
+    //   this.showChangeTime = true
+    // }
 
   },
   
   methods: {
 
     submitListAudit(){
-    //  路径/home对应我在router目录下index.js中定义的path属性值
+    //  路径/home对应在router目录下index.js中定义的path属性值
         this.$router.push({
-          name:'SummaryAudit'
+          name:'HrAttendManageTry'
         });
     },
+    // initTry () {
+    //   //判断需要几步
+    //   if (this.info.hrStatus !== "2") this.step += 2;
+    //   if (this.info.schoolStatus !== "2") this.step += 1;
+    //   console.log(this.step);
+    //   //判断是否能审核
+    //   if (this.info.showStatus === "待审核") this.isShow = 1;
+    //   if (this.info.showStatus === "已审核") this.isFinish = 1;
 
-    initTry () {
-      //判断需要几步
-      if (this.info.hrStatus !== "2") this.step += 2;
-      if (this.info.schoolStatus !== "2") this.step += 1;
-      console.log(this.step);
-      //判断是否能审核
-      if (this.info.showStatus === "待审核") this.isShow = 1;
-      if (this.info.showStatus === "已审核") this.isFinish = 1;
-
-      //判断当前正在第几步
-      if (this.info.departmentStatus === "0") this.active = 0;
-      else if (this.info.departmentStatus === "3") this.active = 1;
-      else if (this.info.departmentStatus === "1") {
-        if (this.info.hrStatus === "2") { this.active = 2; this.isFinish = 1; }
-        else if (this.info.hrStatus === "0") { this.active = 2; }
-        else if (this.info.hrStatus === "3") { this.active = 3; }
-        else {
-          if (this.info.schoolStatus === "2") { this.active = 4; this.isFinish = 1; }
-          else if (this.info.schoolStatus === "0") this.active = 4;
-          else this.active = 5;
-        }
-      }
-      this.getDetail()
-    },
+    //   //判断当前正在第几步
+    //   if (this.info.departmentStatus === "0") this.active = 0;
+    //   else if (this.info.departmentStatus === "3") this.active = 1;
+    //   else if (this.info.departmentStatus === "1") {
+    //     if (this.info.hrStatus === "2") { this.active = 2; this.isFinish = 1; }
+    //     else if (this.info.hrStatus === "0") { this.active = 2; }
+    //     else if (this.info.hrStatus === "3") { this.active = 3; }
+    //     else {
+    //       if (this.info.schoolStatus === "2") { this.active = 4; this.isFinish = 1; }
+    //       else if (this.info.schoolStatus === "0") this.active = 4;
+    //       else this.active = 5;
+    //     }
+    //   }
+    //   this.getDetail()
+    // },
     init () {
       getAuditLoadingDataByUserId({ "pageNum": this.currentPage, "userid": this.id }).then(res => {
+        console.log("getAuditLoaidng",res)
         if (res.code === 200) {
           this.tableData = res.data.records;
           this.pageSize = res.data.size;
@@ -262,53 +236,53 @@ export default {
         }
       })
     },
-    onSubmit () {
-      if (this.check.result === "不通过" && this.check.recomment === "") {
-        this.$notify.error({
-          title: '错误',
-          message: '审核不通过请填写理由'
-        });
-      }
-      else {
-        SingleleaveAudit({
-          "id": this.info.id,
-          "recommend": this.check.recomment,
-          "result": this.check.result,
-          "role": this.role,
-          "userid": this.userid
-        }).then(res => {
-          console.log(res);
-          if (res.code === 200) {
-            console.log(res.data);
-            this.$message({
-              message: '审核成功',
-              type: 'success'
-            });
-            if (this.role === "1" || this.role === "2") {
-              this.$router.push({
-                name: 'DpAuditList'
-              });
-            }
-            else if (this.role === "3" || this.role === "4") {
-              this.$router.push({
-                name: 'HrAuditList'
-              });
-            }
-            else {
-              this.$router.push({
-                name: 'ScAuditList'
-              });
-            }
-          }
-          else {
-            this.$message.error(res.message);
-          }
-        })
+    // onSubmit () {
+    //   if (this.check.result === "不通过" && this.check.recomment === "") {
+    //     this.$notify.error({
+    //       title: '错误',
+    //       message: '审核不通过请填写理由'
+    //     });
+    //   }
+    //   else {
+    //     SingleleaveAudit({
+    //       "id": this.info.id,
+    //       "recommend": this.check.recomment,
+    //       "result": this.check.result,
+    //       "role": this.role,
+    //       "userid": this.userid
+    //     }).then(res => {
+    //       console.log(res);
+    //       if (res.code === 200) {
+    //         console.log(res.data);
+    //         this.$message({
+    //           message: '审核成功',
+    //           type: 'success'
+    //         });
+    //         if (this.role === "1" || this.role === "2") {
+    //           this.$router.push({
+    //             name: 'DpAuditList'
+    //           });
+    //         }
+    //         else if (this.role === "3" || this.role === "4") {
+    //           this.$router.push({
+    //             name: 'HrAuditList'
+    //           });
+    //         }
+    //         else {
+    //           this.$router.push({
+    //             name: 'ScAuditList'
+    //           });
+    //         }
+    //       }
+    //       else {
+    //         this.$message.error(res.message);
+    //       }
+    //     })
 
-      }
+    //   }
 
 
-    },
+    // },
     rowChick (row, event, column) {
       let isShow = 0;
       if (row.departmentStatus === "0") isShow = 1;

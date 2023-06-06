@@ -292,17 +292,31 @@ export const constantRoutes = [{
           roles: ['department_leader']
         }
       },
-      // 3&4用户界面 首页放各院系提交的记录 院系 提交时间 审核情况 操作(可能有其他但其他没想好)
-      // 操作给个查看 跳转对应院系的考勤汇总 页面布局和2一样
+      // // 3&4用户界面1
       {
-        path: 'hrAttendManageTry',
-        name: 'HrAttendManage',
-        component: () => import('@/views/audit/attendance/HrAttendManageTry'),
+        path: 'HrAttendManageAll',
+        name: 'HrAttendManageAll',
+        component: () => import('@/views/audit/attendance/HrAttendManageAll'),
         meta: {
           title: '考勤管理',
           icon: 'el-icon-s-check',
           roles: ['hr_officer', 'hr_leader']
         }
+      },
+      // 3&4用户界面2 首页放各院系提交的记录 院系 提交时间 审核情况 操作(可能有其他但其他没想好)
+      // 操作给个查看 跳转对应院系的考勤汇总 页面布局和2一样
+      // name要和路径的那个名字一样 不然跳不转 会显示它不存在
+      {
+        path: 'hrAttendManageTry',
+        name: 'HrAttendManageTry',
+        component: () => import('@/views/audit/attendance/HrAttendManageTry'),
+        meta: {
+          title: '各学院考勤汇总',
+          icon: 'el-icon-s-check',
+          roles: ['hr_officer', 'hr_leader']
+        },
+        hidden: true
+
       },
       // 汇总表
       {
@@ -325,7 +339,7 @@ export const constantRoutes = [{
         meta: {
           title: '考勤汇总审核',
           icon: 'el-icon-s-check',
-          roles: ['department_leader', 'hr_officer', ]
+          roles: ['department_leader', 'hr_officer', 'hr_leader']
         },
         hidden: true
 
