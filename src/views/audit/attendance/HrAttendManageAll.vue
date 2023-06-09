@@ -27,18 +27,17 @@
           </el-table-column> -->
           <!-- <el-table-column prop="leave.user.userName" label="名称(月度及学院名)" width="200">
           </el-table-column> -->
-          <el-table-column prop="leave.user.userName" label="院系" width="200">
+          <!-- <el-table-column prop="leave.user.userName" label="院系" width="200">
           </el-table-column>
           <el-table-column prop="leave.user.userName" label="最后一次审核申请提交时间" width="200">
           </el-table-column>
-          <!-- <el-table-column prop="departmentStatus" label="状态" width="120">
-            <template slot-scope="scope">
-              <el-tag :type="scope.row.departmentStatus === '0' ? 'danger'  : 'success'" disable-transitions>
-                {{auditStatus[scope.row.departmentStatus]}}
-              </el-tag>
-            </template>
+          <el-table-column prop="" label="备注" width="180">
           </el-table-column> -->
-          <el-table-column prop="" label="备注" width="150">
+          <el-table-column prop="[0]" label="院系" width="200">
+          </el-table-column>
+          <!-- <el-table-column prop="leave.user.userName" label="最后一次审核申请提交时间" width="200">
+          </el-table-column> -->
+          <el-table-column prop="" label="备注" width="180">
           </el-table-column>
           <el-table-column  label="操作" width="120">
               <el-button @click=" submitListAudit()" type="text" size="small">查看</el-button>
@@ -60,9 +59,9 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getAuditLoadingDataByUserId, getRevokeAuditSelected,updateSchoolDepartment } from "@/api/audit";
+import { getAuditLoadingDataByUserId, getRevokeAuditSelected,updateSchoolDepartment,} from "@/api/audit";
 import StepInfo from "../components/StepInfo";
-import { SingleleaveAudit, getCurrentAuditMsg } from "@/api/audit";
+import { getSchoolDepartment ,SingleleaveAudit, getCurrentAuditMsg } from "@/api/audit";
 
 
 export default {
@@ -71,7 +70,6 @@ export default {
   data () {
     return {
 
-      auditStatus: ["未审核", "已审核"],
       tableData: [],
       input: '',
       select: '',
@@ -82,6 +80,7 @@ export default {
       total: 0,
       pageSize: 10,
 
+      dept:"",
       gridData: [
           {
           name: '王小虎',
@@ -107,12 +106,11 @@ export default {
       },
       isShow: 0,
       isFinish: 0,
-      activeNames: ['1'],
-      stepInfo1: {},
-      stepInfo2: {},
-      stepInfo3: {},
-      stepInfo4: {},
-      stepInfo5: {},
+      // stepInfo1: {},
+      // stepInfo2: {},
+      // stepInfo3: {},
+      // stepInfo4: {},
+      // stepInfo5: {},
       showChangeTime: false,
       changeTime: "",
 
@@ -144,7 +142,8 @@ export default {
     this.yuanxi = this.$store.getters.yuanxi
     this.role = this.$store.getters.role_num
     this.id = this.$store.getters.id
-    this.init();
+    // this.init();
+    this.SchoolDp();
     // this.initTry();
     this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
     console.log(this.info, this.role)
@@ -186,56 +185,71 @@ export default {
     //   }
     //   this.getDetail()
     // },
-    init () {
-      getAuditLoadingDataByUserId({ "pageNum": this.currentPage, "userid": this.id }).then(res => {
-        console.log("getAuditLoaidng",res)
+    // init () {
+    //   getAuditLoadingDataByUserId({ "pageNum": this.currentPage, "userid": this.id }).then(res => {
+    //     console.log("getAuditLoaidng",res)
+    //     if (res.code === 200) {
+    //       this.tableData = res.data.records;
+    //       this.pageSize = res.data.size;
+    //       this.total = res.data.total;
+    //     }
+    //   })
+
+    // },
+
+    SchoolDp () {
+      getSchoolDepartment({}).then(res => {
+        console.log(" getSchoolDepartment",res.data)
+        console.log("code",res.code)
         if (res.code === 200) {
-          this.tableData = res.data.records;
-          this.pageSize = res.data.size;
-          this.total = res.data.total;
+          console.log("tazhixingle ")
+          this.tableData = res.data;
+          console.log("tazhixingle2 ")
+
+          console.log("tableData",tableData);
         }
       })
 
     },
 
-    getDetail () {
-      getCurrentAuditMsg({ "leave_id": this.info.id }).then(res => {
-        console.log(res);
-        if (res.code === 200) {
-          if (res.data.departmentAuditMsg !== "尚未进行部门审核") {
-            this.stepInfo1.id = res.data.departmentAuditMsg.dpOfficerId;
-            this.stepInfo1.name = res.data.departmentAuditMsg.dpOfficerName;
-            this.stepInfo1.result = res.data.departmentAuditMsg.dpOfficerResult;
-            this.stepInfo1.recommend = res.data.departmentAuditMsg.dpOfficerRecommend;
-            this.stepInfo1.time = res.data.departmentAuditMsg.dpOfficerTime;
-            this.stepInfo2.id = res.data.departmentAuditMsg.dpLeaderId;
-            this.stepInfo2.name = res.data.departmentAuditMsg.dpLeaderName;
-            this.stepInfo2.result = res.data.departmentAuditMsg.dpLeaderResult;
-            this.stepInfo2.recommend = res.data.departmentAuditMsg.dpLeaderRecommend;
-            this.stepInfo2.time = res.data.departmentAuditMsg.dpLeaderTime;
-          }
-          if (this.step > 2 && res.data.hrAuditMsg !== "尚未进行人事处审核") {
-            this.stepInfo3.id = res.data.hrAuditMsg.hrOfficerId;
-            this.stepInfo3.name = res.data.hrAuditMsg.hrOfficerName;
-            this.stepInfo3.result = res.data.hrAuditMsg.hrOfficerResult;
-            this.stepInfo3.recommend = res.data.hrAuditMsg.hrOfficerRecommend;
-            this.stepInfo3.time = res.data.hrAuditMsg.hrOfficerTime;
-            this.stepInfo4.id = res.data.hrAuditMsg.hrLeaderId;
-            this.stepInfo4.name = res.data.hrAuditMsg.hrLeaderName;
-            this.stepInfo4.result = res.data.hrAuditMsg.hrLeaderResult;
-            this.stepInfo4.recommend = res.data.hrAuditMsg.hrLeaderRecommend;
-            this.stepInfo4.time = res.data.hrAuditMsg.hrLeaderTime;
-          }
-          if (this.step > 4 && res.data.schoolAuditMsg !== "尚未进行校领导审核") {
-            this.stepInfo5.id = res.data.schoolAuditMsg.scOfficerId;
-            this.stepInfo5.name = res.data.schoolAuditMsg.scLeaderName;
-            this.stepInfo5.result = res.data.schoolAuditMsg.scOfficerResult;
-            this.stepInfo5.recommend = res.data.schoolAuditMsg.scOfficerRecommend;
-            this.stepInfo5.time = res.data.schoolAuditMsg.scOfficerTime;
-          }
-        }
-      })
-    },
+    // getDetail () {
+    //   getCurrentAuditMsg({ "leave_id": this.info.id }).then(res => {
+    //     console.log(res);
+    //     if (res.code === 200) {
+    //       if (res.data.departmentAuditMsg !== "尚未进行部门审核") {
+    //         this.stepInfo1.id = res.data.departmentAuditMsg.dpOfficerId;
+    //         this.stepInfo1.name = res.data.departmentAuditMsg.dpOfficerName;
+    //         this.stepInfo1.result = res.data.departmentAuditMsg.dpOfficerResult;
+    //         this.stepInfo1.recommend = res.data.departmentAuditMsg.dpOfficerRecommend;
+    //         this.stepInfo1.time = res.data.departmentAuditMsg.dpOfficerTime;
+    //         this.stepInfo2.id = res.data.departmentAuditMsg.dpLeaderId;
+    //         this.stepInfo2.name = res.data.departmentAuditMsg.dpLeaderName;
+    //         this.stepInfo2.result = res.data.departmentAuditMsg.dpLeaderResult;
+    //         this.stepInfo2.recommend = res.data.departmentAuditMsg.dpLeaderRecommend;
+    //         this.stepInfo2.time = res.data.departmentAuditMsg.dpLeaderTime;
+    //       }
+    //       if (this.step > 2 && res.data.hrAuditMsg !== "尚未进行人事处审核") {
+    //         this.stepInfo3.id = res.data.hrAuditMsg.hrOfficerId;
+    //         this.stepInfo3.name = res.data.hrAuditMsg.hrOfficerName;
+    //         this.stepInfo3.result = res.data.hrAuditMsg.hrOfficerResult;
+    //         this.stepInfo3.recommend = res.data.hrAuditMsg.hrOfficerRecommend;
+    //         this.stepInfo3.time = res.data.hrAuditMsg.hrOfficerTime;
+    //         this.stepInfo4.id = res.data.hrAuditMsg.hrLeaderId;
+    //         this.stepInfo4.name = res.data.hrAuditMsg.hrLeaderName;
+    //         this.stepInfo4.result = res.data.hrAuditMsg.hrLeaderResult;
+    //         this.stepInfo4.recommend = res.data.hrAuditMsg.hrLeaderRecommend;
+    //         this.stepInfo4.time = res.data.hrAuditMsg.hrLeaderTime;
+    //       }
+    //       if (this.step > 4 && res.data.schoolAuditMsg !== "尚未进行校领导审核") {
+    //         this.stepInfo5.id = res.data.schoolAuditMsg.scOfficerId;
+    //         this.stepInfo5.name = res.data.schoolAuditMsg.scLeaderName;
+    //         this.stepInfo5.result = res.data.schoolAuditMsg.scOfficerResult;
+    //         this.stepInfo5.recommend = res.data.schoolAuditMsg.scOfficerRecommend;
+    //         this.stepInfo5.time = res.data.schoolAuditMsg.scOfficerTime;
+    //       }
+    //     }
+    //   })
+    // },
     // onSubmit () {
     //   if (this.check.result === "不通过" && this.check.recomment === "") {
     //     this.$notify.error({
