@@ -214,7 +214,7 @@ export default {
         return;
       }
 
-      if (hrStatus === 3) {
+      if (hrStatus == 3) {
         this.currentStep = 3;
       } else if (hrStatus == 1) {
         this.currentStep = 4;

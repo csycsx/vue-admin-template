@@ -91,7 +91,24 @@ export default {
               var childernArray = []
               // 判断子元素是否有权限查看，当子元素个数为1时则隐藏折叠
               element.children.forEach(childElement => {
+                console.log('====', childElement, role)
                 if (childElement.meta.roles.indexOf(role) != -1 || childElement.meta.roles.indexOf('admin') != -1) {
+                  if (childElement.name === 'DpAuditList') {
+                    if (role === 'department_officer') childElement.meta.title = '部门请假初审';
+                    else if (role === 'department_leader') childElement.meta.title = '部门请假审核';
+                  }
+                  else if (childElement.name === 'HrAuditList') {
+                    if (role === 'hr_officer') childElement.meta.title = '人事处请假初审';
+                    else if (role === 'hr_leader') childElement.meta.title = '人事处请假审核';
+                  }
+                  else if (childElement.name === 'DpRevokeList') {
+                    if (role === 'department_officer') childElement.meta.title = '部门销假初审';
+                    else if (role === 'department_leader') childElement.meta.title = '部门销假审核';
+                  }
+                  else if (childElement.name === 'HrRevokeList') {
+                    if (role === 'hr_officer') childElement.meta.title = '人事处销假初审';
+                    else if (role === 'hr_leader') childElement.meta.title = '人事处销假审核';
+                  }
                   childernArray.push(childElement)
                 }
               })
