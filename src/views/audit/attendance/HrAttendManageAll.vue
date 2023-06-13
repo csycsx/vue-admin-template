@@ -2,53 +2,36 @@
   <div class="box">
     <div class="app-container">
     <!-- <h2 class="box-title">考勤记录</h2> -->
-    <!-- 搜索 -->
-    <!-- <div class="search">
-      <el-input placeholder="请输入内容" v-model="input" class="input">
-        <el-select v-model="select" slot="prepend" placeholder="请选择">
-          <el-option label="院系" value="1"></el-option>
-          <el-option label="月度" value="2"></el-option>
-          <el-option label="审核状态" value="3"></el-option>
-        </el-select>
-        <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
-      </el-input>
-    </div> -->
+   
     <!-- 表格 -->
     <div class="table">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <h3>各学院考勤汇总</h3>
         </div>
+    <!-- 搜索 -->
+        <div class="search">
+          <el-input placeholder="请输入内容" v-model="input" class="input">
+            <el-select v-model="select" slot="prepend" placeholder="请选择">
+              <el-option label="院系" value="1"></el-option>
+            </el-select>
+            <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+          </el-input>
+        </div>
+
         <el-table ref="filterTable" :data="tableData" border style="width: 1000px">
           <el-table-column prop="id" label="序号" width="100">
           </el-table-column>
-          <!-- prop的内容先这样之后记得换 -->
-          <!-- <el-table-column prop="leave.user.userId" label="提交时间" width="150">
-          </el-table-column> -->
-          <!-- <el-table-column prop="leave.user.userName" label="名称(月度及学院名)" width="200">
-          </el-table-column> -->
-          <!-- <el-table-column prop="leave.user.userName" label="院系" width="200">
+          <el-table-column prop="department" label="院系" width="300">
           </el-table-column>
-          <el-table-column prop="leave.user.userName" label="最后一次审核申请提交时间" width="200">
-          </el-table-column>
-          <el-table-column prop="" label="备注" width="180">
+          <!-- <el-table-column prop="" label="最后一次审核申请提交时间" width="200">
           </el-table-column> -->
-          <el-table-column prop="[0]" label="院系" width="200">
-          </el-table-column>
-          <!-- <el-table-column prop="leave.user.userName" label="最后一次审核申请提交时间" width="200">
-          </el-table-column> -->
-          <el-table-column prop="" label="备注" width="180">
+          <el-table-column prop="" label="备注" width="230">
           </el-table-column>
           <el-table-column  label="操作" width="120">
               <el-button @click=" submitListAudit()" type="text" size="small">查看</el-button>
           </el-table-column>
         </el-table>
-      
-        <div class="block">
-          <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize"
-            layout="total, prev, pager, next, jumper" :total="total">
-          </el-pagination>
-        </div>
       </el-card>
     </div>
     
@@ -70,7 +53,7 @@ export default {
   data () {
     return {
 
-      tableData: [],
+      tableData:[],
       input: '',
       select: '',
       role: "",
@@ -80,7 +63,8 @@ export default {
       total: 0,
       pageSize: 10,
 
-      dept:"",
+
+      dept:[],
       gridData: [
           {
           name: '王小虎',
@@ -98,6 +82,28 @@ export default {
       step: 2,
       userid: "",
 
+      options: [],
+        value: [],
+        list: [],
+        loading: false,
+        states: ["Alabama", "Alaska", "Arizona",
+        "Arkansas", "California", "Colorado",
+        "Connecticut", "Delaware", "Florida",
+        "Georgia", "Hawaii", "Idaho", "Illinois",
+        "Indiana", "Iowa", "Kansas", "Kentucky",
+        "Louisiana", "Maine", "Maryland",
+        "Massachusetts", "Michigan", "Minnesota",
+        "Mississippi", "Missouri", "Montana",
+        "Nebraska", "Nevada", "New Hampshire",
+        "New Jersey", "New Mexico", "New York",
+        "North Carolina", "North Dakota", "Ohio",
+        "Oklahoma", "Oregon", "Pennsylvania",
+        "Rhode Island", "South Carolina",
+        "South Dakota", "Tennessee", "Texas",
+        "Utah", "Vermont", "Virginia",
+        "Washington", "West Virginia", "Wisconsin",
+        "Wyoming"],
+
       
       check: {
         result: "",
@@ -114,6 +120,32 @@ export default {
       showChangeTime: false,
       changeTime: "",
 
+
+      pickerOptions: {
+          shortcuts: [{
+            text: '本月',
+            onClick(picker) {
+              picker.$emit('pick', [new Date(), new Date()]);
+            }
+          }, {
+            text: '今年至今',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date(new Date().getFullYear(), 0);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近六个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setMonth(start.getMonth() - 6);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
+        value1: '',
+        value2: '',
 
       searchInfo: {
         department: "null",
@@ -151,9 +183,11 @@ export default {
     //   this.showChangeTime = true
     // }
 
+
   },
   
   methods: {
+    
 
     submitListAudit(){
     //  路径/home对应在router目录下index.js中定义的path属性值
@@ -161,142 +195,37 @@ export default {
           name:'HrAttendManageTry'
         });
     },
-    // initTry () {
-    //   //判断需要几步
-    //   if (this.info.hrStatus !== "2") this.step += 2;
-    //   if (this.info.schoolStatus !== "2") this.step += 1;
-    //   console.log(this.step);
-    //   //判断是否能审核
-    //   if (this.info.showStatus === "待审核") this.isShow = 1;
-    //   if (this.info.showStatus === "已审核") this.isFinish = 1;
-
-    //   //判断当前正在第几步
-    //   if (this.info.departmentStatus === "0") this.active = 0;
-    //   else if (this.info.departmentStatus === "3") this.active = 1;
-    //   else if (this.info.departmentStatus === "1") {
-    //     if (this.info.hrStatus === "2") { this.active = 2; this.isFinish = 1; }
-    //     else if (this.info.hrStatus === "0") { this.active = 2; }
-    //     else if (this.info.hrStatus === "3") { this.active = 3; }
-    //     else {
-    //       if (this.info.schoolStatus === "2") { this.active = 4; this.isFinish = 1; }
-    //       else if (this.info.schoolStatus === "0") this.active = 4;
-    //       else this.active = 5;
-    //     }
-    //   }
-    //   this.getDetail()
-    // },
-    // init () {
-    //   getAuditLoadingDataByUserId({ "pageNum": this.currentPage, "userid": this.id }).then(res => {
-    //     console.log("getAuditLoaidng",res)
-    //     if (res.code === 200) {
-    //       this.tableData = res.data.records;
-    //       this.pageSize = res.data.size;
-    //       this.total = res.data.total;
-    //     }
-    //   })
-
-    // },
-
+    
     SchoolDp () {
-      getSchoolDepartment({}).then(res => {
-        console.log(" getSchoolDepartment",res.data)
-        console.log("code",res.code)
-        if (res.code === 200) {
-          console.log("tazhixingle ")
-          this.tableData = res.data;
-          console.log("tazhixingle2 ")
+      // getSchoolDepartment({}).then(res => {
+      //   console.log(" getSchoolDepartment",res.data)
+      //   console.log("code",res.code)
+      //   if (res.code === 200) {
+      //     this.tableData = res.data;
+      //     this.dept=this.tableData[0];
+      //     console.log("dept",this.dept)
+      //     console.log("tableData",this.tableData);
+      //   }
+      // })
 
-          console.log("tableData",tableData);
-        }
-      })
-
+      getSchoolDepartment({}).then(res => {
+        console.log(" getSchoolDepartment", res.data)
+        if (res.code === 200) {
+          // this.tableData = res.data;
+          let dpArray = res.data;
+          dpArray.forEach((item, index) => {
+            let obj = {
+              id: index+1,
+              department: item
+            }
+            this.tableData.push(obj);
+          })
+          console.log("tableData", this.tableData);
+        }
+      })
     },
 
-    // getDetail () {
-    //   getCurrentAuditMsg({ "leave_id": this.info.id }).then(res => {
-    //     console.log(res);
-    //     if (res.code === 200) {
-    //       if (res.data.departmentAuditMsg !== "尚未进行部门审核") {
-    //         this.stepInfo1.id = res.data.departmentAuditMsg.dpOfficerId;
-    //         this.stepInfo1.name = res.data.departmentAuditMsg.dpOfficerName;
-    //         this.stepInfo1.result = res.data.departmentAuditMsg.dpOfficerResult;
-    //         this.stepInfo1.recommend = res.data.departmentAuditMsg.dpOfficerRecommend;
-    //         this.stepInfo1.time = res.data.departmentAuditMsg.dpOfficerTime;
-    //         this.stepInfo2.id = res.data.departmentAuditMsg.dpLeaderId;
-    //         this.stepInfo2.name = res.data.departmentAuditMsg.dpLeaderName;
-    //         this.stepInfo2.result = res.data.departmentAuditMsg.dpLeaderResult;
-    //         this.stepInfo2.recommend = res.data.departmentAuditMsg.dpLeaderRecommend;
-    //         this.stepInfo2.time = res.data.departmentAuditMsg.dpLeaderTime;
-    //       }
-    //       if (this.step > 2 && res.data.hrAuditMsg !== "尚未进行人事处审核") {
-    //         this.stepInfo3.id = res.data.hrAuditMsg.hrOfficerId;
-    //         this.stepInfo3.name = res.data.hrAuditMsg.hrOfficerName;
-    //         this.stepInfo3.result = res.data.hrAuditMsg.hrOfficerResult;
-    //         this.stepInfo3.recommend = res.data.hrAuditMsg.hrOfficerRecommend;
-    //         this.stepInfo3.time = res.data.hrAuditMsg.hrOfficerTime;
-    //         this.stepInfo4.id = res.data.hrAuditMsg.hrLeaderId;
-    //         this.stepInfo4.name = res.data.hrAuditMsg.hrLeaderName;
-    //         this.stepInfo4.result = res.data.hrAuditMsg.hrLeaderResult;
-    //         this.stepInfo4.recommend = res.data.hrAuditMsg.hrLeaderRecommend;
-    //         this.stepInfo4.time = res.data.hrAuditMsg.hrLeaderTime;
-    //       }
-    //       if (this.step > 4 && res.data.schoolAuditMsg !== "尚未进行校领导审核") {
-    //         this.stepInfo5.id = res.data.schoolAuditMsg.scOfficerId;
-    //         this.stepInfo5.name = res.data.schoolAuditMsg.scLeaderName;
-    //         this.stepInfo5.result = res.data.schoolAuditMsg.scOfficerResult;
-    //         this.stepInfo5.recommend = res.data.schoolAuditMsg.scOfficerRecommend;
-    //         this.stepInfo5.time = res.data.schoolAuditMsg.scOfficerTime;
-    //       }
-    //     }
-    //   })
-    // },
-    // onSubmit () {
-    //   if (this.check.result === "不通过" && this.check.recomment === "") {
-    //     this.$notify.error({
-    //       title: '错误',
-    //       message: '审核不通过请填写理由'
-    //     });
-    //   }
-    //   else {
-    //     SingleleaveAudit({
-    //       "id": this.info.id,
-    //       "recommend": this.check.recomment,
-    //       "result": this.check.result,
-    //       "role": this.role,
-    //       "userid": this.userid
-    //     }).then(res => {
-    //       console.log(res);
-    //       if (res.code === 200) {
-    //         console.log(res.data);
-    //         this.$message({
-    //           message: '审核成功',
-    //           type: 'success'
-    //         });
-    //         if (this.role === "1" || this.role === "2") {
-    //           this.$router.push({
-    //             name: 'DpAuditList'
-    //           });
-    //         }
-    //         else if (this.role === "3" || this.role === "4") {
-    //           this.$router.push({
-    //             name: 'HrAuditList'
-    //           });
-    //         }
-    //         else {
-    //           this.$router.push({
-    //             name: 'ScAuditList'
-    //           });
-    //         }
-    //       }
-    //       else {
-    //         this.$message.error(res.message);
-    //       }
-    //     })
 
-    //   }
-
-
-    // },
     rowChick (row, event, column) {
       let isShow = 0;
       if (row.departmentStatus === "0") isShow = 1;
@@ -342,7 +271,7 @@ export default {
           "userid": this.id,
           "username": this.searchInfo.username
         }).then(res => {
-          console.log(res);
+          console.log("getRevokeAuditSelected",res);
           if (res.code === 200) {
             this.tableData = res.data.records;
             this.pageSize = res.data.size;
@@ -351,6 +280,7 @@ export default {
         })
       }
     },
+
     handleCurrentChange (val) {
       if (this.searchInfo.department === "null" && this.searchInfo.username === "null" && this.searchInfo.selectuserid === "null") {
         getAuditLoadingDataByUserId({ "pageNum": val, "userid": this.id }).then(res => {
@@ -404,6 +334,8 @@ export default {
 /* 搜索 */
 .search {
   width: 400px;
+  position: relative;
+  top: -11px;
 }
 .el-select {
   width: 100px;

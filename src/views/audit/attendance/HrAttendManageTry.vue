@@ -21,7 +21,9 @@
         </div>
         <el-date-picker
             v-model="value2"
-            style="float: left;bottom: 5px;"
+
+            style="float: left;
+            bottom: 5px;"
             type="monthrange"
             align="right"
             unlink-panels
@@ -29,20 +31,20 @@
             start-placeholder="开始月份"
             end-placeholder="结束月份"
             :picker-options="pickerOptions">
-          </el-date-picker>
-        <el-table ref="filterTable" :data="tableData" border style="width: 1000px">
-          <el-table-column prop="id" label="序号" width="100">
+        </el-date-picker>
+        <el-table ref="filterTable" :data="tableData" border >
+          <el-table-column prop="id" label="序号" width="130">
           </el-table-column>
           <!-- prop的内容先这样之后记得换 -->
-          <el-table-column prop="leave.user.userId" label="提交时间" width="150">
+          <el-table-column prop="leave.user.userId" label="提交时间" width="180">
           </el-table-column>
           <!-- <el-table-column prop="leave.user.userName" label="名称(月度及学院名)" width="200">
           </el-table-column> -->
-          <el-table-column prop="leave.user.userName" label="所属月度" width="200">
+          <el-table-column prop="leave.user.userName" label="所属月度" width="230">
           </el-table-column>
-          <el-table-column prop="leave.user.userName" label="院系" width="200">
+          <el-table-column prop="leave.user.userName" label="院系" width="230">
           </el-table-column>
-          <el-table-column prop="departmentStatus" label="状态" width="120">
+          <el-table-column prop="departmentStatus" label="状态" width="150">
             <template slot-scope="scope">
               <el-tag :type="scope.row.departmentStatus === '0' ? 'danger'  : 'success'" disable-transitions>
                 {{auditStatus[scope.row.departmentStatus]}}
