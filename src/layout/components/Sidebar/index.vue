@@ -67,8 +67,8 @@ export default {
         commonRoleIndex = (role.indexOf('admin') + 1) % 2 // 获取第二种身份得序号
       }
       role = role[commonRoleIndex] // 非管理员的角色
-      console.log('isAdmin', commonRoleIndex)
-      console.log('isAdmin', role)
+      // console.log('isAdmin', commonRoleIndex)
+      // console.log('isAdmin', role)
 
       // this.$router.options.routes 静态全部页面列表
       this.$router.options.routes.forEach(element => {
@@ -91,23 +91,23 @@ export default {
               var childernArray = []
               // 判断子元素是否有权限查看，当子元素个数为1时则隐藏折叠
               element.children.forEach(childElement => {
-                console.log('====', childElement, role)
+                // console.log('====', childElement, role)
                 if (childElement.meta.roles.indexOf(role) != -1 || childElement.meta.roles.indexOf('admin') != -1) {
                   if (childElement.name === 'DpAuditList') {
                     if (role === 'department_officer') childElement.meta.title = '部门请假初审';
                     else if (role === 'department_leader') childElement.meta.title = '部门请假审核';
                   }
                   else if (childElement.name === 'HrAuditList') {
-                    if (role === 'hr_officer') childElement.meta.title = '人事处请假初审';
-                    else if (role === 'hr_leader') childElement.meta.title = '人事处请假审核';
+                    if (role === 'hr_officer') childElement.meta.title = '学校请假初审';
+                    else if (role === 'hr_leader') childElement.meta.title = '学校请假审核';
                   }
                   else if (childElement.name === 'DpRevokeList') {
                     if (role === 'department_officer') childElement.meta.title = '部门销假初审';
                     else if (role === 'department_leader') childElement.meta.title = '部门销假审核';
                   }
                   else if (childElement.name === 'HrRevokeList') {
-                    if (role === 'hr_officer') childElement.meta.title = '人事处销假初审';
-                    else if (role === 'hr_leader') childElement.meta.title = '人事处销假审核';
+                    if (role === 'hr_officer') childElement.meta.title = '学校销假初审';
+                    else if (role === 'hr_leader') childElement.meta.title = '学校销假审核';
                   }
                   childernArray.push(childElement)
                 }

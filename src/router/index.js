@@ -232,7 +232,7 @@ export const constantRoutes = [{
         meta: {
           title: '销假审核详情',
           icon: 'el-icon-s-check',
-          roles: ['department_officer', 'department_leader', 'hr_officer', 'hr_leader', 'leader_auditor']
+          roles: ['department_leader', 'hr_leader', 'leader_auditor']
         },
         hidden: true
       },
@@ -243,7 +243,7 @@ export const constantRoutes = [{
         meta: {
           title: '部门销假审核',
           icon: 'el-icon-s-check',
-          roles: ['department_officer', 'department_leader']
+          roles: ['department_leader']
         }
       },
       {
@@ -253,7 +253,7 @@ export const constantRoutes = [{
         meta: {
           title: '人事处销假审核',
           icon: 'el-icon-s-check',
-          roles: ['hr_officer', 'hr_leader']
+          roles: ['hr_leader']
         }
       },
 
