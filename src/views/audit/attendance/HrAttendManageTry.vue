@@ -1,32 +1,44 @@
 <template>
   <div class="box">
     <div class="app-container">
-    <h2 class="box-title">考勤记录</h2>
+    <!-- <h2 class="box-title">考勤记录</h2> -->
     <!-- 搜索 -->
-    <div class="search">
+    <!-- <div class="search">
       <el-input placeholder="请输入内容" v-model="input" class="input">
         <el-select v-model="select" slot="prepend" placeholder="请选择">
           <el-option label="院系" value="1"></el-option>
           <el-option label="月度" value="2"></el-option>
           <el-option label="审核状态" value="3"></el-option>
-
         </el-select>
         <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
       </el-input>
-    </div>
+    </div> -->
     <!-- 表格 -->
     <div class="table">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <h3>各学院考勤汇总</h3>
+          <h3>{{ yuanxi }}考勤汇总</h3>
         </div>
+        <el-date-picker
+            v-model="value2"
+            style="float: left;bottom: 5px;"
+            type="monthrange"
+            align="right"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            :picker-options="pickerOptions">
+          </el-date-picker>
         <el-table ref="filterTable" :data="tableData" border style="width: 1000px">
           <el-table-column prop="id" label="序号" width="100">
           </el-table-column>
           <!-- prop的内容先这样之后记得换 -->
           <el-table-column prop="leave.user.userId" label="提交时间" width="150">
           </el-table-column>
-          <el-table-column prop="leave.user.userName" label="名称(月度及学院名)" width="200">
+          <!-- <el-table-column prop="leave.user.userName" label="名称(月度及学院名)" width="200">
+          </el-table-column> -->
+          <el-table-column prop="leave.user.userName" label="所属月度" width="200">
           </el-table-column>
           <el-table-column prop="leave.user.userName" label="院系" width="200">
           </el-table-column>
@@ -69,7 +81,6 @@ export default {
   components: { StepInfo },
   data () {
     return {
-
       auditStatus: ["未审核", "已审核"],
       tableData: [],
       input: '',
@@ -80,6 +91,8 @@ export default {
       currentPage: 1,
       total: 0,
       pageSize: 10,
+
+      // hrStatus:'',
 
       gridData: [
           {
@@ -115,6 +128,31 @@ export default {
       showChangeTime: false,
       changeTime: "",
 
+      pickerOptions: {
+        shortcuts: [{
+          text: '本月',
+          onClick (picker) {
+            picker.$emit('pick', [new Date(), new Date()]);
+          }
+        }, {
+          text: '今年至今',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date(new Date().getFullYear(), 0);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近六个月',
+          onClick (picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setMonth(start.getMonth() - 6);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
+      value1: '',
+      value2: '',
 
       searchInfo: {
         department: "null",
@@ -134,8 +172,8 @@ export default {
     this.id = this.$store.getters.id
     this.init();
     this.initTry();
-    this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
-    console.log(this.info, this.role)
+    this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));
+    console.log("THIS.INFO",this.info, this.role)
     if (this.info.leaveType === "产假" && this.role == 3) {
       this.showChangeTime = true
     }
@@ -145,11 +183,12 @@ export default {
   methods: {
 
     submitListAudit(){
-      //  路径/home对应我在router目录下index.js中定义的path属性值
-          this.$router.push({
-            name:'SummaryAudit'
-          });
-      },
+    //  路径/home对应我在router目录下index.js中定义的path属性值
+        this.$router.push({
+          name:'SummaryAudit'
+        });
+    },
+
     initTry () {
       //判断需要几步
       if (this.info.hrStatus !== "2") this.step += 2;

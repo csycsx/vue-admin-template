@@ -20,20 +20,19 @@
           <h3>考勤记录</h3>
         </div>
         <div class="kaoqing">
-          <el-table :data="gridData"  border style="">            
-            <el-table-column label="姓名" property="name"  ></el-table-column>
-            <el-table-column label="工号" prop="userid"   ></el-table-column>
-            <el-table-column label="事假" prop="shijia"  ></el-table-column>
-            <el-table-column label="病假" prop="bingjia"   ></el-table-column>
-            <el-table-column label="婚假" prop="hunjia"  ></el-table-column>
-            <el-table-column label="生育假" prop="shengyujia" ></el-table-column>
-            <el-table-column label="探亲假" prop="tanqinjia" ></el-table-column>
-            <el-table-column label="丧假" prop="sangjia" ></el-table-column>
-            <el-table-column label="工伤假" prop="gonshangjia" ></el-table-column>
-            <el-table-column label="公差" prop="gongcha"  ></el-table-column>
-            <el-table-column label="旷工" prop="kuanggong"  ></el-table-column>
-            <el-table-column label="其它" prop="qita" ></el-table-column>
-            <el-table-column label="备注" prop="tip" ></el-table-column>
+          <el-table :data="gridData"  border style="">   
+            <el-table-column label="编号" property="id"  ></el-table-column>
+            <el-table-column label="工号" prop="user.id"   ></el-table-column>
+            <el-table-column label="事假" prop="shijiaDays"  ></el-table-column>
+            <el-table-column label="病假" prop="bingjiaDays"   ></el-table-column>
+            <el-table-column label="婚假" prop="hunjiaDays"  ></el-table-column>
+            <el-table-column label="生育假" prop="shengyujiaDays" ></el-table-column>
+            <el-table-column label="探亲假" prop="tanqinjiaDays" ></el-table-column>
+            <el-table-column label="丧假" prop="sangjiaDays" ></el-table-column>
+            <el-table-column label="公差" prop="gongchaiDays"  ></el-table-column>
+            <el-table-column label="旷工" prop="kuanggongDays"  ></el-table-column>
+            <el-table-column label="其它" prop="inactiveDays" ></el-table-column>
+            <el-table-column label="备注" prop="leaveReason" ></el-table-column>
           </el-table>
         </div>
         <div class="block">
@@ -77,6 +76,11 @@
 <script type="text/ecmascript-6">
 import { SingleleaveAudit, getCurrentAuditMsg } from "../../../api/audit";
 import StepInfo from "../components/StepInfo";
+import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
+import { getLeaveHistoryByDept } from '@/api/history'
+import { checkTeachingDate } from "@/api/apply";
+
+
 export default {
   props: ['info'],
   components: { StepInfo },
@@ -128,18 +132,39 @@ export default {
     // let yuanxi = "校办公室"
     //let yuanxi = this.$store.getters.yuanxi
     this.role = this.$store.getters.role_num;
-    this.userid = this.$store.getters.id;
 
+    var myDate = new Date(); //创建Date对象
+    var nowDate = this.changeDateFormat(myDate);
+    checkTeachingDate({ checking_date: nowDate }).then((res) => {
+        if (res.code === 200) {
+          this.week = res.data.dateIndex;
+        }
+      });
+      this.userid = this.$store.getters.id;
+      this.name = this.$store.getters.name;
+      this.dept = this.$store.getters.yuanxi;
+      this.year = "2023";
+      this.month = "5"  
 
+      let param = { 
+        "year": this.year,
+        "month": this.month,
+        "dept": this.dept 
+      }
+
+      getLeaveHistoryByDept(param).then(res => {
+        console.log("res",res);
+        this.gridData = res.data.records
+      })
 
   },
   mounted () {
-    this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
-    console.log(this.info, this.role)
-    if (this.info.leaveType === "产假" && this.role == 3) {
-      this.showChangeTime = true
-    }
-    this.init();
+    // this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
+    // console.log(this.info, this.role)
+    // if (this.info.leaveType === "产假" && this.role == 3) {
+    //   this.showChangeTime = true
+    // }
+    // this.init();
   },
   methods: {
     handleChange (val) {
@@ -148,7 +173,24 @@ export default {
     handleClose (done) {
       this.dialogVisible = false;
     },
-  
+
+
+
+    changeDateFormat (date) {
+        var myDate = new Date(date);
+        var Y = myDate.getFullYear(); //获取当前完整年份
+        var M = myDate.getMonth() + 1; //获取当前月份
+        var D = myDate.getDate(); //获取当前日1-31
+        if (M < 10) {
+          M = "0" + M;
+        }
+        if (D < 10) {
+          D = "0" + D;
+        }
+        var nowDate = Y + "-" + M + "-" + D;
+        return nowDate;
+      },
+
     onSubmit () {
       if (this.check.result === "不通过" && this.check.recomment === "") {
         this.$notify.error({
@@ -191,10 +233,7 @@ export default {
             this.$message.error(res.message);
           }
         })
-
       }
-
-
     },
 
     init () {

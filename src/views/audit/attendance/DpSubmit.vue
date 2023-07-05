@@ -80,6 +80,17 @@
           <div slot="header" class="clearfix">
             <h3>考勤列表</h3>
           </div>
+          <el-date-picker
+            v-model="value2"
+            style="float: left;bottom: 5px;"
+            type="monthrange"
+            align="right"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            :picker-options="pickerOptions">
+          </el-date-picker>
           <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;">
             <el-table-column label="提交时间" prop="gmtModified" width="170" />
             <el-table-column label="请假开始时间" prop="leaveStartTime" width="170" />

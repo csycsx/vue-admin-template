@@ -208,3 +208,22 @@ export function updateLeave(data) {
     data: JSON.stringify(data)
   })
 }
+
+// 部门信息查询
+export function updateSchoolDepartment(data) {
+  return request({
+    url: '/history/updateSchoolDepartment',
+    method: 'get',
+    params: data
+  })
+}
+
+
+// 部门科员1：查看部门考勤汇总
+export function getSchoolDepartment(data) {
+  return request({
+    url: '/school_department/getSchoolDepartment',
+    method: 'get',
+    params: data
+  })
+}
