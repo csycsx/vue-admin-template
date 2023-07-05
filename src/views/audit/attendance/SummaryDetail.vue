@@ -51,6 +51,11 @@
   <script type="text/ecmascript-6">
   import Calendar from "vue-calendar-component";
   import { checkTeachingDate } from "@/api/apply";
+  import JSZipUtils from 'jszip-utils'
+  import PizZip from 'pizzip'
+  import docxtemplater from 'docxtemplater'
+  import { saveAs } from 'file-saver'
+
   import { getMonthByUserId, findUserByUserid, addAdminLeaveForm } from "@/api/audit";
   import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
   import { getLeaveHistoryByDept } from '@/api/history'
@@ -73,6 +78,7 @@
         dateArr: [],
         userList: [],
 
+        info:{},
         isShow: false,      // 默认不显示分页
         tableData: [],
         total: 1,
@@ -135,11 +141,14 @@
       }
 
       getLeaveHistoryByDept(param).then(res => {
-        console.log("res",res);
+        console.log("resresres",res);
+        this.info=res.data.records
         this.tableData = res.data.records
       })
     },
-    mounted () { },
+    mounted () {
+
+     },
     methods: {
 
       submitTable() {
@@ -184,11 +193,39 @@
            
         });
       },
+      getWordData () {
+        let data = {};
+        data.nowyear = this.info.year;
+        data.nowmonth = this.info.month;
+        data.department = this.info.department;
+        data.year = this.info.year;
+        data.month = this.info.month;
+        // data.day = this.info.gmtCreate.substring(8,10);
+        // data.username = this.info.user.userName;
+        data.a = this.info.shijiaDays;
+        // data.b = this.detailInfo.leaveEndTime.substring(0, 4);
+        // data.c = this.detailInfo.leaveEndTime.substring(5, 7);
+        // data.d = this.detailInfo.leaveEndTime.substring(8, 10);
+        // data.e = this.detailInfo.leaveReason;
+        // if (this.detailInfo.departmentStatus !== "2" && this.stepInfo.departmentAuditMsg !== "尚未进行部门审核") {
+        //   data.departmentResult = this.stepInfo.departmentAuditMsg.dpLeaderResult + ',' + this.stepInfo.departmentAuditMsg.dpLeaderRecommend;
+        // }
+        // if (this.detailInfo.hrStatus !== "2" && this.stepInfo.hrAuditMsg !== "尚未进行人事处审核") {
+        //   data.hrResult = this.stepInfo.hrAuditMsg.hrLeaderResult + ',' + this.stepInfo.hrAuditMsg.hrLeaderRecommend;
+        // }
+        // if (this.detailInfo.schoolStatus !== "2" && this.stepInfo.schoolAuditMsg !== "尚未进行校领导审核") {
+        //   data.scResult = this.stepInfo.schoolAuditMsg.scLeaderResult + ',' + this.stepInfo.schoolAuditMsg.scLeaderRecommend;
+        // }
+        console.log('111' + data);
+        return data;
+      },
       exportTable () {
+        console.log("@@@this.info",this.info);
+
       let that = this;
       let data = that.getWordData();
       // 读取并获得模板文件的二进制内容
-      JSZipUtils.getBinaryContent("上海大学教职工请假申请表模板.docx", function (error, content) {
+      JSZipUtils.getBinaryContent("/考勤汇总表.docx", function (error, content) {
         // model.docx是模板。我们在导出的时候，会根据此模板来导出对应的数据
         // 抛出异常
         if (error) {
@@ -222,7 +259,7 @@
           mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         });
         // 将目标文件对象保存为目标类型的文件，并命名
-        saveAs(out, "上海大学教职工请假申请表.docx");
+        saveAs(out, "考勤汇总表.docx");
       });
     },
       exportTable0(){
