@@ -30,25 +30,6 @@
           <el-row>
             <el-col :span="8">
               <el-form-item label="考勤人工号" prop="userid">
-                <!-- <el-select
-                    v-model="form.id"
-                    filterable
-                    placeholder="请输入工号"
-                    @change="getDateArr"
-                  >
-                    <el-option
-                      v-for="item in userList"
-                      :key="item.userId"
-                      :label="item.userId"
-                      :value="item.userId"
-                    >
-                      <span style="float: left">{{ item.userId }}</span>
-                      <span
-                        style="float: right; color: #8492a6; font-size: 13px"
-                        >{{ item.userName }}</span
-                      >
-                    </el-option>
-                  </el-select> -->
                 <el-input v-model="form.id" placeholder="请输入补录用户的工号" @change="changeUserIdInput"></el-input>
               </el-form-item>
             </el-col>
@@ -115,40 +96,6 @@
           </el-pagination>
         </el-card>
       </div>
-
-      <!-- <el-dialog width="70%" title="考勤汇总表" :visible.sync="attendanceSummaryTable">
-          <el-date-picker
-            v-model="value2"
-            style="float: left;bottom: 5px;"
-            type="monthrange"
-            align="right"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始月份"
-            end-placeholder="结束月份"
-            :picker-options="pickerOptions">
-          </el-date-picker>
-          <el-button style="float: right; padding: 3px 0 8px 0" type="text" @click="exportTable">导出汇总表</el-button>
-          <el-table :data="gridData"  border style="width: 100%">
-            <el-table-column label="姓名" property="name" width="130" height="100" ></el-table-column>
-            <el-table-column label="工号" prop="gmtModified" width="130" height="100" ></el-table-column>
-            <el-table-column label="事假" prop="leaveStartTime" width="80" ></el-table-column>
-            <el-table-column label="病假" prop="leaveEndTime" width="80" ></el-table-column>
-            <el-table-column label="婚假" prop="leaveType" width="80" ></el-table-column>
-            <el-table-column label="生育假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="探亲假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="丧假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="丧假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="公差" prop="leaveReason" width="80" ></el-table-column>
-            <el-table-column label="旷工" prop="leaveReason" width="80" ></el-table-column>
-            <el-table-column label="其它" prop="leaveReason" width="130"></el-table-column>
-            <el-table-column label="备注" prop="leaveReason" width="130"></el-table-column>
-          </el-table>
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="attendanceSummaryTable = false">取 消</el-button>
-            <el-button type="primary" @click="submitTable">提 交</el-button>
-          </div>
-        </el-dialog> -->
     </el-card>
   </div>
 </template>
@@ -156,7 +103,7 @@
   <script type="text/ecmascript-6">
 import Calendar from "vue-calendar-component";
 import { checkTeachingDate } from "@/api/apply";
-import { getMonthByUserId, findUserByUserid, addAdminLeaveForm } from "@/api/audit";
+import { getMonthByUserId, findUserByUserid, addAdminLeaveForm ,addHistory} from "@/api/audit";
 import { findLeaveFormByUserid, findLeaveByDept, quashLeaveById } from "@/api/apply"
 
 export default {
@@ -188,18 +135,6 @@ export default {
 
 
       attendanceSummaryTable: false,
-      gridData: [
-        {
-          name: '王小虎',
-        }, {
-          name: '王小虎',
-        }, {
-          name: '王小虎',
-        }, {
-          name: '王小虎',
-        }, {
-          name: '王小虎',
-        },],
 
       pickerOptions: {
         shortcuts: [{
@@ -224,7 +159,6 @@ export default {
           }
         }]
       },
-      value1: '',
       value2: '',
 
 
@@ -271,41 +205,81 @@ export default {
   created () {
     this.userid = this.$store.getters.id;
     this.dept = this.$store.getters.yuanxi;
-    this.year = "2023";
-    this.month = "5"
-    let param = { 
-      "year": this.year,
-      "month": this.month,
-      "dept": this.dept 
-    }
+    console.log("this.$store.getters",this.$store.getters)
 
-    var myDate = new Date(); //创建Date对象
-    var nowDate = this.changeDateFormat(myDate);
-    checkTeachingDate({ checking_date: nowDate }).then((res) => {
-      if (res.code === 200) {
-        this.week = res.data.dateIndex;
-      }
-    });
-    console.log(param)
-    findLeaveByDept(param).then(res => {
-      if (res.code === 200) {
-        this.tableData = res.data.records;
-        // 获取总记录数
-        this.total = res.data.total;
-        // 获取每页的条数
-        this.pageSize = res.data.size;
-        // 请求成功后判断总记录数，如少于11条则不做分页
-        if (this.total > 10) {
-          this.isShow = true;
-        }
-      }
-    })
+    this.year = "2023";
+    this.month = "6"
+    // let param = { 
+    //   "year": this.year,
+    //   "month": this.month,
+    //   "dept": this.dept 
+    // }
+
+    // var myDate = new Date(); //创建Date对象
+    // var nowDate = this.changeDateFormat(myDate);
+    // checkTeachingDate({ checking_date: nowDate }).then((res) => {
+    //   if (res.code === 200) {
+    //     this.week = res.data.dateIndex;
+    //   }
+    // });
+    // console.log("param",param)
+    // findLeaveByDept(param).then(res => {
+    //   if (res.code === 200) {
+    //     console.log("resres",res)
+    //     this.tableData = res.data.records;
+    //     // 获取总记录数
+    //     this.total = res.data.total;
+    //     // 获取每页的条数
+    //     this.pageSize = res.data.size;
+    //     // 请求成功后判断总记录数，如少于11条则不做分页
+    //     if (this.total > 10) {
+    //       this.isShow = true;
+    //     }
+    //   }
+    // })
     this.userid = this.$store.getters.id;
     this.name = this.$store.getters.name;
     this.dept = this.$store.getters.yuanxi;
   },
-  mounted () { },
+  mounted () { 
+    this.init()
+  },
   methods: {
+
+    init(){
+      findLeaveByDept({
+        "year": this.year,
+        "month": this.month,
+        "dept": this.dept 
+      }).then(res => {
+        if (res.code === 200) {
+          console.log("findLeaveByDeptresres",res)
+          this.tableData = res.data.records;
+          // 获取总记录数
+          this.total = res.data.total;
+          // 获取每页的条数
+          this.pageSize = res.data.size;
+          // 请求成功后判断总记录数，如少于11条则不做分页
+          if (this.total > 10) {
+            this.isShow = true;
+          }
+        }
+      })
+    },
+     //点击某条信息，跳转详情页面
+     submitAttend () {
+      //  路径/home对应我在router目录下index.js中定义的path属性值
+      this.$router.push({
+        name: 'SummaryDetail'
+      });
+    },
+    rowChick (row, event, column) {
+      const leaveDetail = JSON.stringify(row);
+      window.sessionStorage.setItem('leaveDetail', leaveDetail);
+      this.$router.push({
+        name: 'DetailLeave'
+      })
+    },
     //输入用户数据后提示当前是否存在该用户或是否为空
     changeUserIdInput () {
       if (this.form.id == null) {
@@ -399,6 +373,7 @@ export default {
         }
       });
     },
+
     addAttend () {
       if (this.form.id == null || this.form.region == null) {
         this.$message.error("补录考勤工号或补录请假类型为空！");
@@ -440,45 +415,8 @@ export default {
 
       }
     },
-    submitTable () {
-      this.$confirm('当前表格内容将提交下一级审核，是否确认？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '提交成功!'
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消提交'
-        });
-      });
-    },
-    exportTable () {
-      this.$confirm('当前表格内容将导出，是否确认？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '导出成功!'
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消导出'
-        });
-      });
-      var url = this.info.leaveMaterial.replace("/leaveMaterial", "")
-      window.open(url);
-    },
-    // submitAttend(){
-    //   this.attendanceSummaryTable = true
-    // },
+  
+  
     /**
  * 选择查询
  */
@@ -495,40 +433,6 @@ export default {
           this.tableData = res.data.records;
         }
       });
-    },
-
-    //点击某条信息，跳转详情页面
-    submitAttend () {
-      //  路径/home对应我在router目录下index.js中定义的path属性值
-      this.$router.push({
-        name: 'SummaryDetail'
-      });
-    },
-    rowChick (row, event, column) {
-      const leaveDetail = JSON.stringify(row);
-      window.sessionStorage.setItem('leaveDetail', leaveDetail);
-      this.$router.push({
-        name: 'DetailLeave'
-      })
-    },
-    //撤销某条请假申请信息
-    deleteRow (row, tableData) {
-      console.log("将撤销：", row);
-      this.$confirm('确认撤销请假申请？')
-        .then(_ => {
-          let param = {
-            "leave-id": row.id
-          }
-          quashLeaveById(param).then(res => {
-            if (res.code === 200) {
-              this.$message.success("撤销成功");
-              this.reload();
-            } else {
-              this.$message.error("撤销失败");
-            }
-          })
-        })
-        .catch(_ => { });
     },
   },
 };

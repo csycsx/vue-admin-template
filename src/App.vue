@@ -23,7 +23,6 @@ export default {
  * 
  * 浏览器关闭时会清空sessionStorage
  * 2022.12.09 by spark chen 
- * **
  * 
  */  
   created(){
