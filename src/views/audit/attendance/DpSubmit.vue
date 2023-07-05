@@ -80,17 +80,10 @@
           <div slot="header" class="clearfix">
             <h3>考勤列表</h3>
           </div>
-          <el-date-picker
-            v-model="value2"
-            style="float: left;bottom: 5px;"
-            type="monthrange"
-            align="right"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始月份"
-            end-placeholder="结束月份"
-            :picker-options="pickerOptions">
+          <el-date-picker v-model="value2" style="float: left;bottom: 5px;" type="month" :placeholder="defaultdate"
+            @change="dateChange">
           </el-date-picker>
+
           <el-table :data="tableData" border max-height="700px" style="width: 100%; height: auto; margin: 0px auto;">
             <el-table-column label="提交时间" prop="gmtModified" width="170" />
             <el-table-column label="请假开始时间" prop="leaveStartTime" width="170" />
@@ -116,39 +109,6 @@
         </el-card>
       </div>
 
-      <!-- <el-dialog width="70%" title="考勤汇总表" :visible.sync="attendanceSummaryTable">
-          <el-date-picker
-            v-model="value2"
-            style="float: left;bottom: 5px;"
-            type="monthrange"
-            align="right"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始月份"
-            end-placeholder="结束月份"
-            :picker-options="pickerOptions">
-          </el-date-picker>
-          <el-button style="float: right; padding: 3px 0 8px 0" type="text" @click="exportTable">导出汇总表</el-button>
-          <el-table :data="gridData"  border style="width: 100%">
-            <el-table-column label="姓名" property="name" width="130" height="100" ></el-table-column>
-            <el-table-column label="工号" prop="gmtModified" width="130" height="100" ></el-table-column>
-            <el-table-column label="事假" prop="leaveStartTime" width="80" ></el-table-column>
-            <el-table-column label="病假" prop="leaveEndTime" width="80" ></el-table-column>
-            <el-table-column label="婚假" prop="leaveType" width="80" ></el-table-column>
-            <el-table-column label="生育假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="探亲假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="丧假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="丧假" prop="leaveReason" width="80"></el-table-column>
-            <el-table-column label="公差" prop="leaveReason" width="80" ></el-table-column>
-            <el-table-column label="旷工" prop="leaveReason" width="80" ></el-table-column>
-            <el-table-column label="其它" prop="leaveReason" width="130"></el-table-column>
-            <el-table-column label="备注" prop="leaveReason" width="130"></el-table-column>
-          </el-table>
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="attendanceSummaryTable = false">取 消</el-button>
-            <el-button type="primary" @click="submitTable">提 交</el-button>
-          </div>
-        </el-dialog> -->
     </el-card>
   </div>
 </template>
@@ -188,44 +148,10 @@ export default {
 
 
       attendanceSummaryTable: false,
-      gridData: [
-        {
-          name: '王小虎',
-        }, {
-          name: '王小虎',
-        }, {
-          name: '王小虎',
-        }, {
-          name: '王小虎',
-        }, {
-          name: '王小虎',
-        },],
 
-      pickerOptions: {
-        shortcuts: [{
-          text: '本月',
-          onClick (picker) {
-            picker.$emit('pick', [new Date(), new Date()]);
-          }
-        }, {
-          text: '今年至今',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date(new Date().getFullYear(), 0);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近六个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setMonth(start.getMonth() - 6);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
-      },
       value1: '',
       value2: '',
+      defaultdate: '',
 
 
       options2: [
@@ -269,14 +195,22 @@ export default {
     };
   },
   created () {
+    var date = new Date();
+    this.year = date.getFullYear(); //获取当前完整年份
+    this.month = date.getMonth() + 1; //获取当前月份
+
+    if (this.month < 10) {
+      this.month = "0" + this.month;
+    }
+    this.defaultdate = this.year + '-' + this.month;
     this.userid = this.$store.getters.id;
     this.dept = this.$store.getters.yuanxi;
-    this.year = "2023";
-    this.month = "5"
-    let param = { 
+    this.name = this.$store.getters.name;
+
+    let param = {
       "year": this.year,
       "month": this.month,
-      "dept": this.dept 
+      "dept": this.dept
     }
 
     var myDate = new Date(); //创建Date对象
@@ -300,9 +234,6 @@ export default {
         }
       }
     })
-    this.userid = this.$store.getters.id;
-    this.name = this.$store.getters.name;
-    this.dept = this.$store.getters.yuanxi;
   },
   mounted () { },
   methods: {
@@ -328,6 +259,8 @@ export default {
       var nowDate = Y + "-" + M + "-" + D;
       return nowDate;
     },
+
+
     resetSelect () {
       //重置选中的日期
       this.selectDate = [];
@@ -495,6 +428,34 @@ export default {
           this.tableData = res.data.records;
         }
       });
+    },
+
+    dateChange (value) {
+      console.log("====", value, this.value2)
+      var date = new Date(value);
+      this.year = date.getFullYear(); //获取当前完整年份
+      this.month = date.getMonth() + 1; //获取当前月份
+      if (this.month < 10) {
+        this.month = "0" + this.month;
+      }
+      let param = {
+        "year": this.year,
+        "month": this.month,
+        "dept": this.dept
+      }
+      findLeaveByDept(param).then(res => {
+        if (res.code === 200) {
+          this.tableData = res.data.records;
+          // 获取总记录数
+          this.total = res.data.total;
+          // 获取每页的条数
+          this.pageSize = res.data.size;
+          // 请求成功后判断总记录数，如少于11条则不做分页
+          if (this.total > 10) {
+            this.isShow = true;
+          }
+        }
+      })
     },
 
     //点击某条信息，跳转详情页面
