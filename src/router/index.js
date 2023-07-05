@@ -283,8 +283,8 @@ export const constantRoutes = [{
       },
       // 2用户界面 放部门审核和人事处审核 下面1提交的放考勤汇总表
       {
-        path: 'dpAttendanceAudit',
-        name: 'DpAttendanceAudit',
+        path: 'attendanceAuditTry',
+        name: 'AttendanceAuditTry',
         component: () => import('@/views/audit/attendance/AttendanceAuditTry'),
         meta: {
           title: '考勤管理',

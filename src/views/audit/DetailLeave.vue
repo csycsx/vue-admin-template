@@ -131,17 +131,17 @@
 
 <script type="text/ecmascript-6">
 import { init } from 'events';
-import { SingleleaveAudit, getCurrentAuditMsg } from "../../api/audit";
+import { SingleleaveAudit, getCurrentAuditMsg, updateLeave } from "../../api/audit";
 import { getReferenceLeaveDay } from "@/api/apply"
 import StepInfo from "./components/StepInfo";
 export default {
-  props: ['info'],
+  // props: ['info'],
   components: { StepInfo },
   data () {
     return {
       role: "",
-      userid: "",
-      //info: {},
+      userNum: "",
+      info: {},
       step: 2,
       active: 0,
       check: {
@@ -170,7 +170,7 @@ export default {
     // let yuanxi = "校办公室"
     //let yuanxi = this.$store.getters.yuanxi
     this.role = this.$store.getters.role_num;
-    this.userid = this.$store.getters.id;
+    this.userNum = this.$store.getters.id;
 
 
 
@@ -195,53 +195,6 @@ export default {
       var url = this.info.leaveMaterial.replace("/leaveMaterial", "")
       window.open(url);
     },
-    onSubmit () {
-      if (this.check.result === "不通过" && this.check.recomment === "") {
-        this.$notify.error({
-          title: '错误',
-          message: '审核不通过请填写理由'
-        });
-      }
-      else {
-        SingleleaveAudit({
-          "id": this.info.id,
-          "recommend": this.check.recomment,
-          "result": this.check.result,
-          "role": this.role,
-          "userid": this.userid
-        }).then(res => {
-          console.log(res);
-          if (res.code === 200) {
-            console.log(res.data);
-            this.$message({
-              message: '审核成功',
-              type: 'success'
-            });
-            if (this.role === "1" || this.role === "2") {
-              this.$router.push({
-                name: 'DpAuditList'
-              });
-            }
-            else if (this.role === "3" || this.role === "4") {
-              this.$router.push({
-                name: 'HrAuditList'
-              });
-            }
-            else {
-              this.$router.push({
-                name: 'ScAuditList'
-              });
-            }
-          }
-          else {
-            this.$message.error(res.message);
-          }
-        })
-
-      }
-
-
-    },
     getTime () {
       console.log("111111Time");
       getReferenceLeaveDay({
@@ -253,9 +206,103 @@ export default {
           this.leaveTime = res.data + '天';
         }
       })
+    },
+    SingleleaveAuditApi () {
+      SingleleaveAudit({
+        "id": this.info.id,
+        "recommend": this.check.recomment,
+        "result": this.check.result,
+        "role": this.role,
+        "userid": this.userNum
+      }).then(res => {
+        console.log(res);
+        if (res.code === 200) {
+          console.log(res.data);
+          this.$message({
+            message: '审核成功',
+            type: 'success'
+          });
+          if (this.role === "1" || this.role === "2") {
+            this.$router.push({
+              name: 'DpAuditList'
+            });
+          }
+          else if (this.role === "3" || this.role === "4") {
+            this.$router.push({
+              name: 'HrAuditList'
+            });
+          }
+          else {
+            this.$router.push({
+              name: 'ScAuditList'
+            });
+          }
+        }
+        else {
+          this.$message.error(res.message);
+        }
+      })
 
     },
+    getDateFormat (date) {
+      var seperator1 = "-";
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var strDate = date.getDate();
+      if (month >= 1 && month <= 9) {
+        month = "0" + month;
+      }
+      if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+      }
+      var day = year + seperator1 + month + seperator1 + strDate;
+      return day;
 
+    },
+    onSubmit () {
+      if (this.check.result === "不通过" && this.check.recomment === "") {
+        this.$notify.error({
+          title: '错误',
+          message: '审核不通过请填写理由'
+        });
+      }
+      else {
+        console.log(this.changeTime);
+        if (this.changeTime !== "") {
+          let day = this.getDateFormat(this.changeTime);
+          this.$confirm('你是否将产假结束时间核定为' + day, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            let formData = {
+              id: this.info.id,
+              leaveEndTime: day
+            };
+            console.log(formData);
+            updateLeave(formData).then(res => {
+              if (res.code === 200) {
+                this.$message({
+                  type: 'success',
+                  message: '核定产假时间成功'
+                });
+                this.SingleleaveAuditApi();
+              }
+            })
+
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '请重新核定产假时间'
+            });
+          });
+        }
+        else {
+          this.SingleleaveAuditApi();
+        }
+
+      }
+    },
     init () {
       //判断需要几步
       if (this.info.hrStatus !== "2") this.step += 2;
@@ -279,9 +326,6 @@ export default {
         }
       }
       this.getDetail()
-
-
-
     },
     getDetail () {
       getCurrentAuditMsg({ "leave_id": this.info.id }).then(res => {
@@ -322,6 +366,8 @@ export default {
       })
     }
   },
+
+
 }
 </script>
 

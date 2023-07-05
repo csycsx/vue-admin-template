@@ -252,3 +252,40 @@ export function getSchoolDepartment(data){
     params:data
   })
 }
+
+
+export function findHistoryAudit(data){
+  return request({
+    url:'/historyAudit/findHistoryAudit',
+    method:'get',
+    params:data
+  })
+}
+
+// 考勤审核
+export function singleHistoryAudit(data){
+  return request({
+    url:'/historyAudit/singleHistoryAudit',
+    method:'post',
+    params:data
+  })
+}
+
+
+// 新增一条考勤历史记录addAttend
+export function addHistory(data){
+  return request({
+    url:'/history/addHistory',
+    method:'post',
+    params:data
+  })
+}
+
+// 查找本部门月度请假记录findLeaveByDept
+export function findLeaveByDept(data) {
+  return request({
+    url: '/history/findLeaveByDept',
+    method: 'get',
+    params: data
+  })
+}

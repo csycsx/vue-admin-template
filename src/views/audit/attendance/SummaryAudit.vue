@@ -5,11 +5,9 @@
       <!-- 审核步骤 -->
       <div class="box-step">
         <el-steps :active=active finish-status="success" align-center>
-          <el-step title="部门初审"></el-step>
-          <el-step title="部门审核"></el-step>
+          <el-step v-if="step>1" title="部门审核"></el-step>
           <el-step v-if="step>2" title="人事处初审"></el-step>
-          <el-step v-if="step>2" title="人事处审核"></el-step>
-          <el-step v-if="step>4" title="校领导审核"></el-step>
+          <!-- <el-step v-if="step>1" title="人事处审核"></el-step> -->
         </el-steps>
       </div>
       <!-- 请假信息表单 -->
@@ -17,10 +15,10 @@
    <div class="table">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <h3>考勤记录</h3>
+          <h3>{{ this.dept }} {{this.month}}月考勤记录</h3>
         </div>
         <div class="kaoqing">
-          <el-table :data="gridData"  border style="">   
+          <el-table :data="tableData"  border style="">   
             <el-table-column label="编号" property="id"  ></el-table-column>
             <el-table-column label="工号" prop="user.id"   ></el-table-column>
             <el-table-column label="事假" prop="shijiaDays"  ></el-table-column>
@@ -35,13 +33,37 @@
             <el-table-column label="备注" prop="leaveReason" ></el-table-column>
           </el-table>
         </div>
-        <div class="block">
+        <!-- <div class="block">
           <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize"
             layout="total, prev, pager, next, jumper" :total="total">
           </el-pagination>
-        </div>
+        </div> -->
       </el-card>
     </div>
+     <!-- 审核详情 -->
+      <div class="detail-box">
+        <!-- <el-button type="text" @click="dialogVisible = true">点击查看审核详情</el-button> -->
+        <el-dialog title="审核详情" :visible.sync="dialogVisible" width="60%" :before-close="handleClose">
+          <el-collapse v-model="activeNames" @change="handleChange">
+            <el-collapse-item title="部门人事初审信息" name="1" v-if="active>0">
+              <StepInfo :step-info="stepInfo1" />
+            </el-collapse-item>
+            <el-collapse-item title="部门负责人审核信息" name="2" v-if="active>0">
+              <StepInfo :step-info="stepInfo2" />
+            </el-collapse-item>
+            <el-collapse-item title="人事处科员初审信息" name="3" v-if="active>2">
+              <StepInfo :step-info="stepInfo3" />
+            </el-collapse-item>
+            <el-collapse-item title="人事处负责人审核信息" name="4" v-if="active>3">
+              <StepInfo :step-info="stepInfo4" />
+            </el-collapse-item>
+            <!-- <el-collapse-item title="校领导审核信息" name="4" v-if="active>4">
+              <StepInfo :step-info="stepInfo5" />
+            </el-collapse-item> -->
+          </el-collapse>
+
+        </el-dialog>
+      </div>
       <!-- 审核结果 -->
       <div class="check-box" v-if="isShow ">
         <el-form ref="form" :model="check" label-width="80px">
@@ -74,124 +96,93 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { SingleleaveAudit, getCurrentAuditMsg } from "../../../api/audit";
+import { singleHistoryAudit, getCurrentAuditMsg } from "../../../api/audit";
 import StepInfo from "../components/StepInfo";
-import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
 import { getLeaveHistoryByDept } from '@/api/history'
-import { checkTeachingDate } from "@/api/apply";
-
 
 export default {
-  props: ['info'],
+  // props: ['info'],
   components: { StepInfo },
   data () {
     return {
       role: "",
       userid: "",
-      //info: {},
+      info: {},
       step: 2,
       active: 0,
       check: {
         result: "",
         recomment: "",
-
       },
+      
       isShow: 0,
       isFinish: 0,
       dialogVisible: false,
+      activeNames: ['1'],
       stepInfo1: {},
       stepInfo2: {},
       stepInfo3: {},
       stepInfo4: {},
       stepInfo5: {},
       showChangeTime: false,
-      changeTime: "",
+      // changeTime: "",
+      leaveTime: "",
 
+      year:"",
+      month:"",
+      dept:"",
+
+      tableData:[],
 
       currentPage: 1,
       total: 0,
       pageSize: 10,
 
-      gridData: [
-          {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          }, {
-          name: '王小虎',
-          },],
-
     }
   },
   created () {
     let yuanxi = this.$store.getters.yuanxi
-    // let yuanxi = "校办公室"
-    //let yuanxi = this.$store.getters.yuanxi
     this.role = this.$store.getters.role_num;
 
-    var myDate = new Date(); //创建Date对象
-    var nowDate = this.changeDateFormat(myDate);
-    checkTeachingDate({ checking_date: nowDate }).then((res) => {
-        if (res.code === 200) {
-          this.week = res.data.dateIndex;
-        }
-      });
-      this.userid = this.$store.getters.id;
-      this.name = this.$store.getters.name;
-      this.dept = this.$store.getters.yuanxi;
-      this.year = "2023";
-      this.month = "5"  
-
-      let param = { 
-        "year": this.year,
-        "month": this.month,
-        "dept": this.dept 
-      }
-
-      getLeaveHistoryByDept(param).then(res => {
-        console.log("res",res);
-        this.gridData = res.data.records
-      })
+    this.userid = this.$store.getters.id;
+    this.name = this.$store.getters.name;
+    // this.dept = this.$store.getters.yuanxi;
+    console.log("this.$store.getters",this.$store.getters)
+    // this.year = "2023";
+    // this.month = "5"  
+     
 
   },
   mounted () {
-    // this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
-    // console.log(this.info, this.role)
-    // if (this.info.leaveType === "产假" && this.role == 3) {
-    //   this.showChangeTime = true
-    // }
-    // this.init();
+    this.info = JSON.parse(window.sessionStorage.getItem('attendanceDetail'));
+    console.log("@@@info&role",this.info, this.role)
+
+    this.info1 = JSON.parse(window.sessionStorage.getItem('hAttendanceDetail'));
+
+    this.getDeptList();
+    this.init();
   },
   methods: {
-    handleChange (val) {
-      console.log(val);
+   
+    getDeptList(){
+      this.year=this.info.year
+        this.month=this.info.month
+        this.dept=this.info.department
+      getLeaveHistoryByDept({
+        "year": this.year,
+        "month": this.month,
+        "dept": this.dept 
+      }).then(res => {
+        console.log(" getLeaveHistoryByDeptres",res);
+        this.tableData = res.data.records
+        console.log("this.info.year",this.info.year);
+
+        
+      })
     },
-    handleClose (done) {
-      this.dialogVisible = false;
-    },
-
-
-
-    changeDateFormat (date) {
-        var myDate = new Date(date);
-        var Y = myDate.getFullYear(); //获取当前完整年份
-        var M = myDate.getMonth() + 1; //获取当前月份
-        var D = myDate.getDate(); //获取当前日1-31
-        if (M < 10) {
-          M = "0" + M;
-        }
-        if (D < 10) {
-          D = "0" + D;
-        }
-        var nowDate = Y + "-" + M + "-" + D;
-        return nowDate;
-      },
 
     onSubmit () {
+      console.log("this.check.result",this.check.result)
       if (this.check.result === "不通过" && this.check.recomment === "") {
         this.$notify.error({
           title: '错误',
@@ -199,35 +190,37 @@ export default {
         });
       }
       else {
-        SingleleaveAudit({
-          "id": this.info.id,
+        singleHistoryAudit({
+          "userid": this.id,
+          "dept":this.yuanxi,
+          "month":this.month,
           "recommend": this.check.recomment,
-          "result": this.check.result,
-          "role": this.role,
-          "userid": this.userid
+          "result":this.check.result,
+          "role":this.role,
+          "year": this.year,
         }).then(res => {
-          console.log(res);
+          console.log("resresres",res);
           if (res.code === 200) {
             console.log(res.data);
             this.$message({
               message: '审核成功',
               type: 'success'
             });
-            if (this.role === "1" || this.role === "2") {
+            if (this.role === "2") {
               this.$router.push({
-                name: 'DpAuditList'
+                name: 'AttendanceAuditTry'
               });
             }
             else if (this.role === "3" || this.role === "4") {
               this.$router.push({
-                name: 'HrAuditList'
+                name: 'HrAttendManageTry'
               });
             }
-            else {
-              this.$router.push({
-                name: 'ScAuditList'
-              });
-            }
+            // else {
+            //   this.$router.push({
+            //     name: 'ScAuditList'
+            //   });
+            // }
           }
           else {
             this.$message.error(res.message);
@@ -238,25 +231,31 @@ export default {
 
     init () {
       //判断需要几步
-      if (this.info.hrStatus !== "2") this.step += 2;
-      if (this.info.schoolStatus !== "2") this.step += 1;
-      console.log(this.step);
+      if (this.info.dpLeaderStatus !== "2") this.step += 2;
+      if (this.info.hrStatus !== "2") this.step += 1;
+      console.log("@@@step",this.step);
+      console.log("@@@step",this.info.showStatus);
+
       //判断是否能审核
       if (this.info.showStatus === "待审核") this.isShow = 1;
-      if (this.info.showStatus === "已审核") this.isFinish = 1;
+      if (this.info.showStatus === "审核通过") this.isFinish = 1;
 
       //判断当前正在第几步
-      if (this.info.departmentStatus === "0") this.active = 0;
-      else if (this.info.departmentStatus === "3") this.active = 1;
-      else if (this.info.departmentStatus === "1") {
+      console.log("this.info.dpLeaderStatus",this.info.dpLeaderStatus);
+      console.log("this.info.hrStatus",this.info.hrStatus);
+
+
+      if (this.info.dpLeaderStatus === "1") this.active = 1;
+      // else if (this.info.dpLeaderStatus === "3") this.active = 0;
+      else if (this.info.dpLeaderStatus === "1") {
         if (this.info.hrStatus === "2") { this.active = 2; this.isFinish = 1; }
-        else if (this.info.hrStatus === "0") { this.active = 2; }
-        else if (this.info.hrStatus === "3") { this.active = 3; }
-        else {
-          if (this.info.schoolStatus === "2") { this.active = 4; this.isFinish = 1; }
-          else if (this.info.schoolStatus === "0") this.active = 4;
-          else this.active = 5;
-        }
+        // else if (this.info.hrStatus === "0") { this.active = 2; }
+        // else if (this.info.hrStatus === "3") { this.active = 3; }
+        // else {
+        //   if (this.info.schoolStatus === "2") { this.active = 4; this.isFinish = 1; }
+        //   else if (this.info.schoolStatus === "0") this.active = 4;
+        //   else this.active = 5;
+        // }
       }
       this.getDetail()
 
@@ -289,43 +288,37 @@ export default {
             this.stepInfo4.recommend = res.data.hrAuditMsg.hrLeaderRecommend;
             this.stepInfo4.time = res.data.hrAuditMsg.hrLeaderTime;
           }
-          if (this.step > 4 && res.data.schoolAuditMsg !== "尚未进行校领导审核") {
-            this.stepInfo5.id = res.data.schoolAuditMsg.scOfficerId;
-            this.stepInfo5.name = res.data.schoolAuditMsg.scLeaderName;
-            this.stepInfo5.result = res.data.schoolAuditMsg.scOfficerResult;
-            this.stepInfo5.recommend = res.data.schoolAuditMsg.scOfficerRecommend;
-            this.stepInfo5.time = res.data.schoolAuditMsg.scOfficerTime;
-          }
+          // if (this.step > 4 && res.data.schoolAuditMsg !== "尚未进行校领导审核") {
+          //   this.stepInfo5.id = res.data.schoolAuditMsg.scOfficerId;
+          //   this.stepInfo5.name = res.data.schoolAuditMsg.scLeaderName;
+          //   this.stepInfo5.result = res.data.schoolAuditMsg.scOfficerResult;
+          //   this.stepInfo5.recommend = res.data.schoolAuditMsg.scOfficerRecommend;
+          //   this.stepInfo5.time = res.data.schoolAuditMsg.scOfficerTime;
+          // }
         }
       })
     },
-    handleCurrentChange (val) {
-      if (this.searchInfo.department === "null" && this.searchInfo.username === "null" && this.searchInfo.selectuserid === "null") {
-        getAuditLoadingDataByUserId({ "pageNum": val, "userid": this.id }).then(res => {
-          console.log(res);
-          if (res.code === 200) {
-            this.tableData = res.data.records;
-            this.pageSize = res.data.size;
-            this.total = res.data.total;
-          }
-        })
-      } else {
-        getRevokeAuditSelected({
-          "department": this.searchInfo.department,
-          "pageNum": val,
-          "selectuserid": this.searchInfo.selectuserid,
-          "userid": this.id,
-          "username": this.searchInfo.username
-        }).then(res => {
-          console.log(res);
-          if (res.code === 200) {
-            this.tableData = res.data.records;
-            this.pageSize = res.data.size;
-            this.total = res.data.total;
-          }
-        })
-      }
-    }
+     handleChange (val) {
+      console.log(val);
+    },
+        handleClose (done) {
+      this.dialogVisible = false;
+    },
+  
+    changeDateFormat (date) {
+        var myDate = new Date(date);
+        var Y = myDate.getFullYear(); //获取当前完整年份
+        var M = myDate.getMonth() + 1; //获取当前月份
+        var D = myDate.getDate(); //获取当前日1-31
+        if (M < 10) {
+          M = "0" + M;
+        }
+        if (D < 10) {
+          D = "0" + D;
+        }
+        var nowDate = Y + "-" + M + "-" + D;
+        return nowDate;
+      },
   },
 }
 </script>

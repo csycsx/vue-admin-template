@@ -11,15 +11,10 @@
         </div>
     <!-- 搜索 -->
         <div class="search">
-          <el-input placeholder="请输入内容" v-model="input" class="input">
-            <el-select v-model="select" slot="prepend" placeholder="请选择">
-              <el-option label="院系" value="1"></el-option>
-            </el-select>
-            <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
-          </el-input>
+          <el-input v-model="input" placeholder="请输入查询内容" ></el-input>
         </div>
 
-        <el-table ref="filterTable" :data="tableData" border style="width: 1000px">
+        <el-table ref="filterTable" :data="tables" border style="width: 1000px">
           <el-table-column prop="id" label="序号" width="100">
           </el-table-column>
           <el-table-column prop="department" label="院系" width="300">
@@ -29,8 +24,11 @@
           <el-table-column prop="" label="备注" width="230">
           </el-table-column>
           <el-table-column  label="操作" width="120">
-              <el-button @click=" submitListAudit()" type="text" size="small">查看</el-button>
-          </el-table-column>
+            <template slot-scope="scope">
+              <el-button @click=" rowChick(scope.row)" type="text" size="small">查看</el-button>
+            </template>
+            
+            </el-table-column>
         </el-table>
       </el-card>
     </div>
@@ -65,45 +63,11 @@ export default {
 
 
       dept:[],
-      gridData: [
-          {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          }, {
-          name: '王小虎',
-          },],
+      
 
       active: 0,
       step: 2,
       userid: "",
-
-      options: [],
-        value: [],
-        list: [],
-        loading: false,
-        states: ["Alabama", "Alaska", "Arizona",
-        "Arkansas", "California", "Colorado",
-        "Connecticut", "Delaware", "Florida",
-        "Georgia", "Hawaii", "Idaho", "Illinois",
-        "Indiana", "Iowa", "Kansas", "Kentucky",
-        "Louisiana", "Maine", "Maryland",
-        "Massachusetts", "Michigan", "Minnesota",
-        "Mississippi", "Missouri", "Montana",
-        "Nebraska", "Nevada", "New Hampshire",
-        "New Jersey", "New Mexico", "New York",
-        "North Carolina", "North Dakota", "Ohio",
-        "Oklahoma", "Oregon", "Pennsylvania",
-        "Rhode Island", "South Carolina",
-        "South Dakota", "Tennessee", "Texas",
-        "Utah", "Vermont", "Virginia",
-        "Washington", "West Virginia", "Wisconsin",
-        "Wyoming"],
-
       
       check: {
         result: "",
@@ -121,31 +85,7 @@ export default {
       changeTime: "",
 
 
-      pickerOptions: {
-          shortcuts: [{
-            text: '本月',
-            onClick(picker) {
-              picker.$emit('pick', [new Date(), new Date()]);
-            }
-          }, {
-            text: '今年至今',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date(new Date().getFullYear(), 0);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近六个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setMonth(start.getMonth() - 6);
-              picker.$emit('pick', [start, end]);
-            }
-          }]
-        },
-        value1: '',
-        value2: '',
+
 
       searchInfo: {
         department: "null",
@@ -174,69 +114,78 @@ export default {
     this.yuanxi = this.$store.getters.yuanxi
     this.role = this.$store.getters.role_num
     this.id = this.$store.getters.id
-    // this.init();
     this.SchoolDp();
-    // this.initTry();
-    this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
-    console.log(this.info, this.role)
-    // if (this.info.leaveType === "产假" && this.role == 3) {
-    //   this.showChangeTime = true
-    // }
-
-
+    // this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));
+    // console.log(this.info, this.role)
   },
   
+
+ 
+  // 搜索
+  computed:{
+    tables(){ 
+      const input = this.input
+      if (input) {
+        // console.log("input输入的搜索内容：" + this.input)
+        return this.tableData.filter(data => {
+          console.log("object:" + Object.keys(data))
+          return Object.keys(data).some(key => {
+            return String(data[key]).toUpperCase().indexOf(input) > -1
+
+          })
+        })
+      }
+      return this.tableData
+    }
+   },
+   
+
   methods: {
     
-
     submitListAudit(){
     //  路径/home对应在router目录下index.js中定义的path属性值
         this.$router.push({
           name:'HrAttendManageTry'
+          // name:'AttendanceAuditTry'
+
         });
     },
     
-    SchoolDp () {
-      // getSchoolDepartment({}).then(res => {
-      //   console.log(" getSchoolDepartment",res.data)
-      //   console.log("code",res.code)
-      //   if (res.code === 200) {
-      //     this.tableData = res.data;
-      //     this.dept=this.tableData[0];
-      //     console.log("dept",this.dept)
-      //     console.log("tableData",this.tableData);
-      //   }
-      // })
+    
 
-      getSchoolDepartment({}).then(res => {
-        console.log(" getSchoolDepartment", res.data)
-        if (res.code === 200) {
-          // this.tableData = res.data;
-          let dpArray = res.data;
-          dpArray.forEach((item, index) => {
-            let obj = {
-              id: index+1,
-              department: item
-            }
-            this.tableData.push(obj);
-          })
-          console.log("tableData", this.tableData);
-        }
-      })
+    SchoolDp () {
+      getSchoolDepartment({}).then(res => {
+      console.log(" getSchoolDepartment", res.data)
+        if (res.code === 200) {
+        // this.tableData = res.data;
+        let dpArray = res.data;
+          dpArray.forEach((item, index) => {
+            let obj = {
+              id: index+1,
+              department: item
+            }
+          this.tableData.push(obj);
+          })
+          console.log("tableData", this.tableData);
+        }
+      })
     },
 
 
     rowChick (row, event, column) {
-      let isShow = 0;
-      if (row.departmentStatus === "0") isShow = 1;
-      const leaveDetail = JSON.stringify(row);
-      window.sessionStorage.setItem('revokeDetail', leaveDetail);
+      console.log("departmentDetail",row)
+
+      // let isShow = 0;
+      // if (row.departmentStatus === "0") isShow = 1;
+      const departmentDetail = JSON.stringify(row);
+      console.log("departmentDetail",departmentDetail)
+      window.sessionStorage.setItem('departmentDetail', departmentDetail);
       this.$router.push({
-        name: 'DetailRevoke',    // 详情页传入行参数
-        query: {
-          id: row.id,
-          isShow: isShow
-        }
+        name: 'HrAttendManageTry',    // 详情页传入行参数
+        // query: {
+        //   id: row.id,
+        //   isShow: isShow
+        // }
       })
     },
     search () {
