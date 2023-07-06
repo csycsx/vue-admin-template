@@ -194,19 +194,36 @@
         });
       },
       getWordData () {
-        let data = {};
-        data.nowyear = this.info.year;
-        data.nowmonth = this.info.month;
-        data.department = this.info.department;
-        data.year = this.info.year;
-        data.month = this.info.month;
-        // data.day = this.info.gmtCreate.substring(8,10);
-        // data.username = this.info.user.userName;
-        data.a = this.info.shijiaDays;
-        // data.b = this.detailInfo.leaveEndTime.substring(0, 4);
-        // data.c = this.detailInfo.leaveEndTime.substring(5, 7);
-        // data.d = this.detailInfo.leaveEndTime.substring(8, 10);
-        // data.e = this.detailInfo.leaveReason;
+        console.log("getWordDatainfo",this.info)
+        let data = this.info;
+        let table=this.info;
+        console.log("@@@getWordDatainfo",data)
+
+        // let data = this.tableData;
+          data.forEach((info, index) => {
+            console.log("item,index",info,index)
+            data.nowyear = info.year;
+            data.nowmonth = info.month;
+            data.department = info.department;
+            data.year = info.year;
+            data.month = info.month;
+            data.day = info.gmtCreate.substring(8,10);
+            data.username = info.user.userName;
+            // table.a = info.shijiaDays;
+            data.b = info.bingjiaDays;
+            data.c = info.hunjiaDays;
+            data.d = info.shengyujiaDays;
+            data.e = info.tanqinjiaDays;
+            data.f = info.sangjiaDays;
+            data.g = info.gongshangjiaDays;
+            data.h = info.gongchaiDays;
+            data.i = info.kuanggongDays;
+            console.log("@@@",data.department,table.a,data.b)
+            table.forEach((info,index)=>{
+              table.a = info.shijiaDays;
+              console.log("##",table.a)
+            })
+          })
         // if (this.detailInfo.departmentStatus !== "2" && this.stepInfo.departmentAuditMsg !== "尚未进行部门审核") {
         //   data.departmentResult = this.stepInfo.departmentAuditMsg.dpLeaderResult + ',' + this.stepInfo.departmentAuditMsg.dpLeaderRecommend;
         // }
