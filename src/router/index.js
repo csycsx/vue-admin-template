@@ -232,7 +232,7 @@ export const constantRoutes = [{
         meta: {
           title: '销假审核详情',
           icon: 'el-icon-s-check',
-          roles: ['department_leader', 'hr_leader', 'leader_auditor']
+          roles: ['department_officer', 'department_leader', 'hr_officer', 'hr_leader', 'leader_auditor']
         },
         hidden: true
       },
@@ -243,7 +243,7 @@ export const constantRoutes = [{
         meta: {
           title: '部门销假审核',
           icon: 'el-icon-s-check',
-          roles: ['department_leader']
+          roles: ['department_officer', 'department_leader']
         }
       },
       {
@@ -253,7 +253,7 @@ export const constantRoutes = [{
         meta: {
           title: '人事处销假审核',
           icon: 'el-icon-s-check',
-          roles: ['hr_leader']
+          roles: ['hr_officer', 'hr_leader']
         }
       },
 
@@ -283,8 +283,8 @@ export const constantRoutes = [{
       },
       // 2用户界面 放部门审核和人事处审核 下面1提交的放考勤汇总表
       {
-        path: 'dpAttendanceAudit',
-        name: 'DpAttendanceAudit',
+        path: 'attendanceAuditTry',
+        name: 'AttendanceAuditTry',
         component: () => import('@/views/audit/attendance/AttendanceAuditTry'),
         meta: {
           title: '考勤管理',

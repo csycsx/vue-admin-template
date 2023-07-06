@@ -4,7 +4,7 @@
         <div slot="header" class="clearfix">
           <h3>考勤汇总</h3>
           <el-date-picker
-            v-model="value2"
+            v-model="pickMonthRange"
             style="float: left;bottom: 5px;"
             type="monthrange"
             align="right"
@@ -16,10 +16,10 @@
             :picker-options="pickerOptions">
           </el-date-picker>
           <el-button style="float: right; padding: 3px 0 8px 0" type="text" @click="exportTable">导出汇总表</el-button>
-          <el-table :data="gridData"  border style="">
+          <el-table :data="tableData"  border style="">
             <el-table-column label="起始日期" property="gmtCreate"  :formatter="formatDate"></el-table-column>
             <el-table-column label="结束日期" property="gmtModified" :formatter="formatDate" ></el-table-column>
-            <el-table-column label="编号" property="id"  ></el-table-column>
+            <!-- <el-table-column label="编号" property="id"  ></el-table-column> -->
             <el-table-column label="工号" prop="user.id"   ></el-table-column>
             <el-table-column label="事假" prop="shijiaDays"  ></el-table-column>
             <el-table-column label="病假" prop="bingjiaDays"   ></el-table-column>
@@ -34,17 +34,16 @@
             
           </el-table>
           <div slot="footer" class="dialog-footer">
-            <!-- <el-button @click="attendanceSummaryTable = false">取 消</el-button> -->
             <el-button type="primary" @click="submitTable">提 交</el-button>
+            <el-button type="primary" @click="cancelSubmit">返回考勤页</el-button>
+
           </div>
         </div>
         <div class="table">
         
         </div>
 
-        <!-- <el-dialog width="70%" title="考勤汇总表" :visible.sync="attendanceSummaryTable">
-        
-        </el-dialog> -->
+
       </el-card>
     </div>
   </template>
@@ -52,6 +51,11 @@
   <script type="text/ecmascript-6">
   import Calendar from "vue-calendar-component";
   import { checkTeachingDate } from "@/api/apply";
+  import JSZipUtils from 'jszip-utils'
+  import PizZip from 'pizzip'
+  import docxtemplater from 'docxtemplater'
+  import { saveAs } from 'file-saver'
+
   import { getMonthByUserId, findUserByUserid, addAdminLeaveForm } from "@/api/audit";
   import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
   import { getLeaveHistoryByDept } from '@/api/history'
@@ -74,6 +78,7 @@
         dateArr: [],
         userList: [],
 
+        info:{},
         isShow: false,      // 默认不显示分页
         tableData: [],
         total: 1,
@@ -84,19 +89,6 @@
         auditStatus: ["未审核", "审核通过", "审核不通过", "已撤销", "管理员录入"],
 
 
-        attendanceSummaryTable: false,
-        gridData: [
-          {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          },  {
-          name: '王小虎',
-          }, {
-          name: '王小虎',
-          },],
 
         pickerOptions: {
           shortcuts: [{
@@ -122,47 +114,9 @@
           }]
         },
         value1: '',
-        value2: '',
+        pickMonthRange: '',
     
 
-        options2: [
-          {
-            value: "事假",
-            label: "事假",
-          },
-          {
-            value: "病假",
-            label: "病假",
-          },
-          {
-            value: "婚假",
-            label: "婚假",
-          },
-          {
-            value: "生育假",
-            label: "生育假",
-          },
-          {
-            value: "探亲假",
-            label: "探亲假",
-          },
-          {
-            value: "丧假",
-            label: "丧假",
-          },
-          {
-            value: "因公出差",
-            label: "因公出差",
-          },
-          {
-            value: "工伤假",
-            label: "工伤假",
-          },
-          {
-            value: "旷工",
-            label: "旷工",
-          },
-        ],
       };
     },
     created () {
@@ -187,11 +141,14 @@
       }
 
       getLeaveHistoryByDept(param).then(res => {
-        console.log("res",res);
-        this.gridData = res.data.records
+        console.log("resresres",res);
+        this.info=res.data.records
+        this.tableData = res.data.records
       })
     },
-    mounted () { },
+    mounted () {
+
+     },
     methods: {
 
       submitTable() {
@@ -204,6 +161,9 @@
             type: 'success',
             message: '提交成功!'
           });
+          this.$router.push({
+            name: 'DpSubmit'
+          })    
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -211,7 +171,115 @@
           });          
         });
       },
-      exportTable(){
+
+      cancelSubmit(){
+        this.$confirm('当前表格内容还未提交下一级审核，是否确认返回考勤页？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // this.$message({
+          //   type: 'success',
+          //   message: '返回!'
+          // });
+          this.$router.push({
+                name: 'DpSubmit'
+              })   
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消返回'
+          });     
+           
+        });
+      },
+      getWordData () {
+        console.log("getWordDatainfo",this.info)
+        let data = this.info;
+        let table=this.info;
+        console.log("@@@getWordDatainfo",data)
+
+        // let data = this.tableData;
+          data.forEach((info, index) => {
+            console.log("item,index",info,index)
+            data.nowyear = info.year;
+            data.nowmonth = info.month;
+            data.department = info.department;
+            data.year = info.year;
+            data.month = info.month;
+            data.day = info.gmtCreate.substring(8,10);
+            data.username = info.user.userName;
+            // table.a = info.shijiaDays;
+            data.b = info.bingjiaDays;
+            data.c = info.hunjiaDays;
+            data.d = info.shengyujiaDays;
+            data.e = info.tanqinjiaDays;
+            data.f = info.sangjiaDays;
+            data.g = info.gongshangjiaDays;
+            data.h = info.gongchaiDays;
+            data.i = info.kuanggongDays;
+            console.log("@@@",data.department,table.a,data.b)
+            table.forEach((info,index)=>{
+              table.a = info.shijiaDays;
+              console.log("##",table.a)
+            })
+          })
+        // if (this.detailInfo.departmentStatus !== "2" && this.stepInfo.departmentAuditMsg !== "尚未进行部门审核") {
+        //   data.departmentResult = this.stepInfo.departmentAuditMsg.dpLeaderResult + ',' + this.stepInfo.departmentAuditMsg.dpLeaderRecommend;
+        // }
+        // if (this.detailInfo.hrStatus !== "2" && this.stepInfo.hrAuditMsg !== "尚未进行人事处审核") {
+        //   data.hrResult = this.stepInfo.hrAuditMsg.hrLeaderResult + ',' + this.stepInfo.hrAuditMsg.hrLeaderRecommend;
+        // }
+        // if (this.detailInfo.schoolStatus !== "2" && this.stepInfo.schoolAuditMsg !== "尚未进行校领导审核") {
+        //   data.scResult = this.stepInfo.schoolAuditMsg.scLeaderResult + ',' + this.stepInfo.schoolAuditMsg.scLeaderRecommend;
+        // }
+        console.log('111' + data);
+        return data;
+      },
+      exportTable () {
+        console.log("@@@this.info",this.info);
+
+      let that = this;
+      let data = that.getWordData();
+      // 读取并获得模板文件的二进制内容
+      JSZipUtils.getBinaryContent("/考勤汇总表.docx", function (error, content) {
+        // model.docx是模板。我们在导出的时候，会根据此模板来导出对应的数据
+        // 抛出异常
+        if (error) {
+          throw error;
+        }
+        // 创建一个PizZip实例，内容为模板的内容
+        let zip = new PizZip(content);
+        // 创建并加载docxtemplater实例对象
+        let doc = new docxtemplater().loadZip(zip);
+        // 设置模板变量的值
+
+        doc.setData(data);
+        try {
+          // 用模板变量的值替换所有模板变量
+          doc.render();
+        } catch (error) {
+          // 抛出异常
+          let e = {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+            properties: error.properties
+          };
+          console.log(JSON.stringify({ error: e }));
+          throw error;
+        }
+
+        // 生成一个代表docxtemplater对象的zip文件（不是一个真实的文件，而是在内存中的表示）
+        let out = doc.getZip().generate({
+          type: "blob",
+          mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        });
+        // 将目标文件对象保存为目标类型的文件，并命名
+        saveAs(out, "考勤汇总表.docx");
+      });
+    },
+      exportTable0(){
         this.$confirm('当前表格内容将导出，是否确认？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -263,34 +331,34 @@
         //重置选中的日期
         this.selectDate = [];
       },
-      clickDay (today) {
-        //选中日期
-        var nowDate = this.changeDateFormat(today);
-        //日历组件左上角“教学周”显示
-        checkTeachingDate({ checking_date: nowDate }).then((res) => {
-          if (res.code === 200) {
-            this.week = res.data.dateIndex;
-          }
-        });
-        // today格式为2020/8/7 改为 20200807
-        console.log("当前选中日期===>", today);
-        let existDate = this.selectDate;
-        let isExist = true;
-        for (var i = 0; i < existDate.length; i++) {
-          if (existDate[i].date === today) {
-            console.log("当前日期存已在===>", today);
-            this.selectDate.splice(i, 1);
-            isExist = false;
-          }
-        }
-        if (isExist) {
-          //当前日期存在移除
-          console.log("不存在-添加===>");
-          let tempDate = { date: today, className: "mark1" };
-          this.selectDate.push(tempDate);
-        }
-        console.log("this.selectDate===>", JSON.stringify(this.selectDate));
-      },
+      // clickDay (today) {
+      //   //选中日期
+      //   var nowDate = this.changeDateFormat(today);
+      //   //日历组件左上角“教学周”显示
+      //   checkTeachingDate({ checking_date: nowDate }).then((res) => {
+      //     if (res.code === 200) {
+      //       this.week = res.data.dateIndex;
+      //     }
+      //   });
+      //   // today格式为2020/8/7 改为 20200807
+      //   console.log("当前选中日期===>", today);
+      //   let existDate = this.selectDate;
+      //   let isExist = true;
+      //   for (var i = 0; i < existDate.length; i++) {
+      //     if (existDate[i].date === today) {
+      //       console.log("当前日期存已在===>", today);
+      //       this.selectDate.splice(i, 1);
+      //       isExist = false;
+      //     }
+      //   }
+      //   if (isExist) {
+      //     //当前日期存在移除
+      //     console.log("不存在-添加===>");
+      //     let tempDate = { date: today, className: "mark1" };
+      //     this.selectDate.push(tempDate);
+      //   }
+      //   console.log("this.selectDate===>", JSON.stringify(this.selectDate));
+      // },
       changeDate (data) {
         //左右点击切换月份
         var nowDate = this.changeDateFormat(data);
@@ -333,7 +401,6 @@
     
     
       // submitAttend(){
-      //   this.attendanceSummaryTable = true
       // },
         /**
      * 选择查询
