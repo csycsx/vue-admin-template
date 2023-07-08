@@ -54,7 +54,7 @@
   import { checkTeachingDate } from "@/api/apply";
   import { getMonthByUserId, findUserByUserid, addAdminLeaveForm } from "@/api/audit";
   import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
-  import { getLeaveHistoryByDept } from '@/api/history'
+  import { getLeaveHistoryByDept, singleHistoryAudit } from '@/api/history'
 
   export default {
   inject: ['reload'],
@@ -200,10 +200,35 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '提交成功!'
-          });
+          // let param = {
+          //   year: this.year,
+          //   month: this.month,
+          //   dept: this.$store.getters.yuanxi,
+          //   userid: this.$store.getters.id,
+          //   role: "1",
+          //   result: "通过",
+          //   recommend: "无"
+          // }
+          let formData = new FormData();
+          formData.append("year", this.year);
+          formData.append("month", this.month);
+          formData.append("dept", this.$store.getters.yuanxi);
+          formData.append("userid", this.$store.getters.id);
+          formData.append("role", "1");
+          formData.append("result", "通过");
+          formData.append("recommend", "无");
+          singleHistoryAudit(formData).then(res => {
+            if (res.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '提交成功!'
+              });
+              this.$router.push({
+                name: 'DpAuditList'
+              })
+            }
+          })
+          
         }).catch(() => {
           this.$message({
             type: 'info',

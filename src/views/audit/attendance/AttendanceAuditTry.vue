@@ -22,22 +22,24 @@
           <el-table-column prop="id" label="序号" width="100">
           </el-table-column>
           <!-- prop的内容先这样之后记得换 -->
-          <el-table-column prop="leave.user.userId" label="提交时间" width="100">
+          <el-table-column prop="gmtCreate" label="提交时间">
           </el-table-column>
-          <el-table-column prop="leave.user.userName" label="名称(月度及学院名)" width="180">
+          <el-table-column prop="department" label="名称(月度及学院名)" width="220">
           </el-table-column>
          
-          <el-table-column prop="departmentStatus" label="状态" width="120">
+          <el-table-column prop="dpLeaderStatus" label="状态" width="120">
             <template slot-scope="scope">
-              <el-tag :type="scope.row.departmentStatus === '0' ? 'danger'  : 'success'" disable-transitions>
-                {{auditStatus[scope.row.departmentStatus]}}
+              <el-tag :type="scope.row.dpLeaderStatus === '0' ? 'danger'  : 'success'" disable-transitions>
+                {{auditStatus[scope.row.dpLeaderStatus]}}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="" label="备注" width="150">
+          <el-table-column prop="showStatus" label="备注" width="150">
           </el-table-column>
           <el-table-column  label="操作" width="90">
-              <el-button @click=" submitListAudit()" type="text" size="small">查看</el-button>
+            <template slot-scope="scope">
+              <el-button @click=" submitListAudit(scope.row)" type="text" size="small">查看</el-button>
+            </template>
           </el-table-column>
         </el-table>
       
@@ -59,6 +61,7 @@
 import { getAuditLoadingDataByUserId, getRevokeAuditSelected } from "../../../api/audit";
 import StepInfo from "../components/StepInfo";
 import { SingleleaveAudit, getCurrentAuditMsg } from "../../../api/audit";
+import { findHistoryAudit } from "@/api/history"
 
 
 export default {
@@ -141,12 +144,14 @@ export default {
   
   methods: {
 
-    submitListAudit(){
-      //  路径/home对应我在router目录下index.js中定义的path属性值
-          this.$router.push({
-            name:'SummaryAudit'
-          });
-      },
+    submitListAudit(row){
+      // 路径/home对应我在router目录下index.js中定义的path属性值
+      console.log(row)
+      this.$router.push({
+        name:'SummaryAudit'
+      });
+      sessionStorage.setItem("summaryDetail", JSON.stringify(row));
+    },
     initTry () {
       //判断需要几步
       if (this.info.hrStatus !== "2") this.step += 2;
@@ -172,7 +177,15 @@ export default {
       this.getDetail()
     },
     init () {
-      getAuditLoadingDataByUserId({ "pageNum": this.currentPage, "userid": this.id }).then(res => {
+      let param = {
+        "pageNum": this.currentPage, 
+        "userid": this.id,
+        "year": this.year,
+        "month": this.month,
+        "dept": this.yuanxi
+      }
+      findHistoryAudit(param).then(res => {
+        console.log(res);
         if (res.code === 200) {
           this.tableData = res.data.records;
           this.pageSize = res.data.size;

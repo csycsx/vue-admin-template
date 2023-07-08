@@ -72,3 +72,24 @@ export function getLeaveHistoryByDept(data) {
     params: data
   })
 }
+
+// 考勤待审核查询
+export function findHistoryAudit(data) {
+  return request({
+    url: '/historyAudit/findHistoryAudit',
+    method: 'get',
+    params: data
+  })
+}
+
+// 考勤审核 
+export function singleHistoryAudit(data) {
+  return request({
+    url: '/historyAudit/singleHistoryAudit',
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'   // 设置请求头格式为：x-www-form-urlencoded
+    },
+    data: data
+  })
+}

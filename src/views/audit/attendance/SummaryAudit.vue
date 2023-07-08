@@ -5,11 +5,8 @@
       <!-- 审核步骤 -->
       <div class="box-step">
         <el-steps :active=active finish-status="success" align-center>
-          <el-step title="部门初审"></el-step>
           <el-step title="部门审核"></el-step>
-          <el-step v-if="step>2" title="人事处初审"></el-step>
-          <el-step v-if="step>2" title="人事处审核"></el-step>
-          <el-step v-if="step>4" title="校领导审核"></el-step>
+          <el-step title="人事处审核"></el-step>
         </el-steps>
       </div>
       <!-- 请假信息表单 -->
@@ -43,7 +40,7 @@
       </el-card>
     </div>
       <!-- 审核结果 -->
-      <div class="check-box" v-if="isShow ">
+      <div class="check-box" v-if="isShow === 0">
         <el-form ref="form" :model="check" label-width="80px">
           <el-form-item label="审核结果">
             <el-radio-group v-model="check.result">
@@ -59,10 +56,6 @@
           </el-form-item>
         </el-form>
       </div>
-      <div class="check-notice" v-if="isFinish===0 && isShow===0  ">
-        <i class="el-icon-warning"></i>
-        温馨提示：由于还有未完成的审核流程，因此目前还无需您审核。
-      </div>
       <div class="check-finish" v-if="isFinish===1 ">
         <i class="el-icon-success"></i>
         温馨提示：您已完成审核，无需再审核！
@@ -76,8 +69,7 @@
 <script type="text/ecmascript-6">
 import { SingleleaveAudit, getCurrentAuditMsg } from "../../../api/audit";
 import StepInfo from "../components/StepInfo";
-import { findLeaveFormByUserid, listLeaveByTimePeriodAndAuditStatus, quashLeaveById } from "@/api/apply"
-import { getLeaveHistoryByDept } from '@/api/history'
+import { getLeaveHistoryByDept, singleHistoryAudit } from '@/api/history'
 import { checkTeachingDate } from "@/api/apply";
 
 
@@ -159,12 +151,9 @@ export default {
 
   },
   mounted () {
-    // this.info = JSON.parse(window.sessionStorage.getItem('leaveDetail'));;
-    // console.log(this.info, this.role)
-    // if (this.info.leaveType === "产假" && this.role == 3) {
-    //   this.showChangeTime = true
-    // }
-    // this.init();
+    this.info = JSON.parse(window.sessionStorage.getItem('summaryDetail'));
+    console.log(this.info)
+    this.init();
   },
   methods: {
     handleChange (val) {
@@ -199,64 +188,34 @@ export default {
         });
       }
       else {
-        SingleleaveAudit({
-          "id": this.info.id,
-          "recommend": this.check.recomment,
-          "result": this.check.result,
-          "role": this.role,
-          "userid": this.userid
-        }).then(res => {
-          console.log(res);
-          if (res.code === 200) {
-            console.log(res.data);
-            this.$message({
-              message: '审核成功',
-              type: 'success'
-            });
-            if (this.role === "1" || this.role === "2") {
-              this.$router.push({
-                name: 'DpAuditList'
+        let formData = new FormData();
+          formData.append("year", this.year);
+          formData.append("month", this.month);
+          formData.append("dept", this.$store.getters.yuanxi);
+          formData.append("userid", this.$store.getters.id);
+          formData.append("role", "2");
+          formData.append("result", this.check.result);
+          formData.append("recommend", this.check.recomment);
+          singleHistoryAudit(formData).then(res => {
+            if (res.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '提交成功!'
               });
-            }
-            else if (this.role === "3" || this.role === "4") {
               this.$router.push({
-                name: 'HrAuditList'
-              });
+                name: 'DpAttendanceAudit'
+              })
             }
-            else {
-              this.$router.push({
-                name: 'ScAuditList'
-              });
-            }
-          }
-          else {
-            this.$message.error(res.message);
-          }
-        })
+          })
       }
     },
 
     init () {
-      //判断需要几步
-      if (this.info.hrStatus !== "2") this.step += 2;
-      if (this.info.schoolStatus !== "2") this.step += 1;
-      console.log(this.step);
       //判断是否能审核
-      if (this.info.showStatus === "待审核") this.isShow = 1;
-      if (this.info.showStatus === "已审核") this.isFinish = 1;
-
-      //判断当前正在第几步
-      if (this.info.departmentStatus === "0") this.active = 0;
-      else if (this.info.departmentStatus === "3") this.active = 1;
-      else if (this.info.departmentStatus === "1") {
-        if (this.info.hrStatus === "2") { this.active = 2; this.isFinish = 1; }
-        else if (this.info.hrStatus === "0") { this.active = 2; }
-        else if (this.info.hrStatus === "3") { this.active = 3; }
-        else {
-          if (this.info.schoolStatus === "2") { this.active = 4; this.isFinish = 1; }
-          else if (this.info.schoolStatus === "0") this.active = 4;
-          else this.active = 5;
-        }
+      console.log("showStatus", this.info.showStatus)
+      if (this.info.showStatus === "已审核") {
+        this.isShow = 1;
+        this.isFinish = 1;
       }
       this.getDetail()
 
